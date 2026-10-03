@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja"><head><meta name="robots" content="noindex,nofollow"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>スマホ代の流れ 2026-2028</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+/* Layout: one reading column, four numbered ledgers (pure monthly / cashback+points / one-time costs spread / everything) — a household phone-and-internet bill ledger */
+:root{
+  --bg:#f7f8f6; --paper:#ffffff; --fg:#1c2421; --muted:#5b6661; --line:#d9dfdb;
+  --accent:#0b8a57; --accent-soft:#e5f3ec; --pay:#c2410c; --warn:#b42318; --warn-soft:#fdecea;
+  --display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",sans-serif;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.7}
+.wrap{max-width:940px;margin:0 auto;padding:28px 16px 56px;display:flex;flex-direction:column;gap:32px}
+h1{font-family:var(--display);font-weight:900;font-size:1.8rem;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:6px 0 0;font-size:.9rem}
+h2{font-family:var(--display);font-weight:700;font-size:1.25rem;margin:0 0 4px;display:flex;gap:10px;align-items:baseline;text-wrap:balance}
+h2 .no{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;border-radius:50%;background:var(--accent);color:var(--paper);font-size:.85rem;flex:none}
+h3{font-family:var(--display);font-weight:700;font-size:1rem;margin:14px 0 6px}
+.desc{color:var(--muted);font-size:.88rem;margin:0 0 10px}
+.key{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.tile .l{font-size:.78rem;color:var(--muted)}
+.tile .v{font-family:var(--display);font-weight:900;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.tile .s{font-size:.78rem;color:var(--muted)}
+.tile.in .v{color:var(--pay)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:var(--accent-soft);font-size:.8rem;white-space:nowrap}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.tot td{font-weight:700;background:var(--accent-soft)}
+tr.in td,td.in{color:var(--pay);font-weight:700}
+tr.grp td{font-size:.78rem;font-weight:700;color:var(--muted);background:var(--bg);padding:4px 10px}
+.sub{font-size:.78rem;color:var(--muted);font-weight:400}
+.note{font-size:.84rem;color:var(--muted);margin:8px 0 0}
+section{display:flex;flex-direction:column}
+.warn{background:var(--warn-soft);border:1px solid var(--warn);border-radius:8px;padding:12px 16px}
+.warn h2{color:var(--warn);font-size:1.05rem}
+ul{margin:0;padding-left:1.3em}
+li{margin:3px 0}
+.printbar{display:flex;justify-content:flex-end}
+.printbtn{font:700 1rem var(--body);background:var(--accent);color:#fff;border:0;border-radius:8px;padding:12px 22px;cursor:pointer}
+@page{size:A4;margin:10mm}
+@media print{.printbar{display:none!important}body{font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap{padding:0;gap:12px;max-width:none}table{min-width:0}section,tr,.tile{break-inside:avoid}.tbl{overflow:visible}}
+</style>
+
+</head><body><div class="wrap">
+  <div class="printbar"><button type="button" class="printbtn" onclick="window.print()">この表を印刷する</button></div>
+  <header>
+    <h1>スマホ代の流れ 2026〜2028</h1>
+    <p class="lead">2026年10月〜2028年9月（2台の返却まで）の24カ月分。スマホ4回線＋光回線。金額はすべて実際に払う税込額です。通話料・データ追加は含みません。</p>
+  </header>
+
+  <section class="key">
+    <div class="tile"><div class="l">① 純粋な月々（24カ月平均）</div><div class="v">14,230円</div><div class="s">24カ月で341,530円</div></div>
+    <div class="tile in"><div class="l">② キャッシュバック・ポイント</div><div class="v">＋69,000円</div><div class="s">SB 15,000＋PayPay 30,000＋楽天 24,000</div></div>
+    <div class="tile"><div class="l">③ 返却・手数料を月々に入れると</div><div class="v">15,367円</div><div class="s">一時費用27,280円を24で割って足す</div></div>
+    <div class="tile"><div class="l">④ 全部まとめた実質</div><div class="v">12,492円/月</div><div class="s">24カ月で299,810円</div></div>
+  </section>
+
+  <section>
+    <h2>端末と回線（2026年11月から）</h2>
+    <div class="tbl"><table>
+      <tr><th>端末</th><th>主回線</th><th>副回線</th></tr>
+      <tr><td>iPhone 17</td><td>LINEMO 回線1（ベストプランV・30GB・かけ放題）</td><td>IIJmio データeSIM（2026年10月末で解約）</td></tr>
+      <tr><td>iPhone 17 Pro</td><td>ソフトバンク（ライト4GB）</td><td>楽天モバイル（最強プラン）</td></tr>
+      <tr><td>Android（Shaker）</td><td>LINEMO 回線2（ベストプラン3GB・SIMカード）</td><td>−</td></tr>
+      <tr><td>自宅</td><td colspan="2">IIJmioひかり → 楽天ひかり（事業者変更、10月中に切り替え）</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ① -->
+  <section>
+    <h2><span class="no">1</span>純粋にかかる月々の金額</h2>
+    <p class="desc">キャッシュバック・ポイント・返却時の費用・手数料は入れていません。毎月の請求だけです。</p>
+    <div class="tbl"><table>
+      <tr><th>契約</th><th class="n">2026/10<br><span class="sub">移行月</span></th><th class="n">2026/11</th><th class="n">2026/12〜<br>2027/4<br><span class="sub">5カ月</span></th><th class="n">2027/5〜<br>2027/9<br><span class="sub">5カ月</span></th><th class="n">2027/10〜<br>2028/9<br><span class="sub">12カ月</span></th></tr>
+      <tr class="grp"><td colspan="6">スマホ</td></tr>
+      <tr><td>LINEMO 回線1 <span class="sub">V＋かけ放題</span></td><td class="n">3,523</td><td class="n">3,523</td><td class="n">3,523</td><td class="n">4,073</td><td class="n">4,073</td></tr>
+      <tr><td>LINEMO 回線2 <span class="sub">3GBまで・準定額は4月で外す</span></td><td class="n">993</td><td class="n">993</td><td class="n">993</td><td class="n">993</td><td class="n">993</td></tr>
+      <tr><td>ソフトバンク 回線 <span class="sub">ライト4GB</span></td><td class="n">1,081</td><td class="n">1,081</td><td class="n">1,081</td><td class="n">1,081</td><td class="n">2,599</td></tr>
+      <tr><td>ソフトバンク 端末代 <span class="sub">iPhone 17 Pro</span></td><td class="n">415</td><td class="n">415</td><td class="n">415</td><td class="n">415</td><td class="n">415</td></tr>
+      <tr><td>ソフトバンク 代理店指定の保険 <span class="sub">カード払い</span></td><td class="n">1,480</td><td class="n">1,480</td><td class="n">−</td><td class="n">−</td><td class="n">−</td></tr>
+      <tr><td>楽天モバイル 回線 <span class="sub">3GBまで</span></td><td class="n">1,078</td><td class="n">1,078</td><td class="n">1,078</td><td class="n">1,078</td><td class="n">1,078</td></tr>
+      <tr><td>楽天モバイル 端末代 <span class="sub">iPhone 17</span></td><td class="n">999</td><td class="n">999</td><td class="n">999</td><td class="n">999</td><td class="n">999</td></tr>
+      <tr><td>IIJmio データeSIM <span class="sub">10月末で解約</span></td><td class="n">440</td><td class="n">−</td><td class="n">−</td><td class="n">−</td><td class="n">−</td></tr>
+      <tr><td>IIJmio 音声2回線 <span class="sub">転出月は満額</span></td><td class="n">1,700</td><td class="n">−</td><td class="n">−</td><td class="n">−</td><td class="n">−</td></tr>
+      <tr><td>モバイル保険</td><td class="n">700</td><td class="n">700</td><td class="n">700</td><td class="n">700</td><td class="n">700</td></tr>
+      <tr class="grp"><td colspan="6">光回線</td></tr>
+      <tr><td>IIJmioひかり <span class="sub">切替日までの日割り（10/15切替で計算）</span></td><td class="n">1,788</td><td class="n">−</td><td class="n">−</td><td class="n">−</td><td class="n">−</td></tr>
+      <tr><td>楽天ひかり <span class="sub">開通月は無料</span></td><td class="n">0</td><td class="n">4,180</td><td class="n">4,180</td><td class="n">4,180</td><td class="n">4,180</td></tr>
+      <tr class="tot"><td>1カ月の合計</td><td class="n">14,197</td><td class="n">14,449</td><td class="n">12,969</td><td class="n">13,519</td><td class="n">15,037</td></tr>
+      <tr class="tot"><td>その期間の合計</td><td class="n">14,197</td><td class="n">14,449</td><td class="n">64,845</td><td class="n">67,595</td><td class="n">180,444</td></tr>
+    </table></div>
+    <p class="note">24カ月の合計 <strong>341,530円</strong>（平均 月14,230円）。IIJmioひかりは回線廃止日（楽天ひかりへの切替日）までの日割りです（IIJ公式FAQで確認）。満額3,696円÷31日＝1日あたり約119円なので、切替が1日早いごとに約119円安くなります。表は10/15切替（15日分）で計算しています。LINEMOの10月分も日割りなので実際は少し安くなります。2027年5月以降のLINEMOは、乗り換えずに続けた場合の金額です。</p>
+  </section>
+
+  <!-- ② -->
+  <section>
+    <h2><span class="no">2</span>キャッシュバック・ポイントのまとめ</h2>
+    <div class="tbl"><table>
+      <tr><th>受け取り</th><th>内容</th><th>受け取り方</th><th class="n">金額</th></tr>
+      <tr><td>2026年10月25日</td><td>ソフトバンク iPhone 17 Pro（スマホのりかえ.com）</td><td>振り込み</td><td class="n in">15,000円</td></tr>
+      <tr><td>2026年12月末〜毎月</td><td>楽天ひかり 最強おうちプログラム（1,000ポイント×24カ月）</td><td>楽天ポイント（期間限定・6カ月有効）</td><td class="n in">24,000円</td></tr>
+      <tr><td>2027年5月上旬</td><td>LINEMO 回線1（ベストプランV・乗り換え）</td><td>PayPayポイント・案内メールから手続き</td><td class="n in">20,000円</td></tr>
+      <tr><td>2027年5月上旬</td><td>LINEMO 回線2（追加申込み・増額期間）</td><td>PayPayポイント・案内メールから手続き</td><td class="n in">10,000円</td></tr>
+      <tr class="tot"><td colspan="3">合計</td><td class="n">69,000円</td></tr>
+    </table></div>
+    <p class="note">楽天ひかりのポイントは、月末に楽天ひかりと楽天モバイル（最強プラン）の両方を使っている月の分が、翌々月末ごろに入ります。10月中に開通すれば10月分から対象で、初回は2026年12月末ごろです。楽天モバイルの回線を解約するとポイントは止まります。</p>
+  </section>
+
+  <!-- ③ -->
+  <section>
+    <h2><span class="no">3</span>返却時・手数料を月々に入れた金額</h2>
+    <h3>一時的に払う金額</h3>
+    <div class="tbl"><table>
+      <tr><th>いつ</th><th>内容</th><th class="n">金額</th></tr>
+      <tr><td>2026年10月</td><td>楽天ひかり 事業者変更の登録料</td><td class="n">1,980円</td></tr>
+      <tr><td>2028年9月</td><td>ソフトバンク iPhone 17 Pro 返却時</td><td class="n">22,000円</td></tr>
+      <tr><td>2028年9月</td><td>楽天モバイル iPhone 17 返却の事務手数料</td><td class="n">3,300円</td></tr>
+      <tr class="tot"><td colspan="2">合計 → 24カ月で割ると月1,137円</td><td class="n">27,280円</td></tr>
+    </table></div>
+    <h3>①に月1,137円を足した金額</h3>
+    <div class="tbl"><table>
+      <tr><th></th><th class="n">2026/10</th><th class="n">2026/11</th><th class="n">2026/12〜2027/4</th><th class="n">2027/5〜2027/9</th><th class="n">2027/10〜2028/9</th></tr>
+      <tr><td>① 純粋な月々</td><td class="n">14,197</td><td class="n">14,449</td><td class="n">12,969</td><td class="n">13,519</td><td class="n">15,037</td></tr>
+      <tr><td>一時費用の積み立て分</td><td class="n">1,137</td><td class="n">1,137</td><td class="n">1,137</td><td class="n">1,137</td><td class="n">1,137</td></tr>
+      <tr class="tot"><td>1カ月あたり</td><td class="n">15,334</td><td class="n">15,586</td><td class="n">14,106</td><td class="n">14,656</td><td class="n">16,174</td></tr>
+    </table></div>
+    <p class="note">24カ月の合計 <strong>368,810円</strong>（平均 月15,367円）。IIJmioひかりを始めて2年以内なら、解除金5,000円（不課税）が別にかかります。査定で傷があった場合の追加（ソフトバンク Cランク22,000円／Dランク44,000円、楽天 損傷品22,000円）は入っていません。</p>
+  </section>
+
+  <!-- ④ -->
+  <section>
+    <h2><span class="no">4</span>全部まとめた金額</h2>
+    <div class="tbl"><table>
+      <tr><th>項目</th><th class="n">24カ月の合計</th></tr>
+      <tr><td>① 純粋にかかる月々</td><td class="n">341,530円</td></tr>
+      <tr><td>③ 一時的に払う金額</td><td class="n">27,280円</td></tr>
+      <tr class="in"><td>② キャッシュバック・ポイント</td><td class="n">−69,000円</td></tr>
+      <tr class="tot"><td>実質の合計</td><td class="n">299,810円</td></tr>
+      <tr class="tot"><td>1カ月あたり（÷24）</td><td class="n">12,492円</td></tr>
+    </table></div>
+    <h3>光回線を乗り換えた効果（24カ月）</h3>
+    <div class="tbl"><table>
+      <tr><th>光回線</th><th>計算</th><th class="n">24カ月の実質</th></tr>
+      <tr><td>IIJmioひかりのまま（データeSIM込み）</td><td>4,136円×24</td><td class="n">99,264円</td></tr>
+      <tr><td>楽天ひかりへ乗り換え</td><td>10月IIJ 2,228（ひかり日割り1,788＋データ440）＋楽天4,180×23＋登録料1,980−ポイント24,000</td><td class="n">76,348円</td></tr>
+      <tr class="tot"><td colspan="2">乗り換えで得する額</td><td class="n">約23,000円</td></tr>
+    </table></div>
+    <h3>端末ごとの実質（端末代だけ）</h3>
+    <div class="tbl"><table>
+      <tr><th>端末</th><th>計算</th><th class="n">2年の実質</th><th class="n">月あたり</th></tr>
+      <tr><td>ソフトバンク iPhone 17 Pro</td><td>415×24＋返却22,000＋指定保険2,960−キャッシュバック15,000</td><td class="n">19,920円</td><td class="n">830円</td></tr>
+      <tr><td>楽天 iPhone 17</td><td>999×24＋事務手数料3,300</td><td class="n">27,276円</td><td class="n">1,137円</td></tr>
+    </table></div>
+  </section>
+
+  <section class="warn">
+    <h2>大事な日付</h2>
+    <ul>
+      <li>2026年10月中（早いほど得）：楽天ひかりへ事業者変更。IIJmioひかりは切替日までの日割り、楽天ひかりは開通月無料なので、1日早いごとに約119円安くなる。ポイントも10月分から</li>
+      <li>2026年10月15日ごろ：LINEMO 回線2を開通</li>
+      <li>2026年10月25日：ソフトバンクのキャッシュバック15,000円が振り込まれる</li>
+      <li>2026年10月末：IIJmioのデータeSIMを解約（繰越分を使い切る）</li>
+      <li>2026年10月・11月：ソフトバンクの指定保険1,480円がカードから引き落とし（2カ月で終わるか確認）</li>
+      <li>2026年12月末ごろ：楽天ひかりのポイント1,000が初めて入る（以後毎月）</li>
+      <li>2027年4月：LINEMOの判定月。プラン変更・解約をしない。回線2の通話準定額はこの月に外す</li>
+      <li>2027年5月上旬：PayPay 30,000円の受け取り手続き</li>
+      <li>2027年10月：ソフトバンクの割引が終わり、回線が2,599円になる</li>
+      <li>2028年9月：iPhone 2台の返却（楽天は9/19〜30に申込み、10/15までに発送）</li>
+    </ul>
+  </section>
+</div>
+
+</body></html>
