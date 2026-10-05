@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>相談ごとのまとめ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2430;--sub:#5b6573;--line:#d9dee5;--accent:#1f5fbf;--warn:#b3261e;--bg:#fff;--card:#f6f8fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","BIZ UDPGothic",sans-serif;font-size:15px;line-height:1.65}
+.wrap{max-width:880px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:12px}
+h1{font-size:22px;margin:0}
+.meta{color:var(--sub);font-size:13px}
+.printbar{flex-shrink:0}
+.printbtn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+nav a{border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--accent);text-decoration:none;font-size:14px;background:var(--card)}
+section{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 4px}
+h3{font-size:14px;margin:12px 0 4px;color:var(--accent)}
+ul{margin:0;padding-left:1.2em}
+li{margin:2px 0}
+.status{display:inline-block;font-size:12px;font-weight:700;border-radius:4px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.wait{background:#fff4d6;color:#7a5600}
+.ok{background:#e3f4e6;color:#1e6b2e}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--card);white-space:nowrap}
+.warn{color:var(--warn);font-weight:700}
+a{color:var(--accent);word-break:break-all}
+@page{size:A4;margin:10mm}
+@media print{.printbar,nav{display:none!important}body{font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}table{min-width:0}.tbl{overflow:visible}section,tr{break-inside:avoid}h1{font-size:16px}h2{font-size:13px}.wrap{padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>相談ごとのまとめ</h1>
+    <div class="meta">最終更新 2026/10/6</div>
+  </div>
+  <div class="printbar"><button type="button" class="printbtn" onclick="window.print()">この表を印刷する</button></div>
+</header>
+
+<nav>
+  <a href="#hikari">① 光回線</a>
+  <a href="#linemo">② LINEMO</a>
+  <a href="#iphone">③ iPhone返却</a>
+  <a href="#hoken">④ モバイル保険</a>
+</nav>
+
+<section id="hikari">
+  <h2>① 光回線（IIJmioひかり → BIGLOBE光）<span class="status wait">進行中</span></h2>
+  <h3>今の状況</h3>
+  <ul>
+    <li>価格.com経由の申込みは、フレッツの登録名義が旧姓のままで手続きできず</li>
+    <li>IIJにフレッツの名義変更を依頼中（2日ほど）</li>
+    <li>BIGLOBEに「前回の申込みの取り消し」を問い合わせ中（10/5送信・返事待ち）</li>
+  </ul>
+  <h3>次にやること</h3>
+  <ul>
+    <li>BIGLOBEの返事を確認（<a href="https://biglobe.jp/msgwin">biglobe.jp/msgwin</a>）<span class="warn">「会話の終了」は押さない</span></li>
+    <li>名義変更が終わったら、IIJで事業者変更承諾番号を取り直す</li>
+    <li>IIJのIPv6オプションをいつ解約すればいいかIIJに確認</li>
+    <li>承諾番号を取ったら<b>4日以内</b>、かつ<b class="warn">10/29 15:00まで</b>に公式ページから申込み（1ギガ・3年プラン・事業者変更・クーポン <b>BWS</b>）</li>
+  </ul>
+  <h3>決まったこと</h3>
+  <div class="tbl"><table>
+    <tr><th>申込み先</th><td>BIGLOBE光 公式ページ＋クーポンBWS</td></tr>
+    <tr><th>月額</th><td>4,378円（マンション1ギガ・3年プラン）、開通月は無料、事業者変更手数料 3,300円</td></tr>
+    <tr><th>キャッシュバック</th><td>合計65,000円：12カ月目 35,000円＋24カ月目 30,000円<br>対象月の2日から45日以内にマイページで手続き（しないと0円）</td></tr>
+    <tr><th>解約金サポート</th><td>IIJの解除金があれば最大40,000円戻る（申込書＋請求書コピーを郵送）</td></tr>
+    <tr><th>違約金</th><td>3,000円。2年で乗り換えるなら24カ月目のキャッシュバックを受け取ってから</td></tr>
+    <tr><th>ルーター</th><td>今の Aterm WG1200HS4 をそのまま使う</td></tr>
+    <tr><th>申込みページ</th><td><a href="https://xn--wimax-lu8k074r.com/redirect/yt_biglobe_hikari.html?optical_fiber_campaign_2026_10_c">BIGLOBE光 特典ページ（クーポンBWS用）</a></td></tr>
+  </table></div>
+</section>
+
+<section id="linemo">
+  <h2>② LINEMO（2回線・PayPay・通話オプション）<span class="status ok">切替済み</span></h2>
+  <h3>今の状況</h3>
+  <ul>
+    <li>回線1：ベストプランV＋通話定額（iPhone 17・eSIM）</li>
+    <li>回線2：ベストプラン＋通話準定額（Android・SIMカード）、10/4に切替完了</li>
+    <li>IIJmioの音声2回線は終了。IIJmioのデータeSIM（440円/月）は続ける</li>
+  </ul>
+  <h3>次にやること</h3>
+  <div class="tbl"><table>
+    <tr><th>2027年4月中</th><td>回線2の「通話準定額」を外す（無料は4月まで、5月から有料）</td></tr>
+    <tr><th>2027年4月</th><td class="warn">プラン変更・解約はしない（PayPayキャンペーンの判定月）</td></tr>
+    <tr><th>2027年5月上旬</th><td>PayPay 30,000円（2回線分）の受け取り手続き</td></tr>
+  </table></div>
+</section>
+
+<section id="iphone">
+  <h2>③ iPhone 2台（ソフトバンク・楽天）キャッシュバックと返却</h2>
+  <h3>今の状況</h3>
+  <ul>
+    <li>iPhone 17 Pro：ソフトバンク（新トクするサポート）スマホデビュープラン＋ライト4GB</li>
+    <li>iPhone 17：楽天モバイル（買い替え超トクプログラム）最強プラン</li>
+    <li>どちらも2026年9月購入、モバイル保険に登録済み（17 Pro＝主端末、17＝副端末）</li>
+  </ul>
+  <h3>次にやること</h3>
+  <div class="tbl"><table>
+    <tr><th>2026/10/25</th><td>ソフトバンクのキャッシュバック 15,000円の入金を確認</td></tr>
+    <tr><th>2027年10月</th><td>ソフトバンクの月額が 2,599円に上がる（確認だけ）</td></tr>
+    <tr><th>2028/9/19〜30</th><td>楽天 iPhone 17 の返却を申込み → 10/15までに発送</td></tr>
+    <tr><th>2028年9月</th><td>ソフトバンク iPhone 17 Pro の返却手続き</td></tr>
+  </table></div>
+  <h3>返却のときの注意</h3>
+  <ul>
+    <li>ソフトバンク：返却時 22,000円＋査定で傷・故障なら Cランク 22,000円／Dランク 44,000円</li>
+    <li>楽天：ふつうは事務手数料 3,300円だけ。基準を満たさないと故障費用 22,000円</li>
+    <li>追加料金はモバイル保険で補償される（④）</li>
+    <li>返却前：バックアップ → 「iPhoneを探す」をオフ → 初期化 → SIMを抜く</li>
+  </ul>
+</section>
+
+<section id="hoken">
+  <h2>④ モバイル保険（返却時の追加料金）<span class="status ok">回答あり 10/5</span></h2>
+  <h3>回答のポイント</h3>
+  <ul>
+    <li><b>返却時の追加料金は補償の対象</b>：ソフトバンクの故障時負担金（22,000円／44,000円）、楽天の故障費用（22,000円）</li>
+    <li>条件：故障・不具合が理由の費用であること。充電器・ケーブルなど付属品の損害金は対象外</li>
+    <li>修理しないでそのまま返却して払った場合でも請求できる</li>
+  </ul>
+  <h3>年間の上限（端末ごと）</h3>
+  <div class="tbl"><table>
+    <tr><th></th><th>修理</th><th>修理できない・盗難</th></tr>
+    <tr><th>主端末（iPhone 17 Pro）</th><td>150,000円</td><td>37,500円</td></tr>
+    <tr><th>副端末（iPhone 17）</th><td>45,000円</td><td>11,250円</td></tr>
+  </table></div>
+  <h3>請求に必要な書類（返却時に全部残す）</h3>
+  <ul>
+    <li>ソフトバンク：端末回収申込書兼同意書、回収機種査定完了のお知らせ、利用料金明細書・支払い証明（Web画面のスクショも可）</li>
+    <li>楽天：故障費用ご請求のお知らせ、支払い証明・利用料金明細書</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>
