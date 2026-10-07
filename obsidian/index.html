@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Claude × Obsidian 第2の脳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d2430;--sub:#5b6573;--line:#d9dee5;--accent:#1f5fbf;--purple:#6b4fbb;--green:#1e6b2e;--warn:#b3261e;--bg:#fff;--card:#f6f8fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","BIZ UDPGothic",sans-serif;font-size:15px;line-height:1.65}
+.wrap{max-width:880px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:12px}
+h1{font-size:22px;margin:0}
+.meta{color:var(--sub);font-size:13px}
+.printbar{flex-shrink:0}
+.printbtn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+section{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 6px}
+h2 .no{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;padding:0 8px;margin-right:6px;font-size:14px;vertical-align:2px}
+h3{font-size:14px;margin:10px 0 4px;color:var(--accent)}
+ul{margin:0;padding-left:1.2em}
+li{margin:2px 0}
+.lead{font-size:16px;font-weight:700;background:#eef4ff;border-left:4px solid var(--accent);padding:8px 12px;border-radius:4px;margin:6px 0 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box{background:var(--card);border-radius:8px;padding:10px 12px}
+.box.before{border-top:4px solid #9aa3ae}
+.box.after{border-top:4px solid var(--green)}
+.box h3{margin-top:0}
+.diagram{width:100%;height:auto;display:block;margin:6px 0}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--card);white-space:nowrap}
+.t{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700;white-space:nowrap}
+.warn{color:var(--warn);font-weight:700}
+.warnbox{border-color:#f0c4c0;background:#fff7f6}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding-left:34px;margin:6px 0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.ok{color:var(--green);font-weight:700}
+.ng{color:var(--warn);font-weight:700}
+.note{color:var(--sub);font-size:12px}
+@media (max-width:600px){.grid2{grid-template-columns:1fr}}
+@page{size:A4;margin:10mm}
+@media print{.printbar{display:none!important}body{font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}table{min-width:0}.tbl{overflow:visible}section,tr{break-inside:avoid}h1{font-size:16px}h2{font-size:13px}.lead{font-size:11px}.wrap{padding:0}section{margin-bottom:8px;padding:8px 10px}.grid2{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Claude × Obsidian で「第2の脳」を作る</h1>
+    <div class="meta">YouTube動画2本の内容まとめ ／ 2026年10月8日作成</div>
+  </div>
+  <div class="printbar"><button type="button" class="printbtn" onclick="window.print()">この表を印刷する</button></div>
+</header>
+
+<section>
+  <h2><span class="no">1</span>ひとことで言うと</h2>
+  <p class="lead">AIは会話が終わると忘れてしまう。だから「メモ帳（Obsidian）」をAIに持たせて、覚えておくべきことを書き込ませ、次から毎回それを読ませる。使うほどAIが賢くなっていく。</p>
+  <svg class="diagram" viewBox="0 0 820 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="あなたがClaudeに頼み、ClaudeがObsidianのフォルダにメモを書き、次回そのメモを読んでから答える、という循環の図">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1d2430"/></marker>
+    </defs>
+    <!-- あなた -->
+    <rect x="10" y="70" width="150" height="90" rx="12" fill="#f6f8fb" stroke="#9aa3ae" stroke-width="2"/>
+    <text x="85" y="108" text-anchor="middle" font-size="20" font-weight="700" fill="#1d2430">あなた</text>
+    <text x="85" y="134" text-anchor="middle" font-size="13" fill="#5b6573">仕事を頼む</text>
+    <!-- Claude -->
+    <rect x="300" y="70" width="190" height="90" rx="12" fill="#eef4ff" stroke="#1f5fbf" stroke-width="2"/>
+    <text x="395" y="105" text-anchor="middle" font-size="20" font-weight="700" fill="#1f5fbf">Claude</text>
+    <text x="395" y="128" text-anchor="middle" font-size="13" fill="#1d2430">＝ 頭（考える・書く）</text>
+    <text x="395" y="147" text-anchor="middle" font-size="12" fill="#5b6573">会話が終わると忘れる</text>
+    <!-- Obsidian -->
+    <rect x="630" y="55" width="180" height="120" rx="12" fill="#f3efff" stroke="#6b4fbb" stroke-width="2"/>
+    <text x="720" y="88" text-anchor="middle" font-size="20" font-weight="700" fill="#6b4fbb">Obsidian</text>
+    <text x="720" y="111" text-anchor="middle" font-size="13" fill="#1d2430">＝ 器（記憶の置き場）</text>
+    <text x="720" y="132" text-anchor="middle" font-size="12" fill="#5b6573">パソコンの中のフォルダに</text>
+    <text x="720" y="150" text-anchor="middle" font-size="12" fill="#5b6573">.md の文字ファイルで保存</text>
+    <!-- arrows -->
+    <line x1="162" y1="115" x2="296" y2="115" stroke="#1d2430" stroke-width="2" marker-end="url(#ar)"/>
+    <path d="M492,92 C560,40 580,40 626,80" fill="none" stroke="#1e6b2e" stroke-width="2.5" marker-end="url(#ar)"/>
+    <text x="560" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#1e6b2e">② 大事なことを書き込む</text>
+    <path d="M626,150 C580,195 560,195 492,140" fill="none" stroke="#1f5fbf" stroke-width="2.5" marker-end="url(#ar)"/>
+    <text x="560" y="214" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fbf">③ 次回は先に読んでから答える</text>
+    <text x="229" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2430">① 依頼</text>
+  </svg>
+  <p class="note">②→③がくり返されるので「使えば使うほど賢くなる」（動画②では「複利が働くAIの使い方」と表現）。</p>
+</section>
+
+<section>
+  <h2><span class="no">2</span>それをやると、どう変わる？</h2>
+  <div class="grid2">
+    <div class="box before">
+      <h3>今まで（Obsidianなし）</h3>
+      <ul>
+        <li>「昨日説明したのに」をAIに何度も説明し直す</li>
+        <li>作ったレポートや調べた結果が、会話と一緒に流れて消える</li>
+        <li>作ったスキルが増えると、何があったか自分でも忘れる</li>
+        <li>嫌な言い回しを毎回注意し直す</li>
+      </ul>
+    </div>
+    <div class="box after">
+      <h3>導入後（Obsidianあり）</h3>
+      <ul>
+        <li>ルールや自分のことを最初に読ませるので、説明が1回で済む</li>
+        <li>レポートが日付ごとに貯まり、「前回と比べて」が頼める</li>
+        <li>スキル一覧と使い方のメモが自動で残る</li>
+        <li>「NG表現リスト」に追加されて、同じ注意をしなくてよくなる</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="no">3</span>導入の利点（2本の動画の共通点）</h2>
+  <div class="tbl"><table>
+    <tr><th>利点</th><th>わかりやすく言うと</th></tr>
+    <tr><td>AIが直接書ける</td><td>中身はただの文字ファイル。Claudeが画面操作なしで、速く確実に読み書きできる（純正メモは画面操作が必要）。</td></tr>
+    <tr><td>AIの得意な形式</td><td>Markdown（# 見出し、- 箇条書き）はAIが一番理解しやすい書き方。</td></tr>
+    <tr><td>自分のPCに残る</td><td>アプリやAIを乗り換えても、ファイルはそのまま残る。サービス終了や値上げで読めなくなる心配が少ない。</td></tr>
+    <tr><td>メモ同士をつなげる</td><td>[[リンク]]でメモをつなぎ、知識を地図のように整理できる。</td></tr>
+    <tr><td>無料で始められる</td><td>Obsidian本体は無料。必要な機能は「コアプラグイン」で足りる。</td></tr>
+    <tr><td>自動で貯まる</td><td>スキルの最後に「Obsidianに保存」を入れておけば、意識しなくても記録が貯まる。</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="no">4</span>動画① KEITO「勝手に賢くなってく"脳"の作り方」（36:58）</h2>
+  <div class="tbl"><table>
+    <tr><th>時間</th><th>何を言っているか</th></tr>
+    <tr><td class="t">0:18</td><td>Obsidianは「パソコンのフォルダをきれいに見せるメモアプリ」。だからAIと相性がいい。</td></tr>
+    <tr><td class="t">2:24</td><td>覚えなくていいことはAIに覚えさせる。何をメモするかもAIに判断させられる。</td></tr>
+    <tr><td class="t">5:13</td><td>保管庫（＝フォルダ）を作り、言語を日本語にする。</td></tr>
+    <tr><td class="t">13:25</td><td>コミュニティプラグインは誰でも作れるので注意。本人はほぼ使わない。</td></tr>
+    <tr><td class="t">14:42</td><td>つなぎ方はClaudeにフォルダを指定するだけ。共有用はNotion、自分用はObsidianと使い分け。</td></tr>
+    <tr><td class="t">18:23</td><td>活用例：スキル一覧、本の執筆記録、NG表現／いい表現リスト、AIへの指摘の振り返り。</td></tr>
+    <tr><td class="t">25:43</td><td>「Obsidianに保存するスキル」と「フック」で、自動でメモが入る仕組みを実演。</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="no">5</span>動画② むっちょ「"第2の脳"を作る方法 完全ガイド」（18:15）</h2>
+  <div class="tbl"><table>
+    <tr><th>時間</th><th>何を言っているか</th></tr>
+    <tr><td class="t">0:35</td><td>なぜこの組み合わせか：①AIの得意な形式 ②PCに残る ③メモをリンクでつなげる。</td></tr>
+    <tr><td class="t">4:39</td><td>公式サイトからダウンロード → 日本語に → 保管庫「第2の脳」を作る。</td></tr>
+    <tr><td class="t">5:50</td><td>Claudeはデスクトップアプリが一番使いやすい（チャットと同じ見た目）。</td></tr>
+    <tr><td class="t">7:41</td><td>保管庫の一番上に CLAUDE.md（自分のこと／ルール／やってほしくないこと／好み）を置く。</td></tr>
+    <tr><td class="t">9:12</td><td>最初にフォルダ分け（器）をClaudeに提案させる。凝りすぎない。</td></tr>
+    <tr><td class="t">10:48</td><td>実践：記録からグラフを作る、YouTubeの要約を保存、散らかったら整理も任せる。</td></tr>
+  </table></div>
+</section>
+
+<section class="warnbox">
+  <h2><span class="no">6</span>注意点（動画どおりにやらない方がいいところ）</h2>
+  <ul>
+    <li><span class="ng">パスワード・ID・シードフレーズ・秘密鍵は入れない。</span>動画①ではパスワードのメモを入れていますが、Obsidianの中身は暗号化されない文字ファイルです。パスワード管理アプリに入れましょう。</li>
+    <li><span class="ng">「自動承認」にしない。</span>動画②はおすすめしていますが、お金や暗号資産を扱うパソコンでは、確認しながら進める方が安全です。</li>
+    <li><span class="ng">コミュニティプラグインは入れない（最初は）。</span>まずは公式の「コアプラグイン」だけで十分です。</li>
+    <li><span class="ng">家族や他の人と共有しているメモは移さない。</span>Obsidianは基本的に自分専用で、共有は苦手です。</li>
+    <li><span class="ng">公開リポジトリには置かない。</span>GitHubでバックアップするなら「非公開」に。</li>
+    <li>動画内の料金・特典（LINE登録の配布物）は動画経由の宣伝です。料金は公式ページで確認してください。</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="no">7</span>はじめの一歩</h2>
+  <ol class="steps">
+    <li>Obsidian を公式サイト（obsidian.md）からダウンロードして、言語を日本語にする。</li>
+    <li>保管庫（フォルダ）を1つ作る。名前は「第2の脳」など自由に。</li>
+    <li>Claudeデスクトップアプリの「＋」→「Add folder」で、その保管庫を追加する。</li>
+    <li>Claudeに「この保管庫に CLAUDE.md とシンプルなフォルダ分けを作って」と頼む。</li>
+    <li>相場レポートなど、毎回作っているものの保存先を保管庫に変えてもらう。</li>
+  </ol>
+</section>
+
+<p class="note">出典：KEITO【AI&WEB ch】（2026/08/28公開）、むっちょ【Claude Code攻略】（2026/07/26公開）のYouTube動画を要約。時間は動画内の位置です。</p>
+</div>
+</body>
+</html>
