@@ -98,7 +98,7 @@ th.hol{background:var(--co)}
    <label><input type="radio" name="mode" value="A" onchange="saveMonth()"> 公休を含めて2日</label>
    <label><input type="radio" name="mode" value="B" onchange="saveMonth()"> 公休とは別に2日</label>
   </div>
-  <p class="hint">・<b>公休（全員の休み）</b>は、表の一番上の日付をタップすると灰色になります。<br>・<b>希望休・有給</b>は、マスをタップするたびに「希」→「有」→空白と変わります。<br>・左の灰色の7列は<b>前月の最後の1週間</b>です。休みだった日をタップして「休」にしてください（4連勤の月またぎチェックに使います）。前月をこのツールで作って「決定」していれば自動で入ります。</p>
+  <p class="hint">・<b>公休（全員の休み）</b>は、表の一番上の日付をタップすると灰色になります。<br>・<b>希望休・有給</b>は、マスをタップするたびに「希」→「有」→空白と変わります。<br>・左の灰色の7列は<b>前月の最後の1週間</b>です。休みだった日をタップして「休」にしてください（4連勤の月またぎチェックに使います。空のままの人はチェックしません）。前月をこのツールで作って「決定」していれば自動で入ります。</p>
  </div>
  <div class="card"><div class="wrap"><table class="grid" id="inGrid"></table></div></div>
  <div class="row"><button class="btn" onclick="tab(3);make()">この内容で作成する</button><button class="btn sub" onclick="clearMonth()">この月の入力を消す</button></div>
@@ -177,7 +177,7 @@ function togMark(id,d){const M=cur();if(M.hol.includes(d))return;const mk=M.mark
 let PLANS=[],PI=0,SET=null;
 function setup(){const M=cur(),{nd,dow}=ymParts();const mem=S.members;const N=mem.length;const hol=new Set(M.hol);const fixed=[],prevRun=[],prevOff=[];
  for(let i=0;i<N;i++){const mk=M.mark[mem[i].id]||{};fixed[i]=[];for(let d=1;d<=nd;d++)fixed[i][d]=hol.has(d)?"co":mk[d]||null;
-  const pv=(M.prev[mem[i].id]||Array(7).fill(false)).map(Boolean);let r=0;for(let k=6;k>=0&&!pv[k];k--)r++;prevRun[i]=r;prevOff[i]=pv}
+  const pv=(M.prev[mem[i].id]||Array(7).fill(false)).map(Boolean);let r=0;if(pv.some(Boolean))for(let k=6;k>=0&&!pv[k];k--)r++;prevRun[i]=r;prevOff[i]=pv}
  return {N,nd,dow,hol,fixed,prevRun,prevOff,mode:M.mode||"A",min:M.min||10,sp:mem.map(m=>m.sp),names:mem.map(m=>m.name),mem}}
 function make(){if(!S.members.length){$("status").textContent="先にメンバーを登録してください";return}
  saveMonth();$("status").textContent="計算中…（10秒ほどかかります）";$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;
