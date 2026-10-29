@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>シフト自動作成ツール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1f2328;--mut:#667;--line:#c9ced6;--acc:#b8323d;
+--off:#f6d0d6;--offfg:#b8323d;--yu:#d6e4f7;--yufg:#2f5fb3;--co:#d9d9de;--sat:#2f5fb3;--sun:#c0303a;
+--font:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",Meiryo,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;padding:12px max(12px,env(safe-area-inset-left,0px)) 40px max(12px,env(safe-area-inset-right,0px))}
+h1{font-size:20px;margin:4px 0 12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{flex:1;min-width:110px;padding:12px 8px;border:1px solid var(--line);background:#fff;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h2{font-size:16px;margin:0 0 8px}
+.hint{color:var(--mut);font-size:13px;line-height:1.6;margin:4px 0 8px}
+textarea{width:100%;min-height:260px;font:14px/1.6 var(--font);padding:8px;border:1px solid var(--line);border-radius:8px}
+select,input[type=number]{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.btn{padding:12px 18px;border:0;border-radius:10px;background:var(--acc);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.btn.sub{background:#fff;color:var(--fg);border:1px solid var(--line)}
+.wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums}
+.grid th,.grid td{border:1px solid #999;text-align:center;min-width:28px;height:30px;padding:0 2px;font-size:13px}
+.grid th.nm{position:sticky;left:0;background:#fff;z-index:1;text-align:left;padding:0 6px;white-space:nowrap;min-width:84px}
+.grid td.tap{cursor:pointer;user-select:none}
+.grid .sat{color:var(--sat)}.grid .sun{color:var(--sun)}
+.grid .wk{border-left:2px dashed var(--sun)}
+.grid .prev{background:#eef0f3;color:#555}
+.grid .prev.o{background:#f3c6cc;color:#7a1d26;font-weight:700}
+.c-off{background:var(--off);color:var(--offfg);font-weight:700}
+.c-h{background:var(--off);color:var(--offfg);font-weight:700;box-shadow:inset 0 0 0 2px var(--offfg)}
+.c-y{background:var(--yu);color:var(--yufg);font-weight:700}
+.c-co{background:var(--co);color:#222;font-weight:700}
+th.hol{background:var(--co)}
+.plans{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.plans button{padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit;cursor:pointer}
+.plans button.on{background:#333;color:#fff}
+.chk{list-style:none;padding:0;margin:8px 0;font-size:14px;line-height:1.7}
+.chk .ok{color:#1d7a3a;font-weight:700}.chk .ng{color:var(--acc);font-weight:700}
+/* 印刷する表 */
+.sheet{background:#fff;padding:10px}
+.sheet h3{margin:0 0 6px;font-size:18px}
+.out th,.out td{border:1px solid #333;text-align:center;height:26px;min-width:22px;font-size:12px;padding:0 1px}
+.out th.id,.out td.id{min-width:54px;font-size:11px}
+.out td.nm{min-width:64px;font-size:13px}
+.out td.co{min-width:44px;font-size:9px}
+.out .wk{border-left:2px dashed var(--sun)}
+.out td.cell{padding:0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;margin-top:6px}
+.legend span{display:inline-block;width:20px;height:18px;text-align:center;line-height:18px;margin-right:4px;font-weight:700}
+.printbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px;flex-wrap:wrap}
+.status{font-weight:700;margin:6px 0}
+@page{size:A4 landscape;margin:8mm}
+@media print{
+ body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ body>*:not(#p3){display:none!important}
+ #p3{display:block!important}
+ #p3>.card:first-child{display:none!important}
+ #p3 .card{border:0;padding:0;margin:0;overflow:visible}
+ .out{width:100%}
+ .out th,.out td{font-size:11px}
+ .out th,.out td{height:24px}
+ .sheet{padding:0}
+}
+</style>
+</head>
+<body>
+<h1>シフト自動作成ツール</h1>
+<div class="tabs">
+ <button id="t1" onclick="tab(1)">① メンバー</button>
+ <button id="t2" onclick="tab(2)">② 休みの入力</button>
+ <button id="t3" onclick="tab(3)">③ 作成・印刷</button>
+</div>
+
+<section id="p1" class="card" hidden>
+ <h2>メンバーの登録</h2>
+ <p class="hint">1行に1人ずつ「社員番号 名前 所属」と書きます。最後に「★」を付けた人は、<b>火曜か水曜を休み・連休は平日</b>の条件が付きます。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
+ <textarea id="members" placeholder="992170 神保 東西 ★&#10;993352 大久保 東西&#10;..."></textarea>
+ <div class="row"><button class="btn" onclick="saveMembers()">保存する</button><span id="mmsg" class="hint"></span></div>
+</section>
+
+<section id="p2" hidden>
+ <div class="card">
+  <h2>作る月と条件</h2>
+  <div class="row">
+   <select id="ym" onchange="loadMonth()"></select>
+   <label>毎日の出勤 <input id="minStaff" type="number" min="1" max="30" value="10" style="width:64px" onchange="saveMonth()"> 人以上</label>
+  </div>
+  <div class="row" id="modeRow">
+   <span>公休がある週の休み：</span>
+   <label><input type="radio" name="mode" value="A" onchange="saveMonth()"> 公休を含めて2日</label>
+   <label><input type="radio" name="mode" value="B" onchange="saveMonth()"> 公休とは別に2日</label>
+  </div>
+  <p class="hint">・<b>公休（全員の休み）</b>は、表の一番上の日付をタップすると灰色になります。<br>・<b>希望休・有給</b>は、マスをタップするたびに「希」→「有」→空白と変わります。<br>・左の灰色の7列は<b>前月の最後の1週間</b>です。休みだった日をタップして「休」にしてください（4連勤の月またぎチェックに使います）。前月をこのツールで作って「決定」していれば自動で入ります。</p>
+ </div>
+ <div class="card"><div class="wrap"><table class="grid" id="inGrid"></table></div></div>
+ <div class="row"><button class="btn" onclick="tab(3);make()">この内容で作成する</button><button class="btn sub" onclick="clearMonth()">この月の入力を消す</button></div>
+</section>
+
+<section id="p3" hidden>
+ <div class="card">
+  <div class="row"><button class="btn" onclick="make()">作成する（3案）</button><span id="status" class="status"></span></div>
+  <div class="plans" id="planBtns"></div>
+  <ul class="chk" id="checks"></ul>
+  <div class="printbar" id="pbar" hidden>
+   <button class="btn sub" onclick="decide()">この案に決定（来月の連勤チェックに使う）</button>
+   <button class="btn" onclick="window.print()">この表を印刷する</button>
+  </div>
+ </div>
+ <div class="card wrap"><div id="printArea"></div></div>
+</section>
+
+<script src="solver.js"></script>
+<script>
+const WD="日月火水木金土";
+let S={members:[],months:{}};
+try{S=JSON.parse(localStorage.getItem("shiftTool")||"null")||S}catch(e){}
+function store(){try{localStorage.setItem("shiftTool",JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id);
+
+/* ---------- タブ ---------- */
+function tab(n){for(const i of [1,2,3]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
+ if(n===2)drawInput(); try{localStorage.setItem("shiftTab",n)}catch(e){}}
+
+/* ---------- メンバー ---------- */
+function parseMembers(t){return t.split(/\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
+ const sp=/[★*]/.test(l); const p=l.replace(/[★*]/g,"").trim().split(/[\s　,、]+/);
+ return {id:p[0],name:p[1]||"",co:p[2]||"",sp}}).filter(m=>m.id&&m.name).sort((a,b)=>a.id.localeCompare(b.id))}
+function saveMembers(){S.members=parseMembers($("members").value);store();showMembers();$("mmsg").textContent=S.members.length+"人を保存しました（社員番号の小さい順に並べました）"}
+function showMembers(){$("members").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}${m.sp?" ★":""}`).join("\n")}
+
+/* ---------- 月 ---------- */
+function ymList(){const s=$("ym");const now=new Date();s.innerHTML="";
+ for(let k=-1;k<=3;k++){const d=new Date(now.getFullYear(),now.getMonth()+k,1);const v=d.getFullYear()+"-"+(d.getMonth()+1);
+  const o=document.createElement("option");o.value=v;o.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月";if(k===1)o.selected=true;s.appendChild(o)}}
+function cur(){const v=$("ym").value;if(!S.months[v])S.months[v]={hol:[],mode:"A",min:10,mark:{},prev:{},final:null};return S.months[v]}
+function ymParts(){const [y,m]=$("ym").value.split("-").map(Number);return {y,m,nd:new Date(y,m,0).getDate(),dow:d=>new Date(y,m-1,d).getDay()}}
+function loadMonth(){const M=cur();$("minStaff").value=M.min||10;
+ document.querySelectorAll("input[name=mode]").forEach(r=>r.checked=r.value===(M.mode||"A"));
+ autoPrev();drawInput();$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;$("status").textContent=""}
+function saveMonth(){const M=cur();M.min=+$("minStaff").value||10;const r=document.querySelector("input[name=mode]:checked");M.mode=r?r.value:"A";store()}
+function clearMonth(){if(!clearMonth.ok){clearMonth.ok=1;$("status").textContent="";alertMsg("もう一度押すと、この月の入力を消します");setTimeout(()=>clearMonth.ok=0,4000);return}
+ delete S.months[$("ym").value];store();loadMonth();clearMonth.ok=0}
+function alertMsg(t){const b=document.querySelector("#p2 .row:last-child");let s=b.querySelector(".hint");if(!s){s=document.createElement("span");s.className="hint";b.appendChild(s)}s.textContent=t;setTimeout(()=>s.textContent="",4000)}
+/* 前月をこのツールで決定済みなら、最後の7日を自動入力 */
+function autoPrev(){const {y,m}=ymParts();const pd=new Date(y,m-2,1);const key=pd.getFullYear()+"-"+(pd.getMonth()+1);const P=S.months[key];const M=cur();
+ if(!P||!P.final)return;const pnd=new Date(pd.getFullYear(),pd.getMonth()+1,0).getDate();
+ for(const mb of S.members){if(M.prev[mb.id]&&M.prev[mb.id].some(Boolean))continue;const offs=P.final[mb.id]||[];
+  M.prev[mb.id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k))}store()}
+
+/* ---------- 入力表 ---------- */
+function drawInput(){const t=$("inGrid");if(!S.members.length){t.innerHTML="<tr><td style='padding:12px'>先に「① メンバー」を登録してください</td></tr>";return}
+ const M=cur(),{nd,dow}=ymParts();let h="<tr><th class='nm'>前月末→</th>";
+ for(let k=0;k<7;k++)h+=`<th class='prev'>${k===6?"末":""}</th>`;
+ for(let d=1;d<=nd;d++){const w=dow(d);h+=`<th class="tap ${w===6?"sat":w===0?"sun":""} ${w===0&&d>1?"wk":""} ${M.hol.includes(d)?"hol":""}" onclick="togHol(${d})">${d}<br>${WD[w]}</th>`}
+ h+="</tr>";
+ for(const mb of S.members){h+=`<tr><th class="nm">${esc(mb.name)}${mb.sp?" ★":""}</th>`;const pv=M.prev[mb.id]||[];
+  for(let k=0;k<7;k++)h+=`<td class="tap prev ${pv[k]?"o":""}" onclick="togPrev('${mb.id}',${k})">${pv[k]?"休":""}</td>`;
+  const mk=M.mark[mb.id]||{};
+  for(let d=1;d<=nd;d++){const w=dow(d);const v=M.hol.includes(d)?"co":mk[d];
+   h+=`<td class="tap ${w===0&&d>1?"wk":""} ${v==="h"?"c-h":v==="y"?"c-y":v==="co"?"c-co":""}" onclick="togMark('${mb.id}',${d})">${v==="h"?"希":v==="y"?"有":v==="co"?"全":""}</td>`}
+  h+="</tr>"}
+ t.innerHTML=h}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function togHol(d){const M=cur();const i=M.hol.indexOf(d);i<0?M.hol.push(d):M.hol.splice(i,1);store();drawInput()}
+function togPrev(id,k){const M=cur();const p=M.prev[id]||(M.prev[id]=Array(7).fill(false));p[k]=!p[k];store();drawInput()}
+function togMark(id,d){const M=cur();if(M.hol.includes(d))return;const mk=M.mark[id]||(M.mark[id]={});mk[d]=!mk[d]?"h":mk[d]==="h"?"y":undefined;if(!mk[d])delete mk[d];store();drawInput()}
+
+/* ---------- 計算（solver.js） ---------- */
+let PLANS=[],PI=0,SET=null;
+function setup(){const M=cur(),{nd,dow}=ymParts();const mem=S.members;const N=mem.length;const hol=new Set(M.hol);const fixed=[],prevRun=[],prevOff=[];
+ for(let i=0;i<N;i++){const mk=M.mark[mem[i].id]||{};fixed[i]=[];for(let d=1;d<=nd;d++)fixed[i][d]=hol.has(d)?"co":mk[d]||null;
+  const pv=(M.prev[mem[i].id]||Array(7).fill(false)).map(Boolean);let r=0;for(let k=6;k>=0&&!pv[k];k--)r++;prevRun[i]=r;prevOff[i]=pv}
+ return {N,nd,dow,hol,fixed,prevRun,prevOff,mode:M.mode||"A",min:M.min||10,sp:mem.map(m=>m.sp),names:mem.map(m=>m.name),mem}}
+function make(){if(!S.members.length){$("status").textContent="先にメンバーを登録してください";return}
+ saveMonth();$("status").textContent="計算中…（10秒ほどかかります）";$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;
+ setTimeout(()=>{SET=setup();const r=ShiftSolver.solvePlans(SET,6,400000);PLANS=r.plans;SET.notes=r.notes;SET.W=r.W;
+  $("status").textContent="できました（3案）";PI=0;drawPlanBtns();show(0)},60)}
+function drawPlanBtns(){$("planBtns").innerHTML=PLANS.map((p,k)=>`<button class="${k===PI?"on":""}" onclick="show(${k})">第${k+1}案</button>`).join("")}
+
+/* ---------- 結果の表示・チェック ---------- */
+function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const P=SET;const {nd,dow,N,mem,hol,fixed,prevRun,min}=P;const {y,m}=ymParts();
+ let h=`<div class="sheet"><h3>${y}年 ${m}月　シフト表（第${k+1}案）</h3><table class="out"><tr><th class="id" rowspan="2">社員番号</th><th rowspan="2">所属</th><th rowspan="2">名前</th>`;
+ for(let d=1;d<=nd;d++){const w=dow(d);h+=`<th class="${w===0&&d>1?"wk":""}" style="color:${w===0?"var(--sun)":w===6?"var(--sat)":"inherit"}">${d}</th>`}
+ h+=`<th rowspan="2">休日<br>日数</th><th rowspan="2">出勤<br>日数</th></tr><tr>`;
+ for(let d=1;d<=nd;d++){const w=dow(d);h+=`<th class="${w===0&&d>1?"wk":""}" style="color:${w===0?"var(--sun)":w===6?"var(--sat)":"inherit"}">${WD[w]}</th>`}
+ h+="</tr>";
+ for(let i=0;i<N;i++){h+=`<tr><td class="id">${esc(mem[i].id)}</td><td class="co">${esc(mem[i].co)}</td><td class="nm">${esc(mem[i].name)}</td>`;let o=0,y_=0;
+  for(let d=1;d<=nd;d++){const w=dow(d);const f=fixed[i][d];let c="",t="";
+   if(off[i][d]){if(f==="co"){c="c-co";t="全"}else if(f==="h"){c="c-h";t="希"}else if(f==="y"){c="c-y";t="有";y_++}else{c="c-off";t="公"}if(f!=="y")o++}
+   h+=`<td class="cell ${c} ${w===0&&d>1?"wk":""}">${t}</td>`}
+  h+=`<td>${o}</td><td>${nd-o-y_}</td></tr>`}
+ h+=`<tr><td colspan="3"><b>出勤人数</b></td>`;for(let d=1;d<=nd;d++){let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;h+=`<td class="${dow(d)===0&&d>1?"wk":""}" style="${!hol.has(d)&&c<min?"color:var(--acc);font-weight:700":""}">${c}</td>`}
+ h+=`<td></td><td></td></tr></table><div class="legend"><div><span class="c-off">公</span>休み</div><div><span class="c-h">希</span>希望休</div><div><span class="c-y">有</span>有給</div><div><span class="c-co">全</span>公休（全員休み）</div><div>赤い点線＝週の区切り（日曜〜土曜）</div></div></div>`;
+ $("printArea").innerHTML=h;$("pbar").hidden=false;
+ // チェック
+ const short=[];for(let d=1;d<=nd;d++){if(hol.has(d))continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<min)short.push(`${d}日(${c}人)`)}
+ const run4=[],noPair=[],sp=[];
+ for(let i=0;i<N;i++){let r=prevRun[i],mx=0;for(let d=1;d<=nd;d++){r=off[i][d]?0:r+1;mx=Math.max(mx,r)}if(mx>=4)run4.push(`${mem[i].name}(${mx}連勤)`);
+  let pr=0;for(let d=1;d<nd;d++)if(off[i][d]&&off[i][d+1])pr++;if(!pr)noPair.push(mem[i].name);
+  if(mem[i].sp){for(const w of P.W[i]){let any=false,has=false;for(let d=w.a;d<=w.b;d++){const x=dow(d);if(x===2||x===3){any=true;if(off[i][d])has=true}}if(any&&!has)sp.push(`${mem[i].name}：${w.a}〜${w.b}日の週に火・水の休みなし`)}
+   let wd=0;for(let d=1;d<nd;d++){const ok=x=>{const q=dow(x);return q>=1&&q<=5&&!hol.has(x)};if(off[i][d]&&off[i][d+1]&&ok(d)&&ok(d+1))wd++}if(!wd)sp.push(`${mem[i].name}：平日の連休なし`)}}
+ const li=(ok,t,ng)=>`<li><span class="${ok?"ok":"ng"}">${ok?"○":"×"}</span> ${t}${ok?"":"：<span class='ng'>"+esc(ng)+"</span>"}</li>`;
+ $("checks").innerHTML=li(true,"希望休・有給はすべて休み","")+li(!P.notes.length,"週（日〜土）の休みは2日",P.notes.join("／"))+li(!short.length,`毎日${min}人以上出勤`,short.join("、"))+li(!run4.length,"4連勤なし（前月からの続きも含む）",run4.join("、"))+li(!noPair.length,"全員に連休が月1回以上",noPair.join("、"))+(S.members.some(m=>m.sp)?li(!sp.length,"★の人：火か水が休み・連休は平日",sp.join("／")):"")}
+function decide(){const {off}=PLANS[PI];const M=cur();const {nd}=ymParts();M.final={};SET.mem.forEach((mb,i)=>{M.final[mb.id]=[];for(let d=1;d<=nd;d++)if(off[i][d])M.final[mb.id].push(d)});store();$("status").textContent=`第${PI+1}案に決定しました。来月を作るとき、前月末の連勤に自動で使います。`}
+
+/* ---------- 起動 ---------- */
+ymList();showMembers();loadMonth();
+let t0=1;try{t0=+localStorage.getItem("shiftTab")||(S.members.length?2:1)}catch(e){}
+tab(S.members.length?(t0===1?2:t0):1);
+</script>
+</body>
+</html>
