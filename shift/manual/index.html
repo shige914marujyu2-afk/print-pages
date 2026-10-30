@@ -57,7 +57,7 @@ kbd{font:inherit;font-weight:700;border:1px solid #9aa3ae;border-bottom-width:2p
 </style>
 </head>
 <body>
-<div class="printbar"><a class="printbtn" href="shift-manual.pdf?v=4" target="_blank" rel="noopener">この表を印刷する</a></div>
+<div class="printbar"><a class="printbtn" href="shift-manual.pdf?v=5" target="_blank" rel="noopener">この表を印刷する</a></div>
 
 <!-- 1ページ目 -->
 <div class="page">
@@ -102,6 +102,7 @@ kbd{font:inherit;font-weight:700;border:1px solid #9aa3ae;border-bottom-width:2p
     <li><b>マスをタップ</b>：<br><span class="cell c-off">休</span> → <span class="cell c-h">希</span> → <span class="cell c-y">有</span> → 空欄</li>
     <li>左の灰色7列は<b>前月の最後の1週間</b>。同じようにタップして入れる（月またぎの連勤チェック用）</li>
     <li>全体休が入った週は、オレンジの枠で<b>その週の休みを何日にするか</b>を入れる</li>
+    <li>青い枠で<b>繁忙日・閑散日</b>を日付で選ぶ（押すたびに 繁→閑→普通）。下に人数の釣り合いが出ます</li>
    </ol>
   </div>
  </div>
@@ -116,7 +117,7 @@ kbd{font:inherit;font-weight:700;border:1px solid #9aa3ae;border-bottom-width:2p
    <div class="shots"><img class="shot" src="m_result.jpg" alt="作成とチェック"><img class="shot" src="m_table.jpg" alt="できあがった表"></div>
    <ol>
     <li>「<b>③ 作成・印刷</b>」で「<b>作成する（A案・B案）</b>」を押す</li>
-    <li><b>A案</b>＝飛び石の休みなし、<b>B案</b>＝金土日祝の出勤を多め、<b>手動用</b>＝希望休だけ。ルールを守れたかが <span style="color:#1d7a3a;font-weight:700">○</span>／<b>×</b> で出ます</li>
+    <li><b>A案</b>＝飛び石の休みなし、<b>B案</b>＝繁忙日の出勤を多め、<b>手動用</b>＝希望休だけ。ルールを守れたかが <span style="color:#1d7a3a;font-weight:700">○</span>／<b>×</b> で出ます</li>
     <li><b>表のマスをタップ</b>すると手で直せます：<br><span class="cell c-off">公</span> → <span class="cell c-h">希</span> → <span class="cell c-y">有</span> → 空欄（<span class="cell c-co">全</span>は変わりません）</li>
     <li>全部手で作るときは「<b>希望休だけの表（手動で入れる用）</b>」</li>
     <li>決めた案で「<b>この表を印刷する</b>」→ A4横のPDFが開く</li>
@@ -150,8 +151,8 @@ kbd{font:inherit;font-weight:700;border:1px solid #9aa3ae;border-bottom-width:2p
   <h3>自動で守るルール（上ほど優先）</h3>
   <div class="cols">
    <div>① 希望休・有給は必ず休み</div><div>④ 5連勤は絶対に作らない。4連勤もなるべく作らない</div>
-   <div>② 日曜〜土曜の1週間に休み2日</div><div>⑤ 連休は月1回以上（2回目・3連休は回数の少ない人から）</div>
-   <div>③ 毎日10人以上。月〜木は11人まで、金土日祝は11〜12人</div><div>⑥ 個人の条件（曜日・平日の連休・土日祝の休み）</div>
+   <div>② 月の休みは「週2日」分＋全体休（週ごとは1日まで増減）</div><div>⑤ 連休は月1回以上（2回目・3連休は回数の少ない人から）</div>
+   <div>③ 毎日10人以上（閑散日は少なくてOK）。繁忙日は11〜12人</div><div>⑥ 個人の条件（曜日・平日の連休・土日祝の休み）</div>
   </div>
  </div>
 
