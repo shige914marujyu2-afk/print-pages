@@ -105,7 +105,7 @@ html.ios{}
 </style>
 </head>
 <body>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31c</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=5" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31d</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=5" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -352,7 +352,15 @@ function make(){if(!members().length){$("status").textContent="先に回送員�
  saveMonth();$("status").textContent="計算中…";$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;
  setTimeout(async()=>{SET=setup();let hs=null;try{hs=await loadHighs()}catch(e){}
   const r=await ShiftSolver.solvePlans(SET,lb=>$("status").textContent=lb+"を計算中…（長くて30秒ほど）",hs);PLANS=r.plans;SET.notes=r.notes;SET.W=r.W;SET.MF=r.MF;SET.MT=r.MT;SET.monthT=r.monthT;
-  PLANS.push(manualPlan());$("status").textContent="できました（A案・B案・手動用）";PI=0;show(0)},60)}
+  SET.ym=$("ym").value;let note="できました（A案・B案・手動用）";
+  if(PLANS.length>1&&upper(PLANS[1].off)>upper(PLANS[0].off)){PLANS.splice(1,1);note="できました（A案・手動用）。B案は大事な条件（週の休み・5連勤・最低人数）をA案より守れないので出していません"}
+  PLANS.push(manualPlan());$("status").textContent=note;PI=0;show(0)},60)}
+/* 大事な条件の守れていない数：5連勤＞週の休みの日数＞最低人数 */
+function upper(off){const P=SET,c=P.cfg,AB=ShiftSolver.ABS(c);let v=0;
+ for(let i=0;i<P.N;i++){let r=P.prevRun[i];for(let d=1;d<=P.nd;d++){r=off[i][d]?0:r+1;if(r>AB)v+=1e6}
+  for(const w of P.W[i]){let k=0;for(const d of w.free)if(off[i][d])k++;v+=1e4*(Math.max(0,w.lo-k)+Math.max(0,k-w.hi))}}
+ for(let d=1;d<=P.nd;d++){const r=ShiftSolver.dayRange(P,d);if(!r)continue;let k=0;for(let i=0;i<P.N;i++)if(!off[i][d])k++;if(k<r.lo)v+=100*(r.lo-k)}
+ return v}
 /* 案の各マスの種類。f=入力した固定（co/h/y/k）、offs=休みかどうか */
 function kindsOf(off){const P=SET;return P.mem.map((_,i)=>{const r=[];for(let d=1;d<=P.nd;d++){const f=P.fixed[i][d];r[d]=off[i][d]?(f==="co"?"co":f==="h"?"h":f==="y"?"y":"off"):""}return r})}
 function ensureKinds(p){if(!p.kind)p.kind=kindsOf(p.off);return p.kind}
@@ -364,7 +372,8 @@ function manualPlan(){const P=SET;const M=cur();const saved=M.manual||{};let any
  return {off,kind,manual:true,label:"手動用",desc:any?"保存してある手動の表です。マスをタップして直せます（直すと自動で保存）。":"希望休・有給・全体休だけが入った表です。マスをタップして休みを入れてください（自動で保存）。"}}
 function saveManual(p){const M=cur();M.manual={};SET.mem.forEach((mb,i)=>{const o={};for(let d=1;d<=SET.nd;d++)if(p.kind[i][d]!=="co")o[d]=p.kind[i][d]||"";M.manual[mb.id]=o});store()}
 function makeManual(){if(!members().length){$("status").textContent="先に回送員を登録してください";return}
- saveMonth();SET=setup();const pr=ShiftSolver.prepare(SET);SET.notes=pr.notes;SET.W=pr.W;SET.MF=pr.MF;SET.MT=pr.MT;SET.monthT=pr.monthT;PLANS=[manualPlan()];$("status").textContent="手動用の表を作りました";PI=0;show(0)}
+ if(SET&&SET.ym===$("ym").value&&PLANS.length){let k=PLANS.findIndex(p=>p.manual);if(k<0){PLANS.push(manualPlan());k=PLANS.length-1}show(k);$("status").textContent="手動用の表です（A案・B案はそのまま残っています）";return}
+ saveMonth();SET=setup();SET.ym=$("ym").value;const pr=ShiftSolver.prepare(SET);SET.notes=pr.notes;SET.W=pr.W;SET.MF=pr.MF;SET.MT=pr.MT;SET.monthT=pr.monthT;PLANS=[manualPlan()];$("status").textContent="手動用の表を作りました";PI=0;show(0)}
 /* できあがった表のマスをタップ：休 → 希 → 有 → 空欄（全体休は変えない） */
 const NEXTK={"":"off",off:"h",h:"y",y:""};
 function cellTap(i,d){const p=PLANS[PI];const K=ensureKinds(p);if(K[i][d]==="co")return;K[i][d]=NEXTK[K[i][d]]||"";p.off[i][d]=K[i][d]?1:0;if(p.manual)saveManual(p);
