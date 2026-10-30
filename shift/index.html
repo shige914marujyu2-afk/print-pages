@@ -74,6 +74,7 @@ th.shuku{color:var(--sun);background:#fde8eb}
 .out th,.out td{border:1px solid #333;text-align:center;height:26px;min-width:22px;font-size:12px;padding:0 1px}
 .out td.id{min-width:54px;font-size:11px}.out td.nm{min-width:64px;font-size:13px;white-space:nowrap}.out td.co{min-width:44px;font-size:9px}
 .out .wk{border-left:2px dashed var(--sun)}
+.out td.tapc{cursor:pointer;user-select:none}.out td.tapc:hover{outline:2px solid #888;outline-offset:-2px}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;margin-top:6px}
 .legend span{display:inline-block;width:20px;height:18px;text-align:center;line-height:18px;margin-right:4px;font-weight:700}
 .hope h3{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -146,7 +147,8 @@ html.ios{}
 <!-- ③ 作成・印刷 -->
 <section id="p3" hidden>
  <div class="card">
-  <div class="row"><button class="btn" onclick="make()">作成する（A案・B案）</button><span id="status" class="status"></span></div>
+  <div class="row"><button class="btn" onclick="make()">作成する（A案・B案）</button><button class="btn sub" onclick="makeManual()">希望休だけの表（手動で入れる用）</button><span id="status" class="status"></span></div>
+  <p class="hint">できあがった表のマスをタップすると「休」→「希」→「有」→ 空欄 と手で直せます（全体休の「全」は変わりません）。直すと下のチェックも出直します。</p>
   <div class="plans" id="planBtns"></div>
   <ul class="chk" id="checks"></ul>
   <div class="printbar" id="pbar" hidden>
@@ -313,11 +315,23 @@ function make(){if(!members().length){$("status").textContent="先に回送員�
  saveMonth();$("status").textContent="計算中…";$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;
  setTimeout(async()=>{SET=setup();let hs=null;try{hs=await loadHighs()}catch(e){}
   const r=await ShiftSolver.solvePlans(SET,lb=>$("status").textContent=lb+"を計算中…（長くて30秒ほど）",hs);PLANS=r.plans;SET.notes=r.notes;SET.W=r.W;
-  $("status").textContent="できました（A案・B案）";PI=0;show(0)},60)}
+  PLANS.push(manualPlan());$("status").textContent="できました（A案・B案・手動用）";PI=0;show(0)},60)}
+/* 案の各マスの種類。f=入力した固定（co/h/y/k）、offs=休みかどうか */
+function kindsOf(off){const P=SET;return P.mem.map((_,i)=>{const r=[];for(let d=1;d<=P.nd;d++){const f=P.fixed[i][d];r[d]=off[i][d]?(f==="co"?"co":f==="h"?"h":f==="y"?"y":"off"):""}return r})}
+function ensureKinds(p){if(!p.kind)p.kind=kindsOf(p.off);return p.kind}
+/* 希望休・有給・全体休・「休」だけが入った手動用の表 */
+function manualPlan(){const P=SET;const off=P.mem.map((_,i)=>{const o=new Uint8Array(P.nd+2);for(let d=1;d<=P.nd;d++)if(P.fixed[i][d])o[d]=1;return o});
+ return {off,label:"手動用",desc:"希望休・有給・全体休だけが入った表です。マスをタップして休みを入れてください。"}}
+function makeManual(){if(!members().length){$("status").textContent="先に回送員を登録してください";return}
+ saveMonth();SET=setup();const pr=ShiftSolver.prepare(SET);SET.notes=pr.notes;SET.W=pr.W;PLANS=[manualPlan()];$("status").textContent="手動用の表を作りました";PI=0;show(0)}
+/* できあがった表のマスをタップ：休 → 希 → 有 → 空欄（全体休は変えない） */
+const NEXTK={"":"off",off:"h",h:"y",y:""};
+function cellTap(i,d){const p=PLANS[PI];const K=ensureKinds(p);if(K[i][d]==="co")return;K[i][d]=NEXTK[K[i][d]]||"";p.off[i][d]=K[i][d]?1:0;
+ const sc=$("printArea").parentElement.scrollLeft,sy=window.scrollY;show(PI);$("printArea").parentElement.scrollLeft=sc;window.scrollTo(0,sy)}
 function drawPlanBtns(){$("planBtns").innerHTML=PLANS.map((p,k)=>`<button class="${k===PI?"on":""}" onclick="show(${k})">${p.label}</button>`).join("")+(PLANS[PI]?`<div class="plandesc">${esc(PLANS[PI].label)}：${esc(PLANS[PI].desc)}</div>`:"")}
 
 /* ---------- 結果の表示・チェック ---------- */
-function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const P=SET;const {nd,dow,N,mem,hol,shuku,busy,fixed,prevRun,cfg}=P;const {y,m}=ymParts();
+function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const KD=ensureKinds(PLANS[k]);const P=SET;const {nd,dow,N,mem,hol,shuku,busy,fixed,prevRun,cfg}=P;const {y,m}=ymParts();
  const hc=d=>{const w=dow(d);return w===0||shuku.has(d)?"var(--sun)":w===6?"var(--sat)":"inherit"};
  const cnt=d=>{let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;return c};
  let h=`<div class="sheet"><h3>${y}年 ${m}月　シフト表（${PLANS[k].label}）</h3><table class="out"><tr><th rowspan="2">社員番号</th><th rowspan="2">所属</th><th rowspan="2">名前</th>`;
@@ -326,9 +340,9 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const P=SET;const {nd,
  for(let d=1;d<=nd;d++){const w=dow(d);h+=`<th class="${w===0&&d>1?"wk":""}" style="color:${hc(d)}">${shuku.has(d)?"祝":WD[w]}</th>`}
  h+="</tr>";
  for(let i=0;i<N;i++){h+=`<tr><td class="id">${esc(mem[i].id)}</td><td class="co">${esc(mem[i].co)}</td><td class="nm">${esc(mem[i].name)}</td>`;let o=0,yu=0;
-  for(let d=1;d<=nd;d++){const w=dow(d);const f=fixed[i][d];let c="",t="";
-   if(off[i][d]){if(f==="co"){c="c-co";t="全"}else if(f==="h"){c="c-h";t="希"}else if(f==="y"){c="c-y";t="有";yu++}else{c="c-off";t="公"}if(f!=="y")o++}
-   h+=`<td class="${c} ${w===0&&d>1?"wk":""}">${t}</td>`}
+  for(let d=1;d<=nd;d++){const w=dow(d);const f=KD[i][d];let c="",t="";
+   if(f){if(f==="co"){c="c-co";t="全"}else if(f==="h"){c="c-h";t="希"}else if(f==="y"){c="c-y";t="有";yu++}else{c="c-off";t="公"}if(f!=="y")o++}
+   h+=`<td class="${c} ${w===0&&d>1?"wk":""} ${f==="co"?"":"tapc"}" onclick="cellTap(${i},${d})">${t}</td>`}
   h+=`<td>${o}</td><td>${nd-o-yu}</td></tr>`}
  h+=`<tr><td colspan="3"><b>出勤人数</b></td>`;
  for(let d=1;d<=nd;d++){const c=cnt(d);const r=ShiftSolver.dayRange(P,d);const bad=r&&(c<r.lo||c>r.hi);h+=`<td class="${dow(d)===0&&d>1?"wk":""}" style="${bad?"color:var(--acc);font-weight:700":""}">${c}</td>`}
@@ -432,9 +446,9 @@ function svgSheet(o){const W=841.89,H=595.28,x0=30,top=80,hh=22,K="#c0303a",PK="
   const mid=bx(o.boxes.split);fitBox(x0,bot+7,mid-3,H-28.35,o.boxes.left,"#000");fitBox(mid+3,bot+7,xe,H-28.35,o.boxes.right,K)}
  const body=g.join("");const F=`font-family="IPAGothic,'IPAexGothic','BIZ UDPGothic','Hiragino Sans','Yu Gothic',Meiryo,sans-serif"`;
  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" ${F}><rect width="${W}" height="${H}" fill="#fff"/>${body}</svg>`}
-function svgShift(){const {off,label}=PLANS[PI];const P=SET;const {y,m}=ymParts();
- const rows=P.mem.map((mb,i)=>{let o=0,yu=0;const cells=[];for(let d=1;d<=P.nd;d++){const f=P.fixed[i][d];let k="";
-   if(off[i][d]){k=f==="co"?"co":f==="h"?"h":f==="y"?"y":"off";if(f==="y")yu++;else o++}cells.push(k)}
+function svgShift(){const {off,label}=PLANS[PI];const P=SET;const {y,m}=ymParts();const KD=ensureKinds(PLANS[PI]);
+ const rows=P.mem.map((mb,i)=>{let o=0,yu=0;const cells=[];for(let d=1;d<=P.nd;d++){const k=KD[i][d]||"";
+   if(k){if(k==="y")yu++;else o++}cells.push(k)}
   return {id:mb.id,co:mb.co,nm:mb.name,cells,off:o,work:P.nd-o-yu}});
  const totals=[];for(let d=1;d<=P.nd;d++){let c=0;for(let i=0;i<P.N;i++)if(!off[i][d])c++;totals.push(c)}
  return svgSheet({title:`${y}年 ${m}月`,right:`${label}　ver. 1`,rightSize:8,nd:P.nd,dow:P.dow,shuku:[...P.shuku],rows,totals})}
