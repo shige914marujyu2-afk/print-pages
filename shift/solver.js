@@ -5,8 +5,8 @@
 const STYLE={
  A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:300,quiet:20},
  B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:900,quiet:60}};
-const PEN={run5:1000000,wk:300000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
-const W8=c=>c.runFirst?{run5:100000,wk:20000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:20000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
+const PEN={run5:1000000,wk:3000000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
+const W8=c=>c.runFirst?{run5:100000,wk:200000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:200000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
 /* 土日祝（全体休を除く）の日か */
 const isWE=(P,d)=>{const q=P.dow(d);return !P.hol.has(d)&&(q===0||q===6||P.shuku.has(d))};
 const ABS=c=>Math.max(4,c.maxRun);/* 5連勤は絶対に作らない */

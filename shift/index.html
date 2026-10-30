@@ -105,7 +105,7 @@ html.ios{}
 </style>
 </head>
 <body>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31d</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=5" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31e</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=5" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -185,7 +185,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031c"></script>
+<script src="solver.js?v=20261031e"></script>
 <script>
 const WD="日月火水木金土";
 const DEF_PERIODS=[{name:"ゴールデンウィーク",from:"",to:""},{name:"お盆休み",from:"",to:""},{name:"年末年始",from:"",to:""}];
@@ -357,8 +357,8 @@ function make(){if(!members().length){$("status").textContent="先に回送員�
   PLANS.push(manualPlan());$("status").textContent=note;PI=0;show(0)},60)}
 /* 大事な条件の守れていない数：5連勤＞週の休みの日数＞最低人数 */
 function upper(off){const P=SET,c=P.cfg,AB=ShiftSolver.ABS(c);let v=0;
- for(let i=0;i<P.N;i++){let r=P.prevRun[i];for(let d=1;d<=P.nd;d++){r=off[i][d]?0:r+1;if(r>AB)v+=1e6}
-  for(const w of P.W[i]){let k=0;for(const d of w.free)if(off[i][d])k++;v+=1e4*(Math.max(0,w.lo-k)+Math.max(0,k-w.hi))}}
+ for(let i=0;i<P.N;i++){let r=P.prevRun[i];for(let d=1;d<=P.nd;d++){r=off[i][d]?0:r+1;if(r>AB)v+=1e4}
+  for(const w of P.W[i]){let k=0;for(const d of w.free)if(off[i][d])k++;v+=1e6*(Math.max(0,w.lo-k)+Math.max(0,k-w.hi))}}
  for(let d=1;d<=P.nd;d++){const r=ShiftSolver.dayRange(P,d);if(!r)continue;let k=0;for(let i=0;i<P.N;i++)if(!off[i][d])k++;if(k<r.lo)v+=100*(r.lo-k)}
  return v}
 /* 案の各マスの種類。f=入力した固定（co/h/y/k）、offs=休みかどうか */
@@ -422,7 +422,7 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const KD=ensureKinds(P
   +li(!P.notes.length&&!wkNg.length,`1週間（日〜土）の休みは必ず${cfg.weekOff}日（全体休の週は決めた日数）`,[...P.notes,...wkNg].join("／"))
   +li(!staffNg.length,`出勤人数：毎日${cfg.min}人以上（閑散日を除く）・普通の日は${cfg.wdMax}人まで・繁忙日は${cfg.beMax}人まで`,staffNg.join("、"))
   +`<li><span class="${bOk===bTot?"ok":"wa"}">${bOk===bTot?"○":"△"}</span> 繁忙日を${cfg.beTarget}人以上：${bTot}日中${bOk}日${bOk<bTot?"（休みの日数が決まっているため、人に余裕のある週だけ増やせます）":""}</li>`
-  +li(!run5.length,`${ShiftSolver.ABS(cfg)+1}連勤以上は絶対に作らない`,run5.join("、"))+li(!runNg.length,`連勤は${cfg.maxRun}日まで（前月からの続きも含む）`,runNg.join("、"))
+  +li(!run5.length,`${ShiftSolver.ABS(cfg)+1}連勤以上は作らない（週2日の休みのためにやむを得ない時だけ）`,run5.join("、"))+li(!runNg.length,`連勤は${cfg.maxRun}日まで（前月からの続きも含む）`,runNg.join("、"))
   +li(!pairNg.length,`連休は月${cfg.minPairs}回以上`,pairNg.join("、"))
   +li(!dowNg.length&&!weNg.length,"個人の条件（毎週どれか休み・連休は平日だけ・土日祝の休み）",[...dowNg,...weNg].join("／"))
   +info(`連休の回数：${esc(pairTxt.join("・"))}`)
