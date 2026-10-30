@@ -99,7 +99,7 @@ html.ios{}
 </style>
 </head>
 <body>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール</h1><a class="btn sub small" href="manual/shift-manual.pdf?v=4" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31a</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=4" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -130,6 +130,11 @@ html.ios{}
    <p class="hint">1行に1人「社員番号 名前 所属」。最後に★を付けると「火・水のどれか休み＋連休は平日だけ」になります。取り込むと今の一覧と入れ替わります。</p>
    <textarea id="bulk"></textarea>
    <div class="row"><button class="btn sub small" onclick="importBulk()">取り込む</button></div>
+  </details>
+  <details><summary class="hint" style="cursor:pointer">データの書き出し・読み込み（別のスマホ・パソコンへ移す）</summary>
+   <p class="hint">「書き出す」で出た文字をそのままコピーして、別の機械のここに貼り付けて「読み込む」を押すと、回送員・条件・各月の入力・手動の表がそっくり移ります。読み込むと今の内容と入れ替わります。</p>
+   <textarea id="dataBox" placeholder="ここに貼り付け"></textarea>
+   <div class="row"><button class="btn sub small" onclick="exportData()">書き出す</button><button class="btn sub small" onclick="importData()">読み込む</button><span class="hint" id="dmsg"></span></div>
   </details>
  </div>
 </section>
@@ -238,6 +243,14 @@ function importBulk(){const list=$("bulk").value.split(/\n/).map(l=>l.trim()).fi
  if(!list.length){$("mmsg").textContent="取り込める行がありません";return}
  S.members=list;sortMembers();store();drawMembers();$("mmsg").textContent=list.length+"人を取り込みました"}
 function members(){return S.members.filter(m=>m.id&&m.name)}
+function exportData(){$("dataBox").value="SHIFT1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));$("dataBox").select();
+ try{navigator.clipboard.writeText($("dataBox").value);$("dmsg").textContent="書き出してコピーしました"}catch(e){$("dmsg").textContent="書き出しました（選んでコピーしてください）"}}
+function importData(){let t=$("dataBox").value.trim();try{if(t.startsWith("SHIFT1:"))t=decodeURIComponent(escape(atob(t.slice(7))));const d=JSON.parse(t);
+  if(!d||!Array.isArray(d.members))throw 0;if(!confirm("今の内容と入れ替えます。よろしいですか？"))return;
+  S=d;S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));
+  S.members=S.members.map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||[],wdPair:!!m.wdPair,weOff:m.weOff??""}));sortMembers();store();
+  ymList();if(d.openMonth&&[...$("ym").options].some(o=>o.value===d.openMonth))$("ym").value=d.openMonth;loadMonth();drawMembers();drawCfg();$("dmsg").textContent=`読み込みました（${members().length}人）`}
+ catch(e){$("dmsg").textContent="読み込めませんでした。書き出した文字を全部貼り付けてください"}}
 
 /* ---------- 月 ---------- */
 const SHUKU={"2026":["1-1","1-12","2-11","2-23","3-20","4-29","5-3","5-4","5-5","5-6","7-20","8-11","9-21","9-22","9-23","10-12","11-3","11-23"],
@@ -320,13 +333,17 @@ function make(){if(!members().length){$("status").textContent="先に回送員�
 function kindsOf(off){const P=SET;return P.mem.map((_,i)=>{const r=[];for(let d=1;d<=P.nd;d++){const f=P.fixed[i][d];r[d]=off[i][d]?(f==="co"?"co":f==="h"?"h":f==="y"?"y":"off"):""}return r})}
 function ensureKinds(p){if(!p.kind)p.kind=kindsOf(p.off);return p.kind}
 /* 希望休・有給・全体休・「休」だけが入った手動用の表 */
-function manualPlan(){const P=SET;const off=P.mem.map((_,i)=>{const o=new Uint8Array(P.nd+2);for(let d=1;d<=P.nd;d++)if(P.fixed[i][d])o[d]=1;return o});
- return {off,label:"手動用",desc:"希望休・有給・全体休だけが入った表です。マスをタップして休みを入れてください。"}}
+function manualPlan(){const P=SET;const M=cur();const saved=M.manual||{};let any=false;
+ const kind=P.mem.map((mb,i)=>{const r=[];const sv=saved[mb.id];for(let d=1;d<=P.nd;d++){const f=P.fixed[i][d];
+   if(f==="co")r[d]="co";else if(sv&&sv[d]!=null){r[d]=sv[d];any=true}else r[d]=f==="h"?"h":f==="y"?"y":f==="k"?"off":""}return r});
+ const off=kind.map(r=>{const o=new Uint8Array(P.nd+2);for(let d=1;d<=P.nd;d++)o[d]=r[d]?1:0;return o});
+ return {off,kind,manual:true,label:"手動用",desc:any?"保存してある手動の表です。マスをタップして直せます（直すと自動で保存）。":"希望休・有給・全体休だけが入った表です。マスをタップして休みを入れてください（自動で保存）。"}}
+function saveManual(p){const M=cur();M.manual={};SET.mem.forEach((mb,i)=>{const o={};for(let d=1;d<=SET.nd;d++)if(p.kind[i][d]!=="co")o[d]=p.kind[i][d]||"";M.manual[mb.id]=o});store()}
 function makeManual(){if(!members().length){$("status").textContent="先に回送員を登録してください";return}
  saveMonth();SET=setup();const pr=ShiftSolver.prepare(SET);SET.notes=pr.notes;SET.W=pr.W;PLANS=[manualPlan()];$("status").textContent="手動用の表を作りました";PI=0;show(0)}
 /* できあがった表のマスをタップ：休 → 希 → 有 → 空欄（全体休は変えない） */
 const NEXTK={"":"off",off:"h",h:"y",y:""};
-function cellTap(i,d){const p=PLANS[PI];const K=ensureKinds(p);if(K[i][d]==="co")return;K[i][d]=NEXTK[K[i][d]]||"";p.off[i][d]=K[i][d]?1:0;
+function cellTap(i,d){const p=PLANS[PI];const K=ensureKinds(p);if(K[i][d]==="co")return;K[i][d]=NEXTK[K[i][d]]||"";p.off[i][d]=K[i][d]?1:0;if(p.manual)saveManual(p);
  const sc=$("printArea").parentElement.scrollLeft,sy=window.scrollY;show(PI);$("printArea").parentElement.scrollLeft=sc;window.scrollTo(0,sy)}
 function drawPlanBtns(){$("planBtns").innerHTML=PLANS.map((p,k)=>`<button class="${k===PI?"on":""}" onclick="show(${k})">${p.label}</button>`).join("")+(PLANS[PI]?`<div class="plandesc">${esc(PLANS[PI].label)}：${esc(PLANS[PI].desc)}</div>`:"")}
 
@@ -367,7 +384,7 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const KD=ensureKinds(P
    if(any&&!has)dowNg.push(`${mem[i].name}：${w.a}〜${w.b}日の週に${od.map(q=>WD[q]).join("・")}の休みなし`)}}
  const li=(ok,t,ng)=>`<li><span class="${ok?"ok":"ng"}">${ok?"○":"×"}</span> ${t}${ok?"":"：<span class='ng'>"+esc(ng)+"</span>"}</li>`;
  const info=t=>`<li class="info">　${t}</li>`;
- if(PLANS[k].label==="手動用"&&!KD.some(r=>r.some(v=>v==="off"))){$("checks").innerHTML=`<li class="info" style="font-size:14px;color:#333">手動用の表です。マスをタップして休みを入れてください（「公」→「希」→「有」→ 空欄）。<br>休みを入れ始めると、ここにルールのチェック（○×）が出ます。</li>`;return}
+ if(PLANS[k].manual&&!KD.some(r=>r.some(v=>v==="off"))){$("checks").innerHTML=`<li class="info" style="font-size:14px;color:#333">手動用の表です。マスをタップして休みを入れてください（「公」→「希」→「有」→ 空欄）。<br>休みを入れ始めると、ここにルールのチェック（○×）が出ます。</li>`;return}
  $("checks").innerHTML=li(true,"希望休・有給はすべて休み","")
   +li(!P.notes.length&&!wkNg.length,`週（日〜土）の休みは${cfg.weekOff}日`,[...P.notes,...wkNg].join("／"))
   +li(!staffNg.length,`出勤人数：毎日${cfg.min}人以上・月〜木は${cfg.wdMax}人まで・金土日祝は${cfg.beMax}人まで`,staffNg.join("、"))
@@ -474,6 +491,11 @@ async function doPrint(id){const msg=id==="hopeArea"?$("hopeMsg"):$("status");co
 
 /* ---------- 起動 ---------- */
 sortMembers();ymList();loadMonth();
+/* リンクの # に入ったデータを読み込む（データはネットには送られない） */
+(function(){const h=decodeURIComponent(location.hash||"");const k=h.indexOf("SHIFT1:");if(k<0)return;
+ history.replaceState(null,"",location.pathname);tab(1);$("dataBox").value=h.slice(k);
+ document.querySelectorAll("details").forEach(d=>{if(d.querySelector("#dataBox"))d.open=true});
+ setTimeout(()=>{importData();if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
 let t0=1;try{t0=+localStorage.getItem("shiftTab")||0}catch(e){}
 tab(members().length?(t0>=1&&t0<=4?t0:2):1);
 </script>
