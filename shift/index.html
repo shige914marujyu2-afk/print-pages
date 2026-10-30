@@ -367,6 +367,7 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const KD=ensureKinds(P
    if(any&&!has)dowNg.push(`${mem[i].name}：${w.a}〜${w.b}日の週に${od.map(q=>WD[q]).join("・")}の休みなし`)}}
  const li=(ok,t,ng)=>`<li><span class="${ok?"ok":"ng"}">${ok?"○":"×"}</span> ${t}${ok?"":"：<span class='ng'>"+esc(ng)+"</span>"}</li>`;
  const info=t=>`<li class="info">　${t}</li>`;
+ if(PLANS[k].label==="手動用"&&!KD.some(r=>r.some(v=>v==="off"))){$("checks").innerHTML=`<li class="info" style="font-size:14px;color:#333">手動用の表です。マスをタップして休みを入れてください（「公」→「希」→「有」→ 空欄）。<br>休みを入れ始めると、ここにルールのチェック（○×）が出ます。</li>`;return}
  $("checks").innerHTML=li(true,"希望休・有給はすべて休み","")
   +li(!P.notes.length&&!wkNg.length,`週（日〜土）の休みは${cfg.weekOff}日`,[...P.notes,...wkNg].join("／"))
   +li(!staffNg.length,`出勤人数：毎日${cfg.min}人以上・月〜木は${cfg.wdMax}人まで・金土日祝は${cfg.beMax}人まで`,staffNg.join("、"))
