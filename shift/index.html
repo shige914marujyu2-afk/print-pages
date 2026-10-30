@@ -107,9 +107,9 @@ th.shuku{color:var(--sun);background:#fde8eb}
 <!-- ① 条件・メンバー -->
 <section id="p1" hidden>
  <div class="card">
-  <h2>会社の条件</h2>
-  <div class="cfg" id="cfgBox"></div>
-  <div class="row"><button class="btn sub small" onclick="resetCfg()">初期値に戻す</button><span class="hint" id="cfgMsg"></span></div>
+  <h2>人数などの決まり（回送員の人数から自動）</h2>
+  <div id="cfgBox"></div>
+  <div class="row"><span class="hint" id="cfgMsg"></span></div>
  </div>
  <div class="card">
   <h2>長い休み（全員休み＝全体休）</h2>
@@ -119,7 +119,7 @@ th.shuku{color:var(--sun);background:#fde8eb}
  </div>
  <div class="card">
   <h2>回送員（社員番号の小さい順）</h2>
-  <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連休は平日だけ</b>＝連休を土日祝以外にします。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
+  <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連休は平日だけ</b>＝連休を土日祝以外にします。<b>土日祝の休み</b>＝土・日・祝日に月何日休みたいか（空欄なら指定なし）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
   <div class="wrap"><table class="mem" id="memTable"></table></div>
   <div class="row"><button class="btn small" onclick="addMember()">＋ 回送員を追加</button><span class="hint" id="mmsg"></span></div>
   <details><summary class="hint" style="cursor:pointer">まとめて貼り付ける</summary>
@@ -173,7 +173,7 @@ const DEF_CFG={min:10,wdMax:11,beTarget:11,beMax:12,weekOff:2,maxRun:3,minPairs:
 let S={members:[],months:{},cfg:{...DEF_CFG}};
 try{const s=JSON.parse(localStorage.getItem("shiftTool")||"null");if(s)S=s}catch(e){}
 S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));
-S.members=(S.members||[]).map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||(m.sp?[2,3]:[]),wdPair:m.wdPair!=null?!!m.wdPair:!!m.sp}));
+S.members=(S.members||[]).map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||(m.sp?[2,3]:[]),wdPair:m.wdPair!=null?!!m.wdPair:!!m.sp,weOff:m.weOff??""}));
 function store(){try{localStorage.setItem("shiftTool",JSON.stringify(S))}catch(e){}}
 const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
@@ -184,14 +184,6 @@ function tab(n){for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classLi
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
 
 /* ---------- 会社の条件 ---------- */
-const CFG_ITEMS=[
- ["min","毎日の出勤は最低","人",1,30],
- ["wdMax","月〜木の出勤は多くても","人まで",1,30],
- ["beTarget","金・土・日・祝の出勤はできれば","人以上",1,30],
- ["beMax","金・土・日・祝の出勤は多くても","人まで",1,30],
- ["weekOff","1週間（日〜土）の休みは","日",0,7],
- ["maxRun","連勤は最大","日まで",1,10],
- ["minPairs","連休は月に最低","回",0,5]];
 function drawPeriods(){const ps=S.cfg.periods;let h=`<tr><th>名前</th><th>何日から</th><th>何日まで</th><th></th></tr>`;
  ps.forEach((p,i)=>{h+=`<tr><td><input type="text" value="${esc(p.name)}" onchange="setPer(${i},'name',this.value)"></td>
   <td><input type="date" value="${esc(p.from)}" onchange="setPer(${i},'from',this.value)"></td>
@@ -201,29 +193,38 @@ function drawPeriods(){const ps=S.cfg.periods;let h=`<tr><th>名前</th><th>何�
 function setPer(i,k,v){const p=S.cfg.periods[i];p[k]=v;if(k==="from"&&p.to&&p.to<v)p.to=v;if(k==="to"&&p.from&&p.from>v)p.from=v;store();drawPeriods();$("cfgMsg").textContent="保存しました"}
 function addPeriod(){S.cfg.periods.push({name:"",from:"",to:""});store();drawPeriods()}
 function delPeriod(i){if(!confirm(`「${S.cfg.periods[i].name||"この期間"}」を削除しますか？`))return;S.cfg.periods.splice(i,1);store();drawPeriods()}
-function drawCfg(){drawPeriods();const c=S.cfg;$("cfgBox").innerHTML=CFG_ITEMS.map(([k,a,b,mn,mx])=>`<label>${a}<input type="number" id="cfg_${k}" min="${mn}" max="${mx}" value="${c[k]}" onchange="setCfg('${k}',this.value)">${b}</label>`).join("")+
- `<label><input type="checkbox" id="cfg_tri" ${c.tri?"checked":""} onchange="setCfg('tri',this.checked)">全体休を使って3連休を作る（回数は平等に）</label>`+
- `<label><input type="checkbox" id="cfg_runFirst" ${c.runFirst?"checked":""} onchange="setCfg('runFirst',this.checked)">どうしても両立できない時は、最低人数より連勤の上限を優先する</label>`}
-function setCfg(k,v){S.cfg[k]=k==="tri"||k==="runFirst"?!!v:Math.max(0,+v||0);
- if(S.cfg.wdMax<S.cfg.min)S.cfg.wdMax=S.cfg.min;if(S.cfg.beMax<S.cfg.min)S.cfg.beMax=S.cfg.min;if(S.cfg.beTarget>S.cfg.beMax)S.cfg.beTarget=S.cfg.beMax;
- store();drawCfg();$("cfgMsg").textContent="保存しました"}
-function resetCfg(){S.cfg={...DEF_CFG,periods:S.cfg.periods};store();drawCfg();$("cfgMsg").textContent="初期値に戻しました"}
+/* 回送員の人数から決まりを自動で出す（14人なら 最低10人・月〜木11人まで・金土日祝11〜12人） */
+function autoCfg(){const N=members().length||14;const avg=N*5/7;const min=Math.max(1,Math.floor(avg));
+ return {min,wdMax:min+1,beTarget:min+1,beMax:min+2,weekOff:2,maxRun:3,minPairs:1}}
+function effCfg(){return {...S.cfg,...autoCfg()}}
+function drawCfg(){drawPeriods();const c=effCfg();const N=members().length;
+ $("cfgBox").innerHTML=`<ul class="chk" style="margin:0">
+  <li>回送員 <b>${N}人</b> なので：</li>
+  <li>・毎日の出勤は <b>${c.min}人以上</b>（月〜木は${c.wdMax}人まで）</li>
+  <li>・金・土・日・祝は <b>${c.beTarget}〜${c.beMax}人</b> を目標（12人のような多い日は金土日祝だけ）</li>
+  <li>・1週間（日〜土）の休みは <b>${c.weekOff}日</b>／連勤は <b>${c.maxRun}日まで</b>（5連勤は絶対に作らない）</li>
+  <li>・連休は <b>月${c.minPairs}回以上</b>（2回目や全体休を使った3連休は、過去の回数が少ない人から）</li></ul>
+  <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+  <label><input type="checkbox" ${c.tri?"checked":""} onchange="setCfg('tri',this.checked)">全体休を使って3連休を作る</label>
+  <label><input type="checkbox" ${c.runFirst?"checked":""} onchange="setCfg('runFirst',this.checked)">どうしても両立できない時は、最低人数より連勤を優先する</label></div>`}
+function setCfg(k,v){S.cfg[k]=!!v;store();drawCfg();$("cfgMsg").textContent="保存しました"}
 
 /* ---------- 回送員 ---------- */
 function sortMembers(){S.members.sort((a,b)=>(a.id===""?1:0)-(b.id===""?1:0)||a.id.localeCompare(b.id))}
 function drawMembers(){const t=$("memTable");
- let h=`<tr><th>社員番号</th><th>名前</th><th>所属</th><th>毎週どれか休み</th><th>連休は<br>平日だけ</th><th></th></tr>`;
+ let h=`<tr><th>社員番号</th><th>名前</th><th>所属</th><th>毎週どれか休み</th><th>連休は<br>平日だけ</th><th>土日祝の休み<br>（月に何日）</th><th></th></tr>`;
  S.members.forEach((m,i)=>{h+=`<tr><td class="id"><input type="text" inputmode="numeric" value="${esc(m.id)}" onchange="setMem(${i},'id',this.value)"></td>
   <td><input type="text" value="${esc(m.name)}" onchange="setMem(${i},'name',this.value)"></td>
   <td><input type="text" value="${esc(m.co)}" onchange="setMem(${i},'co',this.value)"></td>
   <td><div class="chips">${[...WD].map((w,q)=>`<button class="${m.offDows.includes(q)?"on":""}" onclick="togDow(${i},${q})" aria-label="${w}曜">${w}</button>`).join("")}</div></td>
   <td style="text-align:center"><input type="checkbox" ${m.wdPair?"checked":""} onchange="setMem(${i},'wdPair',this.checked)" style="width:22px;height:22px"></td>
+  <td><input type="number" min="0" max="15" placeholder="指定なし" value="${m.weOff===""?"":m.weOff}" onchange="setMem(${i},'weOff',this.value===''?'':Math.max(0,+this.value))" style="width:84px"> 日</td>
   <td><button class="del" onclick="delMember(${i})">削除</button></td></tr>`});
- if(!S.members.length)h+=`<tr><td colspan="6" class="hint">まだ登録がありません。「＋ 回送員を追加」か「まとめて貼り付ける」から入れてください。</td></tr>`;
- t.innerHTML=h;$("bulk").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}${m.offDows.length&&m.wdPair?" ★":""}`).join("\n")}
+ if(!S.members.length)h+=`<tr><td colspan="7" class="hint">まだ登録がありません。「＋ 回送員を追加」か「まとめて貼り付ける」から入れてください。</td></tr>`;
+ t.innerHTML=h;if($("cfgBox"))drawCfg();$("bulk").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}${m.offDows.length&&m.wdPair?" ★":""}`).join("\n")}
 function setMem(i,k,v){S.members[i][k]=typeof v==="string"?v.trim():v;if(k==="id"){sortMembers();drawMembers()}store();$("mmsg").textContent="保存しました"}
 function togDow(i,q){const a=S.members[i].offDows;const j=a.indexOf(q);j<0?a.push(q):a.splice(j,1);a.sort();store();drawMembers()}
-function addMember(){S.members.push({id:"",name:"",co:"",offDows:[],wdPair:false});store();drawMembers();
+function addMember(){S.members.push({id:"",name:"",co:"",offDows:[],wdPair:false,weOff:""});store();drawMembers();
  const ins=$("memTable").querySelectorAll("td.id input");if(ins.length)ins[ins.length-1].focus()}
 function delMember(i){const m=S.members[i];if(!confirm(`${m.name||"この人"}さんを削除しますか？`))return;S.members.splice(i,1);store();drawMembers();$("mmsg").textContent="削除しました"}
 function importBulk(){const list=$("bulk").value.split(/\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const sp=/[★*]/.test(l);const p=l.replace(/[★*]/g,"").trim().split(/[\s　,、]+/);
@@ -301,8 +302,8 @@ function setup(){const M=cur(),{nd,dow}=ymParts();const mem=members();const N=me
  for(let i=0;i<N;i++){const mk=M.mark[mem[i].id]||{};fixed[i]=[];for(let d=1;d<=nd;d++)fixed[i][d]=hol.has(d)?"co":mk[d]||null;
   const pv=(M.prev[mem[i].id]||Array(7).fill("")).map(Boolean);const known=pv.some(Boolean);let r=0;if(known)for(let k=6;k>=0&&!pv[k];k--)r++;
   prevRun[i]=r;prevOff[i]=pv;prevKnown[i]=known}
- return {N,nd,dow,hol,shuku,busy,fixed,prevRun,prevOff,prevKnown,wkTotal:Object.fromEntries(holWeekList().map(w=>[w.a,w.val])),cfg:{...S.cfg},
-  offDows:mem.map(m=>m.offDows),wdPair:mem.map(m=>m.wdPair),names:mem.map(m=>m.name),
+ return {N,nd,dow,hol,shuku,busy,fixed,prevRun,prevOff,prevKnown,wkTotal:Object.fromEntries(holWeekList().map(w=>[w.a,w.val])),cfg:effCfg(),
+  offDows:mem.map(m=>m.offDows),wdPair:mem.map(m=>m.wdPair),weOff:mem.map(m=>m.weOff===""||m.weOff==null?null:+m.weOff),names:mem.map(m=>m.name),
   pastPairs:mem.map(m=>(ps[m.id]||{}).pairs||0),pastTri:mem.map(m=>(ps[m.id]||{}).tri||0),mem}}
 function make(){if(!members().length){$("status").textContent="先に回送員を登録してください";return}
  saveMonth();$("status").textContent="計算中…";$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;
@@ -333,6 +334,7 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const P=SET;const {nd,
  const staffNg=[];let bTot=0,bOk=0,bSum=0,qSum=0,qN=0;
  for(let d=1;d<=nd;d++){const r=ShiftSolver.dayRange(P,d);if(!r)continue;const c=cnt(d);if(c<r.lo||c>r.hi)staffNg.push(`${d}日(${c}人)`);
   if(r.busy){bTot++;bSum+=c;if(c>=r.target)bOk++}else{qSum+=c;qN++}}
+ const weNg=[];P.weOff.forEach((t,i)=>{if(t==null)return;let c=0;for(let d=1;d<=nd;d++){const q=dow(d);if(off[i][d]&&!hol.has(d)&&(q===0||q===6||shuku.has(d)))c++}if(c!==t)weNg.push(`${mem[i].name}：土日祝の休み ${c}日（希望${t}日）`)});
  const runNg=[],run5=[],wkNg=[],pairNg=[],dowNg=[],pairTxt=[],triTxt=[];let iso=0;
  for(let i=0;i<N;i++){let r=prevRun[i],st0=1-prevRun[i];const segs=[];
   for(let d=1;d<=nd+1;d++){if(d>nd||off[i][d]){if(r>cfg.maxRun)segs.push([st0,d-1,r]);r=0;st0=d+1}else r++}
@@ -353,7 +355,7 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const P=SET;const {nd,
   +`<li><span class="${bOk===bTot?"ok":"wa"}">${bOk===bTot?"○":"△"}</span> 金・土・日・祝を${cfg.beTarget}人以上：${bTot}日中${bOk}日${bOk<bTot?"（休みの日数が決まっているため、人に余裕のある週だけ増やせます）":""}</li>`
   +li(!run5.length,`${ShiftSolver.ABS(cfg)+1}連勤以上は絶対に作らない`,run5.join("、"))+li(!runNg.length,`連勤は${cfg.maxRun}日まで（前月からの続きも含む）`,runNg.join("、"))
   +li(!pairNg.length,`連休は月${cfg.minPairs}回以上`,pairNg.join("、"))
-  +li(!dowNg.length,"個人の条件（毎週どれか休み・連休は平日だけ）",dowNg.join("／"))
+  +li(!dowNg.length&&!weNg.length,"個人の条件（毎週どれか休み・連休は平日だけ・土日祝の休み）",[...dowNg,...weNg].join("／"))
   +info(`連休の回数：${esc(pairTxt.join("・"))}`)
   +(cfg.tri?info(`全体休を使った3連休：${triTxt.length?esc(triTxt.join("・"))+"回":"なし"}`):"")
   +info(`飛び石の休み（休→出→休）：${iso}回`)
