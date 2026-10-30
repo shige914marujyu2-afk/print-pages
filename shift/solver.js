@@ -5,8 +5,8 @@
 const STYLE={
  A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:300,quiet:20},
  B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:900,quiet:60}};
-const PEN={run5:200000,wk:50000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
-const W8=c=>c.runFirst?{run5:100000,wk:5000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:5000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
+const PEN={run5:1000000,wk:300000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
+const W8=c=>c.runFirst?{run5:100000,wk:20000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:20000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
 /* 土日祝（全体休を除く）の日か */
 const isWE=(P,d)=>{const q=P.dow(d);return !P.hol.has(d)&&(q===0||q===6||P.shuku.has(d))};
 const ABS=c=>Math.max(4,c.maxRun);/* 5連勤は絶対に作らない */
@@ -36,8 +36,8 @@ function prepare(P){
   else{lo=Math.max(0,T-(7-len));hi=Math.min(T,len)}
   if(fix>hi)notes.push(`${P.names[i]}：${a}〜${b}日の週は希望休などで休みが${fix}日になります`);
   /* 月の休みの合計を基準にするので、週ごとは目安±1日まで動かせる */
-  const tg=lo===hi?lo:T*len/7;
-  W[i].push({a,b,free,flex:true,lo:Math.max(0,Math.min(free.length,Math.ceil(lo===hi?lo-1:lo)-fix)),hi:Math.max(0,Math.min(free.length,Math.floor(lo===hi?hi+1:hi)-fix)),ideal:Math.max(0,tg-fix)})})}
+  const tg=lo===hi?lo:T*len/7,sl=lo===hi?0:0;
+  W[i].push({a,b,free,flex:lo!==hi,lo:Math.max(0,Math.min(free.length,lo-fix)),hi:Math.max(0,Math.min(free.length,hi-fix)),ideal:Math.max(0,tg-fix)})})}
  /* 月の休みの合計（全体休を含む・有給は別）：普通の日の数×週の休み÷7＋全体休 */
  const H=[...hol].length,MF=[],MT=[];let adj=0;
  for(const [a,b] of weeks){let hc=0;for(let d=a;d<=b;d++)if(hol.has(d))hc++;if(hc&&P.wkTotal&&P.wkTotal[a]!=null)adj+=P.wkTotal[a]-(K+hc)}
@@ -67,7 +67,7 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
    if(allFix)continue;if(!hasHol||!cfg.tri)p+=PN.off3*(L-2);else if(L>3)p+=PN.off3*(L-3)}
   if(offDows[i]&&offDows[i].length)for(const w of W[i]){let any=false,has=false;for(let d=w.a;d<=w.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(o[d])has=true}}if(any&&!has)p+=PN.dowp}
   for(const w of W[i]){let c=0;for(const d of w.free)if(o[d])c++;p+=PN.wk*(Math.max(0,w.lo-c)+Math.max(0,c-w.hi))+150*Math.abs(c-w.ideal)}
-  {let c=0;for(const d of MF[i])if(o[d])c++;p+=PN.wk*Math.abs(c-MT[i])}
+  {let c=0;for(const d of MF[i])if(o[d])c++;p+=300*Math.abs(c-MT[i])}
   for(let d=2;d<nd;d++)if(o[d-1]&&!o[d]&&o[d+1]&&!(fixed[i][d-1]&&fixed[i][d+1]))p+=st.iso;
   if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(o[d]&&isWE(P,d))c++;p+=PN.we*Math.abs(c-P.weOff[i])}
   if(opt.ref){const rf=opt.ref[i];let c=0;for(let d=1;d<=nd;d++)if(o[d]!==rf[d])c++;p-=opt.div*Math.min(c,8)}
@@ -85,7 +85,7 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
  for(let it=0;it<iters;it++,T*=cool){const [i,w]=pick();
   if(R()<0.08){const d=w.free[Math.floor(R()*w.free.length)];const v=off[i][d];const b0=Pp[i]+dp(d);off[i][d]=v^1;work[d]+=v?1:-1;const np=pp(i);const dE=np+dp(d)-b0;
    if(accept(dE)){Pp[i]=np;E+=dE;save()}else{off[i][d]=v;work[d]+=v?-1:1}continue}
-  const pool=R()<0.6?w.free:MF[i];const on=[],of=[];for(const d of pool)(off[i][d]?on:of).push(d);if(!on.length||!of.length)continue;
+  const pool=R()<0.9?w.free:MF[i];const on=[],of=[];for(const d of pool)(off[i][d]?on:of).push(d);if(!on.length||!of.length)continue;
   const a=on[Math.floor(R()*on.length)],b=of[Math.floor(R()*of.length)];
   if(R()<0.5){const cand=[];for(let j=0;j<N;j++){if(j===i||fixed[j][a]||fixed[j][b])continue;if(!off[j][a]&&off[j][b])cand.push(j)}
    if(cand.length){const j=cand[Math.floor(R()*cand.length)];const b0=Pp[i]+Pp[j];
@@ -96,21 +96,21 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
  return {off:bestOff,E:best}}
 /* 守れていないルールの数（人数・連勤・連休・個人の曜日） */
 function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;const w=W8(cfg);const AB=ABS(cfg);let v=0;
- for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=w.lo*(r.lo-c);if(c>r.hi)v+=w.hi*(c-r.hi)}
+ for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=w.lo*(r.lo-c)*(r.lo-c);if(c>r.hi)v+=w.hi*(c-r.hi)}
  for(let i=0;i<N;i++){let run=prevRun[i];for(let d=1;d<=nd;d++){run=off[i][d]?0:run+1;if(run>cfg.maxRun)v+=w.run;if(run>AB)v+=w.run5}
   for(const wk of prep.W[i]){let c=0;for(const d of wk.free)if(off[i][d])c++;v+=w.wk*(Math.max(0,wk.lo-c)+Math.max(0,c-wk.hi))}
-  {let c=0;for(const d of prep.MF[i])if(off[i][d])c++;v+=w.wk*Math.abs(c-prep.MT[i])}
+
   if(stats(P,i,off[i]).pairs<cfg.minPairs)v+=w.pair;
   if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(off[i][d]&&isWE(P,d))c++;v+=w.we*Math.abs(c-P.weOff[i])}
   if(offDows[i]&&offDows[i].length)for(const wk of prep.W[i]){let any=false,has=false;for(let d=wk.a;d<=wk.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(off[i][d])has=true}}if(any&&!has)v+=w.dow}}
  return v}
 /* 1段目（正確な計算）：HiGHSでルールを守れる表を探す */
-function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const w8=W8(cfg);const X=(i,d)=>`x${i}_${d}`;const isWD=isWDf(P);
+function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const w8=W8(cfg);const cap=[];const X=(i,d)=>`x${i}_${d}`;const isWD=isWDf(P);
  const cons=[],bin=[],cont=[],obj=[];let k=0;const sl=w=>{const v="s"+(k++);cont.push(v);obj.push(`${w} ${v}`);return v};
  for(let i=0;i<N;i++){for(let d=1;d<=nd;d++){bin.push(X(i,d));if(fixed[i][d])cons.push(`${X(i,d)} = 1`)}
   for(const w of prep.W[i]){if(!w.free.length)continue;const t=w.free.map(d=>X(i,d)).join(" + ");
    cons.push(`${t} + ${sl(w8.wk)} >= ${Math.min(w.lo,w.free.length)}`);cons.push(`${t} - ${sl(w8.wk)} <= ${w.hi}`)}
-  if(prep.MF[i].length)cons.push(`${prep.MF[i].map(d=>X(i,d)).join(" + ")} - ${sl(w8.wk)} + ${sl(w8.wk)} = ${prep.MT[i]}`);
+  if(prep.MF[i].length)cons.push(`${prep.MF[i].map(d=>X(i,d)).join(" + ")} - ${sl(1)} + ${sl(1)} = ${prep.MT[i]}`);
   const r=prevRun[i];
   for(const [K,hard] of [[cfg.maxRun+1,false],[ABS(cfg)+1,true]]){if(!hard&&K>ABS(cfg))continue;
    for(let s0=2-K;s0+K-1<=nd;s0++){if(s0<1&&r<1-s0)continue;const ds=[];for(let d=Math.max(1,s0);d<=s0+K-1;d++)ds.push(X(i,d));cons.push(hard?`${ds.join(" + ")} >= 1`:`${ds.join(" + ")} + ${sl(w8.run)} >= 1`)}}
@@ -119,9 +119,10 @@ function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}
   if(P.weOff&&P.weOff[i]!=null){const t=[];for(let d=1;d<=nd;d++)if(isWE(P,d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} - ${sl(w8.we)} + ${sl(w8.we)} = ${Math.min(P.weOff[i],t.length)}`)}
   if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){const t=[];for(let d=w.a;d<=w.b;d++)if(offDows[i].includes(dow(d))&&!hol.has(d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} + ${sl(w8.dow)} >= 1`)}}
  for(let d=1;d<=nd;d++){const rg=dayRange(P,d);if(!rg)continue;const t=[];for(let i=0;i<N;i++)t.push(X(i,d));const e=t.join(" + ");
-  cons.push(`${e} - ${sl(w8.lo)} <= ${N-rg.lo}`);cons.push(`${e} + ${sl(w8.hi)} >= ${Math.max(0,N-rg.hi)}`);
+  /* 足りない人数は1日に集めず散らす（1人目・2人目・3人目以降で重くする） */
+  const s1=sl(w8.lo),s2=sl(w8.lo*4),s3=sl(w8.lo*16);cap.push(s1,s2);cons.push(`${e} - ${s1} - ${s2} - ${s3} <= ${N-rg.lo}`);cons.push(`${e} + ${sl(w8.hi)} >= ${Math.max(0,N-rg.hi)}`);
   if(rg.busy&&rg.target>rg.lo)cons.push(`${e} - ${sl(1)} <= ${Math.max(0,N-rg.target)}`)}
- return `Minimize\n obj: ${obj.length?obj.join(" + "):"0 x0_1"}\nSubject To\n${cons.map((c,j)=>` c${j}: ${c}`).join("\n")}\nBounds\n${cont.map(v=>` 0 <= ${v}`).join("\n")}\nBinary\n ${bin.join(" ")}\nEnd\n`}
+ return `Minimize\n obj: ${obj.length?obj.join(" + "):"0 x0_1"}\nSubject To\n${cons.map((c,j)=>` c${j}: ${c}`).join("\n")}\nBounds\n${cont.map(v=>cap.includes(v)?` 0 <= ${v} <= 1`:` 0 <= ${v}`).join("\n")}\nBinary\n ${bin.join(" ")}\nEnd\n`}
 async function exactBase(P,prep,highs,limitSec){const lp=buildLean(P,prep);let r;
  try{r=highs.solve(lp,{time_limit:limitSec})}catch(e){return null}
  if(!r||!r.Columns||!/Optimal|Time limit|Feasible|Solution limit/i.test(r.Status))return null;
