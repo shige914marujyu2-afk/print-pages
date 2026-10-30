@@ -8,122 +8,162 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--acc:#b8323d;--ink:#1f2328;--mut:#5b6270;--line:#d4d8de;--soft:#fbeef0;--blue:#2f5fb3}
+:root{--acc:#b8323d;--ink:#1f2328;--mut:#4d5562;--line:#cfd4db;--soft:#fbeef0;--blue:#2f5fb3;--note:#fff6e5}
 *{box-sizing:border-box}
 body{margin:0;background:#eef0f3;color:var(--ink);font-family:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;padding:16px max(16px,env(safe-area-inset-left,0px)) 16px max(16px,env(safe-area-inset-right,0px))}
 .printbar{display:flex;justify-content:flex-end;max-width:210mm;margin:0 auto 10px}
-.printbtn{padding:12px 20px;border:0;border-radius:10px;background:var(--acc);color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer}
-.page{background:#fff;max-width:210mm;margin:0 auto;padding:10mm 11mm;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:3px solid var(--acc);padding-bottom:6px;margin-bottom:8px}
-h1{font-size:24px;margin:0}
-.sub{color:var(--mut);font-size:12.5px;margin-top:3px;line-height:1.5}
-.qr{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mut);text-align:right;line-height:1.4}
-.qr img{width:74px;height:74px}
-.step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;margin:5px 0;break-inside:avoid}
-.num{width:34px;height:34px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:19px;display:flex;align-items:center;justify-content:center}
-.step h2{font-size:16.5px;margin:4px 0 4px}
-.tag{display:inline-block;font-size:11px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px}
-.body{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:10px;align-items:start}
-.shot{width:100%;max-height:150px;object-fit:cover;object-position:top left;border:1px solid var(--line);border-radius:6px;display:block}
-ol,ul{margin:0;padding-left:1.25em;font-size:12.5px;line-height:1.5}
-li{margin:1px 0}
+.printbtn{padding:12px 20px;border:0;border-radius:10px;background:var(--acc);color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none}
+.page{background:#fff;max-width:210mm;margin:0 auto 16px;padding:11mm 12mm;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:3px solid var(--acc);padding-bottom:8px;margin-bottom:10px}
+h1{font-size:27px;margin:0}
+.sub{color:var(--mut);font-size:14px;margin-top:4px;line-height:1.5}
+.qr{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);text-align:right;line-height:1.4}
+.qr img{width:84px;height:84px}
+.pageno{font-size:13px;color:var(--mut);text-align:right;margin-top:-4px}
+.step{margin:12px 0 4px;break-inside:avoid}
+.step h2{display:flex;align-items:center;gap:10px;font-size:21px;margin:0 0 8px}
+.num{flex:none;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:21px;display:flex;align-items:center;justify-content:center}
+.tag{font-size:13px;font-weight:700;color:var(--acc);border:1.5px solid var(--acc);border-radius:5px;padding:1px 7px}
+.body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+.shots{display:flex;flex-direction:column;gap:6px}
+.shot{width:100%;border:1px solid var(--line);border-radius:6px;display:block}
+.cap{font-size:12px;color:var(--mut);margin:-2px 0 2px}
+ol,ul{margin:0;padding-left:1.3em;font-size:15px;line-height:1.65}
+li{margin:2px 0}
 b{color:var(--acc)}
-.cell{display:inline-block;min-width:20px;height:18px;line-height:18px;text-align:center;font-weight:700;font-size:12px;border-radius:2px;margin:0 2px;vertical-align:-3px}
+.cell{display:inline-block;min-width:24px;height:22px;line-height:22px;text-align:center;font-weight:700;font-size:14px;border-radius:3px;margin:0 2px;vertical-align:-3px}
 .c-off{background:#f6d0d6;color:#b8323d}.c-h{background:#f6d0d6;color:#b8323d;box-shadow:inset 0 0 0 2px #b8323d}.c-y{background:#d6e4f7;color:#2f5fb3}.c-co{background:#d9d9de}
-.box{background:var(--soft);border-radius:8px;padding:7px 10px;margin-top:8px;font-size:12.5px;line-height:1.6}
-.box h3{font-size:14px;margin:0 0 3px;color:var(--acc)}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
-.rules{font-size:12.5px;line-height:1.6;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
-.rules h3{font-size:14px;margin:0 0 2px}
-@media (max-width:600px){.body,.cols{grid-template-columns:minmax(0,1fr)}header{flex-wrap:wrap}}
-@page{size:A4;margin:8mm}
+.box{border-radius:10px;padding:7px 13px;margin-top:8px;font-size:14.5px;line-height:1.55;break-inside:avoid}
+.p2 ol,.p2 ul{font-size:14.5px;line-height:1.5}
+.p2 .step{margin:6px 0 0}
+.p2 .body{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+.p2 .step h2{margin-bottom:5px}
+.box h3{font-size:17px;margin:0 0 4px}
+.box.pc{background:#eef3fb;border:1px solid #c9d8f0}.box.pc h3{color:var(--blue)}
+.box.trouble{background:var(--soft)}.box.trouble h3{color:var(--acc)}
+.box.open{background:var(--note);border:1px solid #f0d49a}
+.rules{border:1px solid var(--line)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+kbd{font:inherit;font-weight:700;border:1px solid #9aa3ae;border-bottom-width:2px;border-radius:4px;padding:0 5px;background:#fff;font-size:14px}
+@media (max-width:640px){.body,.cols,.two{grid-template-columns:minmax(0,1fr)}header{flex-wrap:wrap}}
+@page{size:A4;margin:0}
 @media print{
  body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .printbar{display:none!important}
- .page{box-shadow:none;max-width:none;width:auto;height:auto;padding:0;overflow:visible;zoom:.86}
+ .page{box-shadow:none;max-width:none;width:210mm;height:297mm;margin:0;padding:10mm 11mm;overflow:hidden;break-after:page}
+ .page:last-child{break-after:auto}
 }
 </style>
 </head>
 <body>
-<div class="printbar"><a class="printbtn" href="shift-manual.pdf?v=1" target="_blank" rel="noopener" style="text-decoration:none">この表を印刷する</a></div>
+<div class="printbar"><a class="printbtn" href="shift-manual.pdf?v=2" target="_blank" rel="noopener">この表を印刷する</a></div>
+
+<!-- 1ページ目 -->
 <div class="page">
  <header>
   <div>
    <h1>シフト自動作成ツールの使い方</h1>
-   <div class="sub">ブラウザで開くだけ。AIも課金も不要です。WindowsのパソコンでもiPhoneでも使えます。<br>https://shige914marujyu2-afk.github.io/print-pages/shift/</div>
+   <div class="sub">ブラウザで開くだけ。AIも課金もいりません。iPhoneでもパソコン（Windows・Mac）でも使えます。<br>https://shige914marujyu2-afk.github.io/print-pages/shift/</div>
   </div>
   <div class="qr"><div>スマホで<br>読み取ると<br>開きます</div><img src="qr.png" alt="ツールのQRコード"></div>
  </header>
 
- <div class="step">
-  <div class="num">1</div>
-  <div>
-   <h2>条件と回送員を登録する<span class="tag">最初の1回だけ</span></h2>
-   <div class="body">
-    <img class="shot" src="s1.jpg" alt="メンバー登録の画面">
-    <ol>
-     <li>「<b>① 条件・メンバー</b>」を押す</li>
-     <li>出勤人数などの決まりは<b>人数から自動</b>。<b>GW・お盆・年末年始</b>は「長い休み」に何日〜何日で入れる</li>
-     <li>「<b>＋ 回送員を追加</b>」で1人ずつ入れる。やめた人は行の「<b>削除</b>」</li>
-     <li>個人の条件：<b>曜日ボタン</b>＝毎週そのどれかを休み、<b>チェック</b>＝連休は平日だけ、<b>土日祝の休み</b>＝月に何日</li>
-     <li>入力はすぐ保存され、社員番号の小さい順に並びます</li>
-    </ol>
-   </div>
+ <div class="box open">
+  <h3>開き方</h3>
+  <div class="two">
+   <div><b>iPhone</b>：QRコードを読み取る。<br>共有ボタン →「ホーム画面に追加」で次からすぐ開けます。</div>
+   <div><b>パソコン</b>：Chromeで上のアドレスを開く。<br><kbd>Ctrl</kbd>＋<kbd>D</kbd>（Macは <kbd>⌘</kbd>＋<kbd>D</kbd>）でブックマーク。</div>
   </div>
  </div>
 
  <div class="step">
-  <div class="num">2</div>
-  <div>
-   <h2>休みを入力する<span class="tag">毎月</span></h2>
-   <div class="body">
-    <img class="shot" src="s2.jpg" alt="休みの入力画面">
-    <ol>
-     <li>「<b>② 休みの入力</b>」で作る月を選ぶ</li>
-     <li>一番上の<b>日付をタップ</b>：1回目「祝」（祝日＝忙しい日）→ 2回目「全」（全体休＝全員の休み）→ 3回目 元に戻る。祝日は最初から入っています</li>
-     <li><b>マスをタップ</b>：1回目 <span class="cell c-off">休</span> → 2回目 <span class="cell c-h">希</span> → 3回目 <span class="cell c-y">有</span> → 4回目 空白</li>
-     <li>左の灰色7列は<b>前月の最後の1週間</b>。休んだ日を同じようにタップ（月またぎの連勤チェック用）</li>
-     <li>全体休が入った週は、<b>その週の休みを何日にするか</b>（全体休を含めた日数）を入れる</li>
-    </ol>
-   </div>
+  <h2><span class="num">1</span>条件と回送員を登録する<span class="tag">最初の1回だけ</span></h2>
+  <div class="body">
+   <div class="shots"><img class="shot" src="m_rules.jpg" alt="人数などの決まり"><img class="shot" src="m_members.jpg" alt="回送員の一覧"></div>
+   <ol>
+    <li>「<b>① 条件・メンバー</b>」を押す</li>
+    <li>出勤人数・連勤・連休などの決まりは<b>人数から自動</b>で決まります。下のチェック2つだけ選びます</li>
+    <li><b>GW・お盆・年末年始</b>は「長い休み」に何日〜何日を入れる</li>
+    <li>「<b>＋ 回送員を追加</b>」で1人ずつ入れる。やめた人は行の「<b>削除</b>」</li>
+    <li>個人の条件<br>・<b>曜日ボタン</b>＝毎週そのどれかを休み<br>・<b>連休は平日だけ</b>のチェック<br>・<b>土日祝の休み</b>＝月に何日休みたいか</li>
+    <li>入力はすぐ保存され、社員番号の小さい順に並びます</li>
+   </ol>
   </div>
  </div>
 
  <div class="step">
-  <div class="num">3</div>
-  <div>
-   <h2>作成して印刷する<span class="tag">10〜30秒</span></h2>
-   <div class="body">
-    <div style="display:grid;gap:6px"><img class="shot" src="s3a.jpg" alt="作成結果とチェック"><img class="shot" src="s3.jpg" alt="できあがったシフト表"></div>
-    <ol>
-     <li>「<b>③ 作成・印刷</b>」で「<b>作成する（A案・B案）</b>」を押す</li>
-     <li>「<b>A案</b>」＝飛び石の休みなし、「<b>B案</b>」＝金土日祝の出勤を多め。押して見比べる</li>
-     <li>ルールを守れたかが <span style="color:#1d7a3a;font-weight:700">○</span>／<b>×</b> で出る。×の所は名前と日付が赤で出ます</li>
-     <li>使う案を開いて「<b>この表を印刷する</b>」</li>
-     <li>「<b>この案に決定</b>」を押しておくと、翌月の前月末7列が自動で入ります</li>
-    </ol>
-   </div>
+  <h2><span class="num">2</span>休みを入力する<span class="tag">毎月</span></h2>
+  <div class="body">
+   <div class="shots"><img class="shot" src="m_holweeks.jpg" alt="全体休が入った週の質問"><img class="shot" src="m_grid.jpg" alt="休みの入力表"></div>
+   <ol>
+    <li>「<b>② 休みの入力</b>」で、上の「作る月」を選ぶ</li>
+    <li>一番上の<b>日付をタップ</b>：<br>1回目「祝」→ 2回目 <span class="cell c-co">全</span>（全体休）→ 3回目 元に戻る</li>
+    <li><b>マスをタップ</b>：<br><span class="cell c-off">休</span> → <span class="cell c-h">希</span> → <span class="cell c-y">有</span> → 空欄</li>
+    <li>左の灰色7列は<b>前月の最後の1週間</b>。同じようにタップして入れる（月またぎの連勤チェック用）</li>
+    <li>全体休が入った週は、オレンジの枠で<b>その週の休みを何日にするか</b>を入れる</li>
+   </ol>
+  </div>
+ </div>
+ <div class="pageno">1 / 2</div>
+</div>
+
+<!-- 2ページ目 -->
+<div class="page p2">
+ <div class="step" style="margin-top:0">
+  <h2><span class="num">3</span>作成して、直して、印刷する<span class="tag">10〜30秒</span></h2>
+  <div class="body">
+   <div class="shots"><img class="shot" src="m_result.jpg" alt="作成とチェック"><img class="shot" src="m_table.jpg" alt="できあがった表"></div>
+   <ol>
+    <li>「<b>③ 作成・印刷</b>」で「<b>作成する（A案・B案）</b>」を押す</li>
+    <li><b>A案</b>＝飛び石の休みなし、<b>B案</b>＝金土日祝の出勤を多め、<b>手動用</b>＝希望休だけ。ルールを守れたかが <span style="color:#1d7a3a;font-weight:700">○</span>／<b>×</b> で出ます</li>
+    <li><b>表のマスをタップ</b>すると手で直せます：<br><span class="cell c-off">公</span> → <span class="cell c-h">希</span> → <span class="cell c-y">有</span> → 空欄（<span class="cell c-co">全</span>は変わりません）</li>
+    <li>全部手で作るときは「<b>希望休だけの表（手動で入れる用）</b>」</li>
+    <li>決めた案で「<b>この表を印刷する</b>」→ A4横のPDFが開く</li>
+    <li>「<b>この案に決定</b>」を押すと、翌月の前月末7列が自動で入ります</li>
+   </ol>
   </div>
  </div>
 
- <div class="rules">
-  <h3>自動で守るルール（上ほど優先）</h3>
-  <div class="cols">
-   <div>① 希望休・有給は必ず休み</div><div>④ 4連勤以上にしない（月またぎも）。5連勤は絶対に作らない</div>
-   <div>② 日曜〜土曜の1週間に休み2日</div><div>⑤ 連休は月1回以上。2回目や全体休を使った3連休は、回数の少ない人から</div>
-   <div>③ 毎日10人以上。月〜木は11人まで、金土日祝は11〜12人を目標</div><div>⑥ 個人の条件（毎週休む曜日・連休は平日だけ）</div>
+ <div class="step">
+  <h2><span class="num">4</span>希望休の紙を配る<span class="tag">毎月</span></h2>
+  <div class="body">
+   <div class="shots"><img class="shot" src="m_hope.jpg" alt="希望休の紙" style="max-height:200px;object-fit:contain;object-position:left top"></div>
+   <ol>
+    <li>「<b>④ 希望休の表</b>」を押す</li>
+    <li>「<b>この表を印刷する</b>」→ A4横のPDFが開く</li>
+    <li>名前（社員番号順）と、その月の全体休 <span class="cell c-co">全</span> が最初から入っています。集めた紙を見ながら ② で入力します</li>
+   </ol>
   </div>
  </div>
 
- <div class="box">
-  <h3>困ったときは</h3>
+ <div class="box pc">
+  <h3>パソコンでのやり方</h3>
   <ul>
-   <li><b>×が消えないとき</b>：もう一度「作成する」を押すと別の組み合わせが出ます。それでも×なら、希望休の重なりなどで<b>どうしても守れない月</b>です。×の所だけ手で直してください。</li>
-   <li><b>希望休の紙</b>：「<b>④ 希望休の表</b>」を開いて「この表を印刷する」。登録した名前と、その月の祝日・全体休が入ります。</li>
-   <li><b>表の色</b>：<span class="cell c-off">公</span>休み <span class="cell c-h">希</span>希望休 <span class="cell c-y">有</span>有給 <span class="cell c-co">全</span>全体休　赤い点線＝週の区切り（日〜土）</li>
-   <li><b>データの保存先</b>：名前や入力は<b>使っているパソコン・スマホの中だけ</b>に残り、ネットには送られません。別の機械で使うときは、①のメンバー登録からやり直してください。</li>
+   <li><b>印刷</b>：「この表を印刷する」を押すと新しいタブにPDFが開き、印刷画面が出ます。プリンタを選んで「印刷」。印刷画面が出ないときは <kbd>Ctrl</kbd>＋<kbd>P</kbd>（Macは <kbd>⌘</kbd>＋<kbd>P</kbd>）</li>
+   <li><b>新しい版にならないとき</b>：<kbd>Ctrl</kbd>＋<kbd>Shift</kbd>＋<kbd>R</kbd>（Macは <kbd>⌘</kbd>＋<kbd>Shift</kbd>＋<kbd>R</kbd>）で読み込み直す</li>
+   <li><b>入力</b>：マスはクリックで切り替わります。横に長い表は <kbd>Shift</kbd>＋マウスのホイールで横に動きます</li>
   </ul>
  </div>
+
+ <div class="box rules">
+  <h3>自動で守るルール（上ほど優先）</h3>
+  <div class="cols">
+   <div>① 希望休・有給は必ず休み</div><div>④ 5連勤は絶対に作らない。4連勤もなるべく作らない</div>
+   <div>② 日曜〜土曜の1週間に休み2日</div><div>⑤ 連休は月1回以上（2回目・3連休は回数の少ない人から）</div>
+   <div>③ 毎日10人以上。月〜木は11人まで、金土日祝は11〜12人</div><div>⑥ 個人の条件（曜日・平日の連休・土日祝の休み）</div>
+  </div>
+ </div>
+
+ <div class="box trouble">
+  <h3>困ったときは</h3>
+  <ul>
+   <li><b>×が消えない</b>：もう一度「作成する」を押すと別の組み合わせが出ます。それでも×なら、希望休の重なりなどで<b>どうしても守れない月</b>です。×の所だけタップで直してください</li>
+   <li><b>iPhoneで印刷</b>：開いたPDFの共有ボタン →「プリント」。新しい版にならないときはタブを閉じて開き直す</li>
+   <li><b>データの保存先</b>：名前や入力は<b>使っているパソコン・スマホの中だけ</b>に残ります。別の機械では①からやり直してください</li>
+  </ul>
+ </div>
+ <div class="pageno">2 / 2</div>
 </div>
 </body>
 </html>

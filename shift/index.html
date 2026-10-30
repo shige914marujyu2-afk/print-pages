@@ -99,7 +99,7 @@ html.ios{}
 </style>
 </head>
 <body>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール</h1><a class="btn sub small" href="manual/shift-manual.pdf?v=1" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール</h1><a class="btn sub small" href="manual/shift-manual.pdf?v=2" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -224,7 +224,7 @@ function drawMembers(){const t=$("memTable");
   <td><input type="text" value="${esc(m.co)}" onchange="setMem(${i},'co',this.value)"></td>
   <td><div class="chips">${[...WD].map((w,q)=>`<button class="${m.offDows.includes(q)?"on":""}" onclick="togDow(${i},${q})" aria-label="${w}曜">${w}</button>`).join("")}</div></td>
   <td style="text-align:center"><input type="checkbox" ${m.wdPair?"checked":""} onchange="setMem(${i},'wdPair',this.checked)" style="width:22px;height:22px"></td>
-  <td><input type="number" min="0" max="15" placeholder="指定なし" value="${m.weOff===""?"":m.weOff}" onchange="setMem(${i},'weOff',this.value===''?'':Math.max(0,+this.value))" style="width:84px"> 日</td>
+  <td style="white-space:nowrap"><input type="number" min="0" max="15" placeholder="指定なし" value="${m.weOff===""?"":m.weOff}" onchange="setMem(${i},'weOff',this.value===''?'':Math.max(0,+this.value))" style="width:84px"> 日</td>
   <td><button class="del" onclick="delMember(${i})">削除</button></td></tr>`});
  if(!S.members.length)h+=`<tr><td colspan="7" class="hint">まだ登録がありません。「＋ 回送員を追加」か「まとめて貼り付ける」から入れてください。</td></tr>`;
  t.innerHTML=h;if($("cfgBox"))drawCfg();$("bulk").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}${m.offDows.length&&m.wdPair?" ★":""}`).join("\n")}
