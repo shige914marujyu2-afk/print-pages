@@ -22,14 +22,16 @@ function stats(P,i,o){const isWD=isWDf(P);let pairs=0,tri=0,badPair=0;
 function prepare(P){
  const {N,hol,fixed,prevOff,prevKnown,mode,cfg}=P;const K=cfg.weekOff;const weeks=weeksOf(P);const W=[];const notes=[];
  for(let i=0;i<N;i++){W[i]=[];weeks.forEach(([a,b],wi)=>{const len=b-a+1;const free=[];let fix=0;
-  for(let d=a;d<=b;d++){if(fixed[i][d]){if(!(hol.has(d)&&mode==="B"))fix++;continue}free.push(d)}
+  let hc=0;for(let d=a;d<=b;d++){if(hol.has(d))hc++;if(fixed[i][d]){fix++;continue}free.push(d)}
+  /* 全体休が入った週は、入力された日数（全体休を含む）にする */
+  const T=hc?Math.min(len+(7-len),(P.wkTotal&&P.wkTotal[a]!=null)?P.wkTotal[a]:K+hc):K;
   let lo,hi;
-  if(len===7)lo=hi=K;
-  else if(wi===0&&prevKnown[i]){let po=0;for(let q=len;q<7;q++)if(prevOff[i][q])po++;lo=hi=Math.max(0,K-po)}
-  else{lo=Math.max(0,K-(7-len));hi=Math.min(K,len)}
+  if(len===7)lo=hi=Math.min(T,7);
+  else if(wi===0&&prevKnown[i]){let po=0;for(let q=len;q<7;q++)if(prevOff[i][q])po++;lo=hi=Math.min(len,Math.max(0,T-po))}
+  else{lo=Math.max(0,T-(7-len));hi=Math.min(T,len)}
   if(fix>hi)notes.push(`${P.names[i]}：${a}〜${b}日の週は希望休などで休みが${fix}日になります`);
   const flex=lo!==hi;const need=flex?null:Math.min(free.length,Math.max(0,lo-fix));
-  W[i].push({a,b,free,need,flex,lo:Math.max(0,lo-fix),hi:Math.max(0,hi-fix),ideal:K*len/7-fix})})}
+  W[i].push({a,b,free,need,flex,lo:Math.max(0,lo-fix),hi:Math.max(0,hi-fix),ideal:T*len/7-fix})})}
  const fairOf=arr=>{const mx=Math.max(0,...arr.map(v=>v||0));return arr.map(v=>1+(mx-(v||0)))};
  return {W,notes,weeks,fair:fairOf(P.pastPairs||[]),fair3:fairOf(P.pastTri||[])}}
 function solve(P,prep,st,seed,iters,opt={}){

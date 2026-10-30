@@ -50,7 +50,7 @@ table{border-collapse:collapse;font-variant-numeric:tabular-nums}
 .grid .sat{color:var(--sat)}.grid .sun{color:var(--sun)}
 .grid .wk{border-left:2px dashed var(--sun)}
 .grid .prev{background:#eef0f3;color:#555}
-.grid .prev.o{background:#f3c6cc;color:#7a1d26;font-weight:700}
+.grid td.prev.c-off{background:var(--off)}.grid td.prev.c-h{background:var(--off)}.grid td.prev.c-y{background:var(--yu)}
 th.hol{background:var(--co)}
 th.shuku{color:var(--sun);background:#fde8eb}
 .c-off{background:var(--off);color:var(--offfg);font-weight:700}
@@ -78,12 +78,10 @@ th.shuku{color:var(--sun);background:#fde8eb}
 .hope h3{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .hope h3 small{color:var(--sat);font-size:13px;font-weight:700}
 .hope .note{font-size:12px;margin:2px 0}.hope .note.r{color:var(--sun)}
-.hope table{width:100%}
-.hope th,.hope td{border:1px solid #888;height:30px;font-size:11px;text-align:center;padding:0 1px}
-.hope td.nm{text-align:left;padding:0 6px;white-space:nowrap;font-size:13px;width:150px}
-.hope td.nm small{font-size:9px;color:#555;margin-right:6px}
-.hope .bs{background:#e3ecf8}.hope .bu{background:#fbe6e9}.hope .bh{background:#d9d9de}
-.hope .wk{border-left:2px dashed var(--sun)}
+.hope .out{width:100%}
+.hope .out td{height:34px}
+.ask{background:#fff4e0;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.ask label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 #printRoot{display:none}
 @page{size:A4 landscape;margin:8mm}
 @media print{
@@ -92,7 +90,7 @@ th.shuku{color:var(--sun);background:#fde8eb}
  #printRoot{display:block!important}
  .sheet{padding:0}
  .out{width:100%}.out th,.out td{height:24px;font-size:11px}
- .hope th,.hope td{height:32px}
+ .hope .out td{height:36px}
 }
 </style>
 </head>
@@ -135,12 +133,8 @@ th.shuku{color:var(--sun);background:#fde8eb}
 <!-- ② 休みの入力 -->
 <section id="p2" hidden>
  <div class="card">
-  <div class="row" id="modeRow">
-   <span>全体休がある週の休み：</span>
-   <label><input type="radio" name="mode" value="A" onchange="saveMonth()"> 全体休を含めて決めた日数</label>
-   <label><input type="radio" name="mode" value="B" onchange="saveMonth()"> 全体休とは別に決めた日数</label>
-  </div>
-  <p class="hint">・<b>日付をタップ</b>：「祝」（祝日）→「全」（全体休＝全員の休み）→ 元に戻る。祝日と、会社の条件で入れた長い休みは最初から入っています。<br>・<b>希望休・有給</b>：マスをタップするたびに「希」→「有」→ 空白。<br>・左の灰色7列は<b>前月の最後の1週間</b>。休んだ日をタップして「休」に（月またぎの連勤チェック用。空のままの人はチェックしません）。前月をこのツールで「決定」していれば自動で入ります。</p>
+  <div id="holWeeks"></div>
+  <p class="hint">・<b>日付をタップ</b>：「祝」（祝日）→「全」（全体休＝全員の休み）→ 元に戻る。祝日と、会社の条件で入れた長い休みは最初から入っています。<br>・<b>マスをタップ</b>するたびに「休」→「希」（希望休）→「有」（有給）→ 空白、と変わります。「休」は希望ではないが休みに決まっている日に使います。<br>・左の灰色7列は<b>前月の最後の1週間</b>。同じように休んだ日を入れます（月またぎの連勤チェック用。空のままの人はチェックしません）。前月をこのツールで「決定」していれば自動で入ります。</p>
  </div>
  <div class="card"><div class="wrap"><table class="grid" id="inGrid"></table></div></div>
  <div class="row"><button class="btn" onclick="tab(3);make()">この内容で作成する</button><button class="btn sub" onclick="clearMonth()">この月の入力を消す</button><span class="hint" id="p2msg"></span></div>
@@ -245,21 +239,29 @@ const SHUKU={"2026":["1-1","1-12","2-11","2-23","3-20","4-29","5-3","5-4","5-5",
 function ymList(){const s=$("ym");const now=new Date();s.innerHTML="";
  for(let k=-1;k<=3;k++){const d=new Date(now.getFullYear(),now.getMonth()+k,1);const v=d.getFullYear()+"-"+(d.getMonth()+1);
   const o=document.createElement("option");o.value=v;o.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月";if(k===1)o.selected=true;s.appendChild(o)}}
-function cur(){const v=$("ym").value;if(!S.months[v]){const [y,m]=v.split("-");S.months[v]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mode:"A",mark:{},prev:{},final:null}}
- const M=S.months[v];if(!M.shuku)M.shuku=[];return M}
+function cur(){const v=$("ym").value;if(!S.months[v]){const [y,m]=v.split("-");S.months[v]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mark:{},prev:{},wkTotal:{},final:null}}
+ const M=S.months[v];if(!M.shuku)M.shuku=[];if(!M.wkTotal)M.wkTotal={};return M}
 /* その月の全体休＝②で入れた日＋会社の条件の長い休み */
 function periodDays(){const {y,m,nd}=ymParts();const out=[];for(const p of S.cfg.periods||[]){if(!p.from||!p.to)continue;
   for(let d=1;d<=nd;d++){const t=`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;if(t>=p.from&&t<=p.to)out.push(d)}}return out}
 function holOf(M){return [...new Set([...M.hol,...periodDays()])].sort((a,b)=>a-b)}
 function ymParts(){const [y,m]=$("ym").value.split("-").map(Number);return {y,m,nd:new Date(y,m,0).getDate(),dow:d=>new Date(y,m-1,d).getDay()}}
-function loadMonth(){cur();document.querySelectorAll("input[name=mode]").forEach(r=>r.checked=r.value===(cur().mode||"A"));
- autoPrev();drawInput();drawHope();$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;$("status").textContent=""}
-function saveMonth(){const r=document.querySelector("input[name=mode]:checked");cur().mode=r?r.value:"A";store()}
+function loadMonth(){cur();
+ autoPrev();drawInput();drawHolWeeks();drawHope();$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;$("status").textContent=""}
+function saveMonth(){store()}
+/* 全体休が入った週：その週の休みを何日にするか */
+function holWeekList(){const M=cur(),{nd,dow}=ymParts();const H=holOf(M);const out=[];let s=1;
+ while(s<=nd){let e=s;while(e<nd&&dow(e)!==6)e++;const hc=H.filter(d=>d>=s&&d<=e).length;
+  if(hc&&hc<e-s+1)out.push({a:s,b:e,hc,len:e-s+1,val:M.wkTotal[s]!=null?M.wkTotal[s]:Math.min(7,S.cfg.weekOff+hc)});s=e+1}return out}
+function drawHolWeeks(){const L=holWeekList();const el=$("holWeeks");if(!L.length){el.innerHTML="";return}
+ el.innerHTML=`<div class="ask"><b>全体休が入った週があります。この週の休みを何日にしますか？（全体休を含めた日数）</b>`+
+  L.map(w=>`<label>${w.a}日〜${w.b}日の週（全体休${w.hc}日）：休み <input type="number" min="${w.hc}" max="7" value="${w.val}" onchange="setWk(${w.a},this.value)"> 日 <span class="hint">＝全体休＋${w.val-w.hc}日</span></label>`).join("")+`</div>`}
+function setWk(a,v){cur().wkTotal[a]=Math.max(0,Math.min(7,+v||0));store();drawHolWeeks()}
 function clearMonth(){if(!confirm("この月の入力（全体休・希望休・有給・前月末）を消しますか？"))return;delete S.months[$("ym").value];store();loadMonth()}
 function autoPrev(){const {y,m}=ymParts();const pd=new Date(y,m-2,1);const P=S.months[pd.getFullYear()+"-"+(pd.getMonth()+1)];const M=cur();
  if(!P||!P.final)return;const pnd=new Date(pd.getFullYear(),pd.getMonth()+1,0).getDate();
  for(const mb of members()){if(M.prev[mb.id]&&M.prev[mb.id].some(Boolean))continue;const offs=P.final[mb.id]||[];
-  M.prev[mb.id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k))}store()}
+  M.prev[mb.id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k)?"k":"")}store()}
 
 /* ---------- 休みの入力 ---------- */
 function drawInput(){const t=$("inGrid");const mem=members();if(!mem.length){t.innerHTML="<tr><td style='padding:12px'>先に「① 条件・メンバー」で回送員を登録してください</td></tr>";return}
@@ -269,16 +271,20 @@ function drawInput(){const t=$("inGrid");const mem=members();if(!mem.length){t.i
   h+=`<th class="tap ${w===6?"sat":w===0||Sh?"sun":""} ${w===0&&d>1?"wk":""} ${H?"hol":Sh?"shuku":""}" onclick="togHol(${d})">${d}<br>${H?"全":Sh?"祝":WD[w]}</th>`}
  h+="</tr>";
  for(const mb of mem){h+=`<tr><th class="nm">${esc(mb.name)}</th>`;const pv=M.prev[mb.id]||[];
-  for(let k=0;k<7;k++)h+=`<td class="tap prev ${pv[k]?"o":""}" onclick="togPrev('${esc(mb.id)}',${k})">${pv[k]?"休":""}</td>`;
+  for(let k=0;k<7;k++){const v=pv[k]===true?"k":pv[k];h+=`<td class="tap prev ${cellCls(v)}" onclick="togPrev('${esc(mb.id)}',${k})">${cellTxt(v)}</td>`}
   const mk=M.mark[mb.id]||{};
   for(let d=1;d<=nd;d++){const w=dow(d);const v=holOf(M).includes(d)?"co":mk[d];
-   h+=`<td class="tap ${w===0&&d>1?"wk":""} ${v==="h"?"c-h":v==="y"?"c-y":v==="co"?"c-co":""}" onclick="togMark('${esc(mb.id)}',${d})">${v==="h"?"希":v==="y"?"有":v==="co"?"全":""}</td>`}
+   h+=`<td class="tap ${w===0&&d>1?"wk":""} ${cellCls(v)}" onclick="togMark('${esc(mb.id)}',${d})">${cellTxt(v)}</td>`}
   h+="</tr>"}
  t.innerHTML=h}
-function togHol(d){const M=cur();if(periodDays().includes(d)){$("p2msg").textContent="長い休みの日は「① 条件・メンバー」で変えられます";return}const h=M.hol.indexOf(d),s=M.shuku.indexOf(d);
+function togHol(d){setTimeout(drawHolWeeks,0);const M=cur();if(periodDays().includes(d)){$("p2msg").textContent="長い休みの日は「① 条件・メンバー」で変えられます";return}const h=M.hol.indexOf(d),s=M.shuku.indexOf(d);
  if(h>=0)M.hol.splice(h,1);else if(s>=0){M.shuku.splice(s,1);M.hol.push(d)}else M.shuku.push(d);store();drawInput()}
-function togPrev(id,k){const M=cur();const p=M.prev[id]||(M.prev[id]=Array(7).fill(false));p[k]=!p[k];store();drawInput()}
-function togMark(id,d){const M=cur();if(holOf(M).includes(d))return;const mk=M.mark[id]||(M.mark[id]={});mk[d]=!mk[d]?"h":mk[d]==="h"?"y":undefined;if(!mk[d])delete mk[d];store();drawInput()}
+/* タップするたびに 休 → 希 → 有 → 空白 */
+const NEXT={"":"k",k:"h",h:"y",y:""};
+const cellCls=v=>v==="k"?"c-off":v==="h"?"c-h":v==="y"?"c-y":v==="co"?"c-co":"";
+const cellTxt=v=>v==="k"?"休":v==="h"?"希":v==="y"?"有":v==="co"?"全":"";
+function togPrev(id,k){const M=cur();const p=M.prev[id]||(M.prev[id]=Array(7).fill(""));const v=p[k]===true?"k":(p[k]||"");p[k]=NEXT[v];store();drawInput()}
+function togMark(id,d){const M=cur();if(holOf(M).includes(d))return;const mk=M.mark[id]||(M.mark[id]={});mk[d]=NEXT[mk[d]||""];if(!mk[d])delete mk[d];store();drawInput()}
 
 /* ---------- 計算 ---------- */
 let HIGHS=null;function loadHighs(){if(HIGHS)return Promise.resolve(HIGHS);
@@ -293,9 +299,9 @@ function setup(){const M=cur(),{nd,dow}=ymParts();const mem=members();const N=me
  const busy=new Set();for(let d=1;d<=nd;d++){const w=dow(d);if(!hol.has(d)&&(w===5||w===6||w===0||shuku.has(d)))busy.add(d)}
  const ps=pastStats();const fixed=[],prevRun=[],prevOff=[],prevKnown=[];
  for(let i=0;i<N;i++){const mk=M.mark[mem[i].id]||{};fixed[i]=[];for(let d=1;d<=nd;d++)fixed[i][d]=hol.has(d)?"co":mk[d]||null;
-  const pv=(M.prev[mem[i].id]||Array(7).fill(false)).map(Boolean);const known=pv.some(Boolean);let r=0;if(known)for(let k=6;k>=0&&!pv[k];k--)r++;
+  const pv=(M.prev[mem[i].id]||Array(7).fill("")).map(Boolean);const known=pv.some(Boolean);let r=0;if(known)for(let k=6;k>=0&&!pv[k];k--)r++;
   prevRun[i]=r;prevOff[i]=pv;prevKnown[i]=known}
- return {N,nd,dow,hol,shuku,busy,fixed,prevRun,prevOff,prevKnown,mode:M.mode||"A",cfg:{...S.cfg},
+ return {N,nd,dow,hol,shuku,busy,fixed,prevRun,prevOff,prevKnown,wkTotal:Object.fromEntries(holWeekList().map(w=>[w.a,w.val])),cfg:{...S.cfg},
   offDows:mem.map(m=>m.offDows),wdPair:mem.map(m=>m.wdPair),names:mem.map(m=>m.name),
   pastPairs:mem.map(m=>(ps[m.id]||{}).pairs||0),pastTri:mem.map(m=>(ps[m.id]||{}).tri||0),mem}}
 function make(){if(!members().length){$("status").textContent="先に回送員を登録してください";return}
@@ -356,17 +362,21 @@ function decide(){const {off}=PLANS[PI];const M=cur();M.finalHol=holOf(M);const 
  $("status").textContent=`${PLANS[PI].label}に決定しました。来月を作るとき、前月末の連勤と連休・3連休の公平さに使います。`}
 
 /* ---------- 希望休の表 ---------- */
-function drawHope(){const {y,m,nd,dow}=ymParts();const M=cur();const mem=members();
- let h=`<div class="sheet hope"><h3><span>${m}月 希望休</span><small>毎日お疲れ様です。希望休は3日まで、25日締め切りです。</small></h3>
+function drawHope(){const {y,m,nd,dow}=ymParts();const M=cur();const mem=members();const H=holOf(M);
+ const hc=d=>{const w=dow(d);return w===0||M.shuku.includes(d)?"var(--sun)":w===6?"var(--sat)":"inherit"};
+ const wk=d=>dow(d)===0&&d>1?"wk":"";
+ let h=`<div class="sheet hope"><h3><span>${y}年 ${m}月　希望休</span><small>毎日お疲れ様です。希望休は3日まで、25日締め切りです。</small></h3>
  <div class="note">休みたい日に × を書いてください。有給の場合は「有」を記入してください。</div>
  <div class="note r">※尚、有給の場合はスマホの勤怠アプリで有給の申請をして下さい</div>
- <table><tr><th style="text-align:left;padding-left:6px">名前</th>`;
- const cls=d=>{const w=dow(d);return [holOf(M).includes(d)?"bh":M.shuku.includes(d)||w===0?"bu":w===6?"bs":"",w===0&&d>1?"wk":""].join(" ")};
- for(let d=1;d<=nd;d++){const w=dow(d);h+=`<th class="${cls(d)}" style="color:${w===0||M.shuku.includes(d)?"var(--sun)":w===6?"var(--sat)":"inherit"}">${d}<br>${holOf(M).includes(d)?"全":M.shuku.includes(d)?"祝":WD[w]}</th>`}
+ <table class="out"><tr><th rowspan="2">社員番号</th><th rowspan="2">所属</th><th rowspan="2">名前</th>`;
+ for(let d=1;d<=nd;d++)h+=`<th class="${wk(d)}" style="color:${hc(d)}">${d}</th>`;
+ h+="</tr><tr>";
+ for(let d=1;d<=nd;d++)h+=`<th class="${wk(d)}" style="color:${hc(d)}">${M.shuku.includes(d)?"祝":WD[dow(d)]}</th>`;
  h+="</tr>";
- for(const mb of mem){h+=`<tr><td class="nm"><small>${esc(mb.id)}</small>${esc(mb.name)}</td>`;for(let d=1;d<=nd;d++)h+=`<td class="${cls(d)}"></td>`;h+="</tr>"}
- if(!mem.length)h+=`<tr><td colspan="${nd+1}" class="hint" style="padding:10px">「① 条件・メンバー」で回送員を登録すると、ここに名前が並びます。</td></tr>`;
- h+=`</table><div class="note" style="margin-top:4px">赤い点線＝週の区切り（日曜〜土曜）${holOf(M).length?"／灰色の「全」＝全体休（全員休み）":""}</div></div>`;
+ for(const mb of mem){h+=`<tr><td class="id">${esc(mb.id)}</td><td class="co">${esc(mb.co)}</td><td class="nm">${esc(mb.name)}</td>`;
+  for(let d=1;d<=nd;d++)h+=H.includes(d)?`<td class="c-co ${wk(d)}">全</td>`:`<td class="${wk(d)}"></td>`;h+="</tr>"}
+ if(!mem.length)h+=`<tr><td colspan="${nd+3}" class="hint" style="padding:10px">「① 条件・メンバー」で回送員を登録すると、ここに名前が並びます。</td></tr>`;
+ h+=`</table><div class="legend"><div>赤い点線＝週の区切り（日曜〜土曜）</div>${H.length?`<div><span class="c-co">全</span>全体休（全員休み）</div>`:""}</div></div>`;
  $("hopeArea").innerHTML=h}
 
 /* ---------- 印刷 ---------- */
