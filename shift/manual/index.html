@@ -36,11 +36,11 @@ b{color:var(--acc)}
 .rules{font-size:12.5px;line-height:1.6;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
 .rules h3{font-size:14px;margin:0 0 2px}
 @media (max-width:600px){.body,.cols{grid-template-columns:minmax(0,1fr)}header{flex-wrap:wrap}}
-@page{size:A4;margin:0}
+@page{size:A4;margin:8mm}
 @media print{
  body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .printbar{display:none!important}
- .page{box-shadow:none;max-width:none;width:210mm;height:297mm;padding:8mm 10mm;overflow:hidden}
+ .page{box-shadow:none;max-width:none;width:auto;height:auto;padding:0;overflow:visible;zoom:.86}
 }
 </style>
 </head>

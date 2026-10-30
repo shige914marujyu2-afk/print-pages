@@ -84,6 +84,7 @@ th.shuku{color:var(--sun);background:#fde8eb}
 .ask label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 #printRoot{display:none}
 @page{size:A4 landscape;margin:8mm}
+html.ios{}
 @media print{
  body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  body>*:not(#printRoot){display:none!important}
@@ -91,6 +92,14 @@ th.shuku{color:var(--sun);background:#fde8eb}
  .sheet{padding:0}
  .out{width:100%}.out th,.out td{height:24px;font-size:11px}
  .hope .out td{height:36px}
+ html.ios #printRoot{position:absolute;top:0;left:0;width:262mm;height:180mm;overflow:hidden;transform-origin:top left;transform:translateX(180mm) rotate(90deg)}
+ html.ios .out{width:100%;table-layout:fixed}
+ html.ios .out th,html.ios .out td{height:21px;font-size:10px;min-width:0;padding:0}
+ html.ios .out td.id,html.ios .out th:first-child{width:46px;font-size:8px}
+ html.ios .out td.co,html.ios .out th:nth-child(2){width:36px;font-size:7px}
+ html.ios .out td.nm,html.ios .out th:nth-child(3){width:54px;font-size:10px}
+ html.ios .hope .out td{height:29px}
+ html.ios .sheet h3{font-size:15px;margin:0 0 3px}
 }
 </style>
 </head>
@@ -382,8 +391,10 @@ function drawHope(){const {y,m,nd,dow}=ymParts();const M=cur();const mem=members
  $("hopeArea").innerHTML=h}
 
 /* ---------- 印刷 ---------- */
-function doPrint(id){$("printRoot").innerHTML=$(id).innerHTML;window.print()}
-window.addEventListener("afterprint",()=>{$("printRoot").innerHTML=""});
+/* iPhone・iPad は横向きの指定が効かないので、印刷する表を90度回して縦の紙に横向きで載せる */
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+if(IOS){document.documentElement.classList.add("ios");const st=document.createElement("style");st.textContent="@page{size:A4 portrait;margin:8mm}";document.head.appendChild(st)}
+function doPrint(id){$("printRoot").innerHTML=$(id).innerHTML;setTimeout(()=>window.print(),300)}
 
 /* ---------- 起動 ---------- */
 sortMembers();ymList();loadMonth();
