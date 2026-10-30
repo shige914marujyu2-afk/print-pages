@@ -167,7 +167,7 @@ th.shuku{color:var(--sun);background:#fde8eb}
 <script src="solver.js"></script>
 <script>
 const WD="日月火水木金土";
-const DEF_CFG={min:10,wdMax:11,beTarget:11,beMax:12,weekOff:2,maxRun:3,minPairs:1,tri:true};
+const DEF_CFG={min:10,wdMax:11,beTarget:11,beMax:12,weekOff:2,maxRun:3,minPairs:1,tri:true,runFirst:false};
 let S={members:[],months:{},cfg:{...DEF_CFG}};
 try{const s=JSON.parse(localStorage.getItem("shiftTool")||"null");if(s)S=s}catch(e){}
 S.cfg={...DEF_CFG,...(S.cfg||{})};
@@ -191,8 +191,9 @@ const CFG_ITEMS=[
  ["maxRun","連勤は最大","日まで",1,10],
  ["minPairs","連休は月に最低","回",0,5]];
 function drawCfg(){const c=S.cfg;$("cfgBox").innerHTML=CFG_ITEMS.map(([k,a,b,mn,mx])=>`<label>${a}<input type="number" id="cfg_${k}" min="${mn}" max="${mx}" value="${c[k]}" onchange="setCfg('${k}',this.value)">${b}</label>`).join("")+
- `<label><input type="checkbox" id="cfg_tri" ${c.tri?"checked":""} onchange="setCfg('tri',this.checked)">公休を使って3連休を作る（回数は平等に）</label>`}
-function setCfg(k,v){S.cfg[k]=k==="tri"?!!v:Math.max(0,+v||0);
+ `<label><input type="checkbox" id="cfg_tri" ${c.tri?"checked":""} onchange="setCfg('tri',this.checked)">公休を使って3連休を作る（回数は平等に）</label>`+
+ `<label><input type="checkbox" id="cfg_runFirst" ${c.runFirst?"checked":""} onchange="setCfg('runFirst',this.checked)">どうしても両立できない時は、最低人数より連勤の上限を優先する</label>`}
+function setCfg(k,v){S.cfg[k]=k==="tri"||k==="runFirst"?!!v:Math.max(0,+v||0);
  if(S.cfg.wdMax<S.cfg.min)S.cfg.wdMax=S.cfg.min;if(S.cfg.beMax<S.cfg.min)S.cfg.beMax=S.cfg.min;if(S.cfg.beTarget>S.cfg.beMax)S.cfg.beTarget=S.cfg.beMax;
  store();drawCfg();$("cfgMsg").textContent="保存しました"}
 function resetCfg(){S.cfg={...DEF_CFG};store();drawCfg();$("cfgMsg").textContent="初期値に戻しました"}
@@ -306,7 +307,10 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const P=SET;const {nd,
  for(let d=1;d<=nd;d++){const r=ShiftSolver.dayRange(P,d);if(!r)continue;const c=cnt(d);if(c<r.lo||c>r.hi)staffNg.push(`${d}日(${c}人)`);
   if(r.busy){bTot++;bSum+=c;if(c>=r.target)bOk++}else{qSum+=c;qN++}}
  const runNg=[],pairNg=[],dowNg=[],pairTxt=[],triTxt=[];let iso=0;
- for(let i=0;i<N;i++){let r=prevRun[i],mx=0;for(let d=1;d<=nd;d++){r=off[i][d]?0:r+1;mx=Math.max(mx,r)}if(mx>cfg.maxRun)runNg.push(`${mem[i].name}(${mx}連勤)`);
+ for(let i=0;i<N;i++){let r=prevRun[i],st0=1-prevRun[i];const segs=[];
+  for(let d=1;d<=nd+1;d++){if(d>nd||off[i][d]){if(r>cfg.maxRun)segs.push([st0,d-1,r]);r=0;st0=d+1}else r++}
+  for(const [a,b,L] of segs){const forced=P.W[i].some(w=>!w.flex&&w.need===0&&w.b>=Math.max(1,a)&&w.a<=b);
+   runNg.push(b<1?`${mem[i].name}(前月のうちに${L}連勤)`:`${mem[i].name}(${a<1?"前月から":a+"日〜"}${b}日 ${L}連勤${forced?"：希望休・公休でその週の休みが埋まるため避けられません":""})`)}
   const s=ShiftSolver.stats(P,i,off[i]);pairTxt.push(`${mem[i].name}${s.pairs}`);if(s.tri)triTxt.push(`${mem[i].name}${s.tri}`);
   if(s.pairs<cfg.minPairs)pairNg.push(mem[i].name);
   for(let d=2;d<nd;d++)if(off[i][d-1]&&!off[i][d]&&off[i][d+1])iso++;

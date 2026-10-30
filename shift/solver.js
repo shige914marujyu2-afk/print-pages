@@ -5,7 +5,8 @@
 const STYLE={
  A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:300,quiet:20},
  B:{label:"B案",desc:"金・土・日・祝日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:900,quiet:60}};
-const PEN={staff:20000,run:3000,pair:3000,dowp:2000,flex:2000,off3:30,wdp:40};
+const PEN={lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,flex:2000,off3:30,wdp:40};
+const W8=c=>c.runFirst?{lo:100,run:1000,hi:20,pair:8,dow:6}:{lo:1000,run:200,hi:20,pair:8,dow:6};
 function weeksOf(P){const w=[];let s=1;while(s<=P.nd){let e=s;while(e<P.nd&&P.dow(e)!==6)e++;w.push([s,e]);s=e+1}return w}
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function dayRange(P,d){const c=P.cfg;if(P.hol.has(d))return null;const b=P.busy.has(d);return {lo:c.min,hi:b?c.beMax:c.wdMax,target:b?c.beTarget:null,busy:b}}
@@ -31,7 +32,7 @@ function prepare(P){
  const fairOf=arr=>{const mx=Math.max(0,...arr.map(v=>v||0));return arr.map(v=>1+(mx-(v||0)))};
  return {W,notes,weeks,fair:fairOf(P.pastPairs||[]),fair3:fairOf(P.pastTri||[])}}
 function solve(P,prep,st,seed,iters,opt={}){
- const H=opt.hardMul||1;const PN={};for(const k in PEN)PN[k]=PEN[k]*(k==="off3"||k==="wdp"?1:H);
+ const H=opt.hardMul||1;const PN={};for(const k in PEN)PN[k]=PEN[k]*(k==="off3"||k==="wdp"?1:H);if(P.cfg.runFirst)PN.run=PN.lo*2;
  const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const {W,fair,fair3}=prep;const R=rng(seed);
  const off=[];
  if(opt.init){for(let i=0;i<N;i++)off[i]=opt.init[i].slice()}
@@ -53,7 +54,7 @@ function solve(P,prep,st,seed,iters,opt={}){
   for(let d=2;d<nd;d++)if(o[d-1]&&!o[d]&&o[d+1]&&!(fixed[i][d-1]&&fixed[i][d+1]))p+=st.iso;
   if(opt.ref){const rf=opt.ref[i];let c=0;for(let d=1;d<=nd;d++)if(o[d]!==rf[d])c++;p-=opt.div*Math.min(c,8)}
   return p}
- const dp=d=>{const r=RG[d];if(!r)return 0;const w=work[d];const sh=Math.max(0,r.lo-w),ov=Math.max(0,w-r.hi);let p=PN.staff*(sh*sh+ov*ov);
+ const dp=d=>{const r=RG[d];if(!r)return 0;const w=work[d];const sh=Math.max(0,r.lo-w),ov=Math.max(0,w-r.hi);let p=PN.lo*sh*sh+PN.hi*ov*ov;
   if(r.busy)p+=st.busy*Math.max(0,r.target-w)+5*Math.max(0,r.hi-w);else p+=st.quiet*Math.max(0,w-r.lo);return p};
  const Pp=new Float64Array(N);let E=0;for(let i=0;i<N;i++){Pp[i]=pp(i);E+=Pp[i]}for(let d=1;d<=nd;d++)E+=dp(d);
  const slots=[];for(let i=0;i<N;i++)W[i].forEach(w=>{if(w.flex?w.free.length:(w.need>0&&w.need<w.free.length))slots.push([i,w])});
@@ -76,25 +77,25 @@ function solve(P,prep,st,seed,iters,opt={}){
   if(accept(dE)){Pp[i]=np;E+=dE;save()}else{off[i][a]=1;off[i][b]=0;work[a]--;work[b]++}}
  return {off:bestOff,E:best}}
 /* 守れていないルールの数（人数・連勤・連休・個人の曜日） */
-function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;let v=0;
- for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=r.lo-c;if(c>r.hi)v+=c-r.hi}
- for(let i=0;i<N;i++){let run=prevRun[i];for(let d=1;d<=nd;d++){run=off[i][d]?0:run+1;if(run>cfg.maxRun)v++}
-  if(stats(P,i,off[i]).pairs<cfg.minPairs)v++;
-  if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){let any=false,has=false;for(let d=w.a;d<=w.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(off[i][d])has=true}}if(any&&!has)v++}}
+function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;const w=W8(cfg);let v=0;
+ for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=w.lo*(r.lo-c);if(c>r.hi)v+=w.hi*(c-r.hi)}
+ for(let i=0;i<N;i++){let run=prevRun[i];for(let d=1;d<=nd;d++){run=off[i][d]?0:run+1;if(run>cfg.maxRun)v+=w.run}
+  if(stats(P,i,off[i]).pairs<cfg.minPairs)v+=w.pair;
+  if(offDows[i]&&offDows[i].length)for(const wk of prep.W[i]){let any=false,has=false;for(let d=wk.a;d<=wk.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(off[i][d])has=true}}if(any&&!has)v+=w.dow}}
  return v}
 /* 1段目（正確な計算）：HiGHSでルールを守れる表を探す */
-function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const X=(i,d)=>`x${i}_${d}`;const isWD=isWDf(P);
+function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const w8=W8(cfg);const X=(i,d)=>`x${i}_${d}`;const isWD=isWDf(P);
  const cons=[],bin=[],cont=[],obj=[];let k=0;const sl=w=>{const v="s"+(k++);cont.push(v);obj.push(`${w} ${v}`);return v};
  for(let i=0;i<N;i++){for(let d=1;d<=nd;d++){bin.push(X(i,d));if(fixed[i][d])cons.push(`${X(i,d)} = 1`)}
   for(const w of prep.W[i]){if(!w.free.length)continue;const t=w.free.map(d=>X(i,d)).join(" + ");
    if(w.flex){cons.push(`${t} >= ${Math.min(w.lo,w.free.length)}`);cons.push(`${t} <= ${w.hi}`)}else cons.push(`${t} = ${w.need}`)}
   const K=cfg.maxRun+1,r=prevRun[i];
-  for(let s0=2-K;s0+K-1<=nd;s0++){if(s0<1&&r<1-s0)continue;const ds=[];for(let d=Math.max(1,s0);d<=s0+K-1;d++)ds.push(X(i,d));cons.push(`${ds.join(" + ")} + ${sl(10)} >= 1`)}
+  for(let s0=2-K;s0+K-1<=nd;s0++){if(s0<1&&r<1-s0)continue;const ds=[];for(let d=Math.max(1,s0);d<=s0+K-1;d++)ds.push(X(i,d));cons.push(`${ds.join(" + ")} + ${sl(w8.run)} >= 1`)}
   const ys=[];for(let d=1;d<nd;d++){if(wdPair[i]&&!(isWD(d)&&isWD(d+1)))continue;const y=`y${i}_${d}`;bin.push(y);ys.push(y);cons.push(`${y} - ${X(i,d)} <= 0`);cons.push(`${y} - ${X(i,d+1)} <= 0`)}
-  if(cfg.minPairs>0)cons.push(`${ys.length?ys.join(" + ")+" + ":""}${sl(8)} >= ${cfg.minPairs}`);
-  if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){const t=[];for(let d=w.a;d<=w.b;d++)if(offDows[i].includes(dow(d))&&!hol.has(d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} + ${sl(6)} >= 1`)}}
+  if(cfg.minPairs>0)cons.push(`${ys.length?ys.join(" + ")+" + ":""}${sl(w8.pair)} >= ${cfg.minPairs}`);
+  if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){const t=[];for(let d=w.a;d<=w.b;d++)if(offDows[i].includes(dow(d))&&!hol.has(d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} + ${sl(w8.dow)} >= 1`)}}
  for(let d=1;d<=nd;d++){const rg=dayRange(P,d);if(!rg)continue;const t=[];for(let i=0;i<N;i++)t.push(X(i,d));const e=t.join(" + ");
-  cons.push(`${e} - ${sl(100)} <= ${N-rg.lo}`);cons.push(`${e} + ${sl(100)} >= ${Math.max(0,N-rg.hi)}`);
+  cons.push(`${e} - ${sl(w8.lo)} <= ${N-rg.lo}`);cons.push(`${e} + ${sl(w8.hi)} >= ${Math.max(0,N-rg.hi)}`);
   if(rg.busy&&rg.target>rg.lo)cons.push(`${e} - ${sl(1)} <= ${Math.max(0,N-rg.target)}`)}
  return `Minimize\n obj: ${obj.length?obj.join(" + "):"0 x0_1"}\nSubject To\n${cons.map((c,j)=>` c${j}: ${c}`).join("\n")}\nBounds\n${cont.map(v=>` 0 <= ${v}`).join("\n")}\nBinary\n ${bin.join(" ")}\nEnd\n`}
 async function exactBase(P,prep,highs,limitSec){const lp=buildLean(P,prep);let r;
