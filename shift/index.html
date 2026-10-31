@@ -15,9 +15,9 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;padding:12px max(12px,env(safe-area-inset-left,0px)) 40px max(12px,env(safe-area-inset-right,0px))}
 h1{font-size:20px;margin:4px 0 12px}
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px;position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:10px;position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0}
 .tabs button{min-width:0;padding:8px 2px;border:2px solid var(--line);background:#fff;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
-.tabs .n{font-size:26px}.tabs .l{font-size:12.5px;word-break:keep-all}
+.tabs .n{font-size:24px}.tabs .l{font-size:12.5px;text-align:center}
 @media(min-width:700px){.tabs .n{font-size:32px}.tabs .l{font-size:16px}.tabs button{padding:12px 6px}}
 [hidden]{display:none!important}
 .stepintro{background:#fff;border-left:6px solid var(--acc);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:15px;line-height:1.55}
@@ -123,13 +123,14 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01d</span></small></h1></div>
-<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=14" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=14" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01e</span></small></h1></div>
+<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=15" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=15" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
- <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員・条件</span></button>
- <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休の表</span></button>
- <button id="t2" onclick="goTab(2)"><span class="n">③</span><span class="l">休みの入力</span></button>
- <button id="t3" onclick="goTab(3)"><span class="n">④</span><span class="l">作成・印刷</span></button>
+ <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
+ <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
+ <button id="t2" onclick="goTab(2)"><span class="n">③</span><span class="l">休みの<br>入力</span></button>
+ <button id="t3" onclick="goTab(3)"><span class="n">④</span><span class="l">作成<br>印刷</span></button>
+ <button id="t5" onclick="goTab(5)"><span class="n">⑤</span><span class="l">データ<br>移動</span></button>
 </div>
 <div class="monthbar" id="monthbar"><span class="mbl" id="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
 
@@ -158,16 +159,6 @@ html.ios{}
   <p class="hint"><b>長い休みがない月は入れなくてOK。</b>ゴールデンウィーク・お盆・年末年始などを「何日から何日」で入れると、その日はシフト表で全員「全」になります。<b style="color:#b8323d">注意：前の年の日付が残っていると、その日も「全」になります。使い終わったら日付を消すか、今年の日付に入れ直してください。</b>年をまたぐ年末年始もそのまま入れられます。<br>途中に出勤日がある飛び石の休み（例：5/2〜5/9で5/6だけ出勤）は、「<b>間の出勤日</b>」でその日を選ぶと、その日だけ出勤になります。</p>
   <div class="wrap"><table class="mem" id="perTable"></table></div>
   <div class="row"><button class="btn small" onclick="addPeriod()">＋ 休みの期間を追加</button></div>
- </div>
- <div class="card">
-  <h2>便利な機能：スマホ → パソコンへデータを移す</h2>
-  <p style="margin:4px 0;font-size:15px;line-height:1.55"><b>なぜ便利？</b>　休みの入力は<b>手元のiPhoneで</b>、印刷は<b>プリンターのつながったパソコンで</b>。同じデータをそのまま移せるので、パソコンで入力し直す必要がありません。</p>
-  <div class="flow"><div>📱 <b>iPhone</b>：①〜③で入力 →「<b>書き出す</b>」（文字が自動でコピーされる）</div><div class="ar">▼</div><div>💬 <b>LINE・メール</b>：自分あてに貼り付けて送る</div><div class="ar">▼</div><div>💻 <b>パソコン</b>：届いた文字をコピー →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div><div>🖨 <b>パソコンで ④ 作成・印刷</b>（大きな画面で確かめて印刷）</div></div>
-  <details><summary style="cursor:pointer;font-weight:700;color:var(--acc)">開いて使う（書き出し・読み込み）</summary>
-   <p class="hint">【文字で移す】移す元で「書き出す」→ 出た文字が自動でコピーされるので、LINEやメールで自分に送る → 移す先でこの欄を空にしてから全部貼り付けて「読み込む」。<br>【ファイルで移す】「ファイルに保存」→ そのファイルをLINEやメールで送る →「ファイルから読み込む」で選ぶ。<br>読み込むと今の内容と入れ替わります。</p>
-   <textarea id="dataBox" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
-   <div class="row"><button class="btn sub small" onclick="exportData()">書き出す</button><button class="btn sub small" onclick="importData()">読み込む</button><button class="btn sub small" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub small" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub small" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
-  </details>
  </div>
  <button class="btn next" onclick="goTab(4)">次へ：② 希望休の表 →</button>
 </section>
@@ -211,6 +202,7 @@ html.ios{}
   <div id="finalList"></div><span class="hint" id="finalMsg"></span>
  </div>
  <button class="btn sub next" onclick="goTab(1)">おつかれさまでした。次の月は ① から（← 最初に戻る）</button>
+ <button class="btn sub next" style="margin-top:0" onclick="goTab(5)">iPhoneの入力をパソコンへ移すときは ⑤ データ移動 →</button>
 </section>
 
 <!-- ④ 希望休の表 -->
@@ -224,10 +216,35 @@ html.ios{}
  <button class="btn next" onclick="goTab(2)">次へ：③ 休みの入力 →</button>
 </section>
 
+<!-- ⑤ データ移動 -->
+<section id="p5" hidden>
+ <div class="stepintro"><b class="t">⑤ データ移動（iPhone → パソコン）</b>入力したデータを、まるごと別のスマホやパソコンへ引っ越しできます。入力し直しは一切いりません。</div>
+ <div class="card">
+  <h2>こんな時に便利</h2>
+  <div class="flow">
+   <div>🏠 <b>例1：家でiPhone、会社のパソコンで印刷</b><br>休憩中や家でiPhoneに希望休を入力 → 会社でパソコンに移して、大きな画面で確かめてプリンターで印刷。</div>
+   <div>👥 <b>例2：担当の交代・お休みのとき</b><br>次に作る人のパソコンへ移せば、回送員・条件・<b>過去の採用した表</b>もそのまま。連休の平等化も続けて使えます。</div>
+   <div>📲 <b>例3：機種変更・スマホの故障に備えて</b><br>「ファイルに保存」しておけば、新しいスマホに読み込むだけで元通り。</div>
+  </div>
+  <p class="hint" style="margin:6px 0 0"><b>移るもの</b>：回送員と個人の条件、作成の条件、長い休み、各月の休みの入力、手で直した表、採用したシフト表</p>
+ </div>
+ <div class="card">
+  <h2>やり方（文字で移す）</h2>
+  <div class="flow"><div>📱 <b>iPhone</b>：下の「<b>書き出す</b>」を押す（文字が自動でコピーされる）</div><div class="ar">▼</div><div>💬 <b>LINE・メール</b>：自分あてに貼り付けて送る</div><div class="ar">▼</div><div>💻 <b>パソコン</b>：この ⑤ の画面を開き、届いた文字をコピー →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div><div>🖨 <b>パソコン</b>で ④ 作成・印刷 へ</div></div>
+  <p class="hint" style="margin:4px 0">ファイルで送るときは「ファイルに保存」→ そのファイルを送る →「ファイルから読み込む」。<br><b>注意</b>：読み込むと、その機械に入っていた内容は全部入れ替わります。データには名前が入っているので、送る相手は職場の人だけに。</p>
+  <div>
+   
+   <textarea id="dataBox" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
+   <div class="row"><button class="btn" onclick="exportData()">書き出す</button><button class="btn sub" onclick="importData()">読み込む</button><button class="btn sub" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
+  </div>
+ </div>
+ <button class="btn sub next" onclick="goTab(1)">← 最初（①）に戻る</button>
+</section>
+
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101d"></script>
+<script src="solver.js?v=20261101e"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -250,7 +267,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;","
 
 /* ---------- タブ ---------- */
 function goTab(n){tab(n);window.scrollTo(0,0)}
-function tab(n){const mb=$("monthbar");if(n===1)$("mbSlot").appendChild(mb);else if(mb.parentNode.id==="mbSlot")$("p1").before(mb);if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
+function tab(n){const mb=$("monthbar");if(n===1)$("mbSlot").appendChild(mb);else if(mb.parentNode.id==="mbSlot")$("p1").before(mb);if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4,5]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
  $("mbl").textContent=n===4?"希望休を作る月を選択：":"シフト表を作る月：";if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
 
@@ -638,7 +655,7 @@ sortMembers();ymList();loadMonth();
  document.querySelectorAll("details").forEach(d=>{if(d.querySelector("#dataBox"))d.open=true});
  setTimeout(async()=>{await importData();if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
 let t0=1;try{t0=+localStorage.getItem("shiftTab")||0}catch(e){}
-tab(members().length?(t0>=1&&t0<=4?t0:2):1);
+tab(members().length?(t0>=1&&t0<=5?t0:2):1);
 </script>
 </body>
 </html>
