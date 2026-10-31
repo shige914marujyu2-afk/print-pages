@@ -109,7 +109,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31r</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31s</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -194,7 +194,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031r"></script>
+<script src="solver.js?v=20261031s"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -565,7 +565,7 @@ function svgHope(){const {y,m,nd,dow}=ymParts();const M=cur();const H=holOf(M);
  const rows=members().map(mb=>({id:mb.id,co:mb.co,nm:mb.name,cells:[...Array(nd)].map((_,d0)=>H.includes(d0+1)?"co":"")}));
  return svgSheet({title:`${y}年 ${m}月　希望休`,brand:true,nd,dow,shuku:M.shuku,rows,foot:"赤い点線＝週の区切り（日曜〜土曜）",
   boxes:{topFrom:10,split:14,top:"毎日お疲れ様です。希望休は3日まで、25日締め切りです。",
-   left:"休みたい日に × を書いてください。有休の場合は「有」を記入してください。",right:"※尚、有休の場合は表に「有」を書いても、スマホの勤怠アプリで有休の申請をしないと反映されません"}})}
+   left:"休みたい日に × を書いてください。有休の場合は「有」を記入してください。",right:"※尚、有休の場合はこのシフト表に「有」だけ書いても、スマホの勤怠アプリで有休の申請をしないと反映されません"}})}
 /* 印刷：A4横ぴったりのPDFを作って新しいタブで開く（iPhoneでもパソコンでも同じ大きさで印刷できる） */
 async function makePdf(svg){const W=841.89,H=595.28,sc=4.1;
  const img=new Image();img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);await img.decode();
