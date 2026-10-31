@@ -123,7 +123,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01e</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01f</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=15" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=15" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -230,12 +230,12 @@ html.ios{}
  </div>
  <div class="card">
   <h2>やり方（文字で移す）</h2>
-  <div class="flow"><div>📱 <b>iPhone</b>：下の「<b>書き出す</b>」を押す（文字が自動でコピーされる）</div><div class="ar">▼</div><div>💬 <b>LINE・メール</b>：自分あてに貼り付けて送る</div><div class="ar">▼</div><div>💻 <b>パソコン</b>：この ⑤ の画面を開き、届いた文字をコピー →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div><div>🖨 <b>パソコン</b>で ④ 作成・印刷 へ</div></div>
+  <div class="flow"><div>📱 <b>iPhone</b>：下の「<b>① 書き出す</b>」→「<b>② コピー</b>」を押す</div><div class="ar">▼</div><div>💬 <b>LINE・メール</b>：自分あてに貼り付けて送る</div><div class="ar">▼</div><div>💻 <b>パソコン</b>：この ⑤ の画面を開き、届いた文字をコピー →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div><div>🖨 <b>パソコン</b>で ④ 作成・印刷 へ</div></div>
   <p class="hint" style="margin:4px 0">ファイルで送るときは「ファイルに保存」→ そのファイルを送る →「ファイルから読み込む」。<br><b>注意</b>：読み込むと、その機械に入っていた内容は全部入れ替わります。データには名前が入っているので、送る相手は職場の人だけに。</p>
   <div>
    
    <textarea id="dataBox" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
-   <div class="row"><button class="btn" onclick="exportData()">書き出す</button><button class="btn sub" onclick="importData()">読み込む</button><button class="btn sub" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
+   <div class="row"><button class="btn" onclick="exportData()">① 書き出す</button><button class="btn" style="background:#2f5fb3" onclick="copyData()">② コピー</button><button class="btn sub" onclick="importData()">読み込む</button><button class="btn sub" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
   </div>
  </div>
  <button class="btn sub next" onclick="goTab(1)">← 最初（①）に戻る</button>
@@ -244,7 +244,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101e"></script>
+<script src="solver.js?v=20261101f"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -361,8 +361,11 @@ async function unpackData(raw){let t=String(raw).replace(/\s+/g,"");const k2=t.l
   if(b.length<n)throw {msg:`文字が途中で切れています（${n}文字のうち${b.length}文字だけ）。LINEなどで2つ以上に分かれていたら、全部を続けて貼り付けてください`};
   return JSON.parse(await unzip(b64d(b.slice(0,n))))}
  if(k1>=0)t=t.slice(k1+7);return JSON.parse(t.startsWith("{")?t:decodeURIComponent(escape(atob(t.replace(/[^A-Za-z0-9+/=]/g,"")))))}
-async function exportData(){const v=await packData();$("dataBox").value=v;$("dataBox").select();
- try{await navigator.clipboard.writeText(v);$("dmsg").textContent=`書き出してコピーしました（${v.length}文字）`}catch(e){$("dmsg").textContent=`書き出しました（${v.length}文字）。全部選んでコピーしてください`}}
+async function exportData(){const v=await packData();$("dataBox").value=v;$("dmsg").textContent=`書き出しました（${v.length}文字）。次に「コピー」を押してください`}
+async function copyData(){const v=$("dataBox").value.trim();if(!v){$("dmsg").textContent="先に「書き出す」を押してください";return}
+ let ok=false;try{await navigator.clipboard.writeText(v);ok=true}catch(e){}
+ if(!ok){const t=$("dataBox");t.focus();t.select();t.setSelectionRange(0,v.length);try{ok=document.execCommand("copy")}catch(e){}}
+ $("dmsg").textContent=ok?`コピーしました（${v.length}文字）。LINEやメールに貼り付けて送ってください`:"コピーできませんでした。欄の文字を長押し →「すべてを選択」→「コピー」してください"}
 function saveDataFile(){packData().then(v=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([v],{type:"text/plain"}));a.download="シフトのデータ.txt";document.body.appendChild(a);a.click();a.remove();$("dmsg").textContent="ファイルに保存しました（シフトのデータ.txt）"})}
 function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$("dataBox").value=t;inp.value="";importData()})}
 async function importData(){try{const d=await unpackData($("dataBox").value);
