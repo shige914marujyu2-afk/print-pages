@@ -102,11 +102,14 @@ html.ios{}
  .hope .out td{height:36px}
  #printRoot svg{display:block;width:100%;height:auto;max-height:100vh;margin:0 auto}
 }
+.dpbtn{white-space:nowrap;word-break:keep-all}
+#perTable td{white-space:nowrap}
+#perTable input[type=text]{min-width:7em}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31k</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=8" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31l</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=8" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -186,7 +189,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031k"></script>
+<script src="solver.js?v=20261031l"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -215,12 +218,34 @@ function tab(n){for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classLi
 /* ---------- 会社の条件 ---------- */
 function drawPeriods(){const ps=S.cfg.periods;let h=`<tr><th>名前</th><th>何日から</th><th>何日まで</th><th>間の出勤日<br><small>（飛び石のとき）</small></th><th></th></tr>`;
  ps.forEach((p,i)=>{h+=`<tr><td><input type="text" value="${esc(p.name)}" onchange="setPer(${i},'name',this.value)"></td>
-  <td><input type="date" value="${esc(p.from)}" onchange="setPer(${i},'from',this.value)"></td>
-  <td><input type="date" value="${esc(p.to)}" onchange="setPer(${i},'to',this.value)"></td>
-  <td>${(p.work||[]).map((t,k)=>`<span style="display:inline-block;background:#e8f0ff;border-radius:6px;padding:2px 6px;margin:2px;white-space:nowrap">${+t.slice(5,7)}/${+t.slice(8)} 出勤 <button class="del" style="padding:0 6px" onclick="delWork(${i},${k})">×</button></span>`).join("")}<input type="date" min="${esc(p.from)}" max="${esc(p.to)}" value="" onchange="addWork(${i},this.value)" title="期間の中で出勤する日"></td>
+  <td><button class="btn sub small dpbtn" onclick="pickPer(${i},'from')">${fmtD(p.from)}</button></td>
+  <td><button class="btn sub small dpbtn" onclick="pickPer(${i},'to')">${fmtD(p.to)}</button></td>
+  <td>${(p.work||[]).map((t,k)=>`<span style="display:inline-block;background:#e8f0ff;border-radius:6px;padding:2px 6px;margin:2px;white-space:nowrap">${+t.slice(5,7)}/${+t.slice(8)} 出勤 <button class="del" style="padding:0 6px" onclick="delWork(${i},${k})">×</button></span>`).join("")}<button class="btn sub small dpbtn" onclick="pickWork(${i})">＋ 出勤日</button></td>
   <td><button class="del" onclick="delPeriod(${i})">削除</button></td></tr>`});
  $("perTable").innerHTML=h}
-function setPer(i,k,v){const p=S.cfg.periods[i];p[k]=v;if(k==="from"&&p.to&&p.to<v)p.to=v;if(k==="to"&&p.from&&p.from>v)p.from=v;store();drawPeriods();$("cfgMsg").textContent="保存しました"}
+function setPer(i,k,v){const p=S.cfg.periods[i];p[k]=v;if(k==="from"&&p.to&&p.to<v)p.to=v;if(k==="to"&&p.from&&p.from>v)p.from=v;if(p.work)p.work=p.work.filter(t=>(!p.from||t>=p.from)&&(!p.to||t<=p.to));store();drawPeriods();$("cfgMsg").textContent="保存しました"}
+/* 自前のカレンダー（iPhoneの日付欄は開いただけで今日が入ってしまうため、押した日だけを入れる） */
+const fmtD=t=>t?`${+t.slice(0,4)}/${+t.slice(5,7)}/${+t.slice(8)}`:"選ぶ";
+function pickPer(i,k){const p=S.cfg.periods[i];pickDate(k==="from"?"何日から":"何日まで",p[k],k==="to"?p.from:"","",v=>setPer(i,k,v),true)}
+function pickWork(i){const p=S.cfg.periods[i];if(!p.from||!p.to){$("cfgMsg").textContent="先に「何日から」「何日まで」を入れてください";return}pickDate("間の出勤日",p.from,p.from,p.to,v=>addWork(i,v),false)}
+function pickDate(title,val,min,max,cb,canClear){const z=n=>String(n).padStart(2,"0");const ds=(y,m,d)=>`${y}-${z(m)}-${z(d)}`;
+ const b0=val||min||ds(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate());let y=+b0.slice(0,4),m=+b0.slice(5,7);
+ let bg=document.getElementById("dpBg");if(!bg){bg=document.createElement("div");bg.id="dpBg";document.body.appendChild(bg)}
+ bg.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px";
+ const close=()=>{bg.remove()};bg.onclick=e=>{if(e.target===bg)close()};
+ const draw=()=>{const nd=new Date(y,m,0).getDate(),f=new Date(y,m-1,1).getDay();let h=`<div style="background:#fff;color:#111;border-radius:14px;padding:14px;width:min(340px,100%);font-size:16px">
+  <div style="font-weight:700;margin-bottom:8px">${esc(title)}</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><button class="btn sub small" data-mv="-1">◀</button><b>${y}年${m}月</b><button class="btn sub small" data-mv="1">▶</button></div>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">`+["日","月","火","水","木","金","土"].map((w,k)=>`<div style="font-size:12px;color:${k===0?"#c0303a":k===6?"#2a5bd7":"#666"}">${w}</div>`).join("");
+  for(let k=0;k<f;k++)h+="<div></div>";
+  for(let d=1;d<=nd;d++){const t=ds(y,m,d);const ng=(min&&t<min)||(max&&t>max);const sel=t===val;
+   h+=`<button ${ng?"disabled":""} data-d="${t}" style="padding:9px 0;border-radius:8px;border:1px solid ${sel?"#c0303a":"#ddd"};background:${sel?"#c0303a":ng?"#f2f2f2":"#fff"};color:${sel?"#fff":ng?"#bbb":"#111"};font-size:16px">${d}</button>`}
+  h+=`</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">${canClear&&val?`<button class="btn sub small" data-clr="1">日付を消す</button>`:""}<button class="btn sub small" data-x="1">やめる</button></div></div>`;
+  bg.innerHTML=h;
+  bg.querySelectorAll("[data-mv]").forEach(e=>e.onclick=()=>{m+=+e.dataset.mv;if(m<1){m=12;y--}if(m>12){m=1;y++}draw()});
+  bg.querySelectorAll("[data-d]").forEach(e=>e.onclick=()=>{close();cb(e.dataset.d)});
+  const c=bg.querySelector("[data-clr]");if(c)c.onclick=()=>{close();cb("")};bg.querySelector("[data-x]").onclick=close};
+ draw()}
 function addWork(i,v){const p=S.cfg.periods[i];if(!v)return;if(p.from&&v<p.from||p.to&&v>p.to){$("cfgMsg").textContent="期間の中の日を選んでください";drawPeriods();return}p.work=[...new Set([...(p.work||[]),v])].sort();store();drawPeriods();$("cfgMsg").textContent="保存しました"}
 function delWork(i,k){S.cfg.periods[i].work.splice(k,1);store();drawPeriods()}
 function addPeriod(){S.cfg.periods.push({name:"",from:"",to:""});store();drawPeriods()}
