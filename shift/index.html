@@ -112,7 +112,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31u</span></small></h1><a class="btn sub small" href="manual/?v=11" style="text-decoration:none">使い方を見る・印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31v</span></small></h1><a class="btn sub small" href="manual/?v=11" style="text-decoration:none">使い方を見る・印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 回送員・条件</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -134,9 +134,9 @@ html.ios{}
    <div class="row"><button class="btn sub small" onclick="importBulk()">取り込む</button></div>
   </details>
   <details><summary class="hint" style="cursor:pointer">データの書き出し・読み込み（別のスマホ・パソコンへ移す）</summary>
-   <p class="hint">「書き出す」で出た文字をそのままコピーして、別の機械のここに貼り付けて「読み込む」を押すと、回送員・条件・各月の入力・手動の表がそっくり移ります。読み込むと今の内容と入れ替わります。</p>
-   <textarea id="dataBox" placeholder="ここに貼り付け"></textarea>
-   <div class="row"><button class="btn sub small" onclick="exportData()">書き出す</button><button class="btn sub small" onclick="importData()">読み込む</button><span class="hint" id="dmsg"></span></div>
+   <p class="hint">【文字で移す】移す元で「書き出す」→ 出た文字が自動でコピーされるので、LINEやメールで自分に送る → 移す先でこの欄を空にしてから全部貼り付けて「読み込む」。<br>【ファイルで移す】「ファイルに保存」→ そのファイルをLINEやメールで送る →「ファイルから読み込む」で選ぶ。<br>読み込むと今の内容と入れ替わります。</p>
+   <textarea id="dataBox" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
+   <div class="row"><button class="btn sub small" onclick="exportData()">書き出す</button><button class="btn sub small" onclick="importData()">読み込む</button><button class="btn sub small" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub small" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub small" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
   </details>
  </div>
  <div class="card" id="mbSlot"><h2>② シフト表を作る月</h2></div>
@@ -198,7 +198,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031u"></script>
+<script src="solver.js?v=20261031v"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -301,14 +301,28 @@ function importBulk(){const list=$("bulk").value.split(/\n/).map(l=>l.trim()).fi
  if(!list.length){$("mmsg").textContent="取り込める行がありません";return}
  S.members=list;sortMembers();store();drawMembers();$("mmsg").textContent=list.length+"人を取り込みました"}
 function members(){return S.members.filter(m=>m.id&&m.name)}
-function exportData(){$("dataBox").value="SHIFT1:"+btoa(unescape(encodeURIComponent(JSON.stringify(S))));$("dataBox").select();
- try{navigator.clipboard.writeText($("dataBox").value);$("dmsg").textContent="書き出してコピーしました"}catch(e){$("dmsg").textContent="書き出しました（選んでコピーしてください）"}}
-function importData(){let t=$("dataBox").value.trim();try{if(t.startsWith("SHIFT1:"))t=decodeURIComponent(escape(atob(t.slice(7))));const d=JSON.parse(t);
+/* データの書き出し：圧縮して短くする（LINEは長い文を分けたり切ったりするため） */
+const b64e=u8=>{let s="";for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)};
+const b64d=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
+async function zip(str){const cs=new CompressionStream("deflate");const w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();return new Uint8Array(await new Response(cs.readable).arrayBuffer())}
+async function unzip(u8){const ds=new DecompressionStream("deflate");const w=ds.writable.getWriter();w.write(u8);w.close();return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer())}
+async function packData(){const js=JSON.stringify(S);try{if(window.CompressionStream){const b=b64e(await zip(js));return "SHIFT2:"+b.length+":"+b}}catch(e){}return "SHIFT1:"+btoa(unescape(encodeURIComponent(js)))}
+/* 貼り付けた文字から読み取る（改行・空白・分かれたメッセージもつなげる） */
+async function unpackData(raw){let t=String(raw).replace(/\s+/g,"");const k2=t.lastIndexOf("SHIFT2:"),k1=t.lastIndexOf("SHIFT1:");
+ if(k2>=0){const m=t.slice(k2+7).match(/^(\d+):(.*)$/);if(!m)throw {msg:"文字の始めが足りません"};const n=+m[1];const b=m[2].replace(/[^A-Za-z0-9+/=]/g,"");
+  if(b.length<n)throw {msg:`文字が途中で切れています（${n}文字のうち${b.length}文字だけ）。LINEなどで2つ以上に分かれていたら、全部を続けて貼り付けてください`};
+  return JSON.parse(await unzip(b64d(b.slice(0,n))))}
+ if(k1>=0)t=t.slice(k1+7);return JSON.parse(t.startsWith("{")?t:decodeURIComponent(escape(atob(t.replace(/[^A-Za-z0-9+/=]/g,"")))))}
+async function exportData(){const v=await packData();$("dataBox").value=v;$("dataBox").select();
+ try{await navigator.clipboard.writeText(v);$("dmsg").textContent=`書き出してコピーしました（${v.length}文字）`}catch(e){$("dmsg").textContent=`書き出しました（${v.length}文字）。全部選んでコピーしてください`}}
+function saveDataFile(){packData().then(v=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([v],{type:"text/plain"}));a.download="シフトのデータ.txt";document.body.appendChild(a);a.click();a.remove();$("dmsg").textContent="ファイルに保存しました（シフトのデータ.txt）"})}
+function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$("dataBox").value=t;inp.value="";importData()})}
+async function importData(){try{const d=await unpackData($("dataBox").value);
   if(!d||!Array.isArray(d.members))throw 0;if(!confirm("今の内容と入れ替えます。よろしいですか？"))return;
   S=d;S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));
   S.members=S.members.map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||[],wdPair:!!m.wdPair,noIso:!!m.noIso,weOff:m.weOff??""}));sortMembers();store();
   ymList();if(d.openMonth&&[...$("ym").options].some(o=>o.value===d.openMonth))$("ym").value=d.openMonth;loadMonth();drawMembers();drawCfg();$("dmsg").textContent=`読み込みました（${members().length}人）`}
- catch(e){$("dmsg").textContent="読み込めませんでした。書き出した文字を全部貼り付けてください"}}
+ catch(e){$("dmsg").textContent=(e&&e.msg)||"読み込めませんでした。書き出した文字を、最初の「SHIFT」から最後まで全部貼り付けてください"}}
 
 /* ---------- 月 ---------- */
 const SHUKU={"2026":["1-1","1-12","2-11","2-23","3-20","4-29","5-3","5-4","5-5","5-6","7-20","8-11","9-21","9-22","9-23","10-12","11-3","11-23"],
@@ -588,10 +602,10 @@ async function doPrintSvg(fn,msg){const win=window.open("","_blank");
 /* ---------- 起動 ---------- */
 sortMembers();ymList();loadMonth();
 /* リンクの # に入ったデータを読み込む（データはネットには送られない） */
-(function(){const h=decodeURIComponent(location.hash||"");const k=h.indexOf("SHIFT1:");if(k<0)return;
+(function(){const h=decodeURIComponent(location.hash||"");let k=h.indexOf("SHIFT2:");if(k<0)k=h.indexOf("SHIFT1:");if(k<0)return;
  history.replaceState(null,"",location.pathname);tab(1);$("dataBox").value=h.slice(k);
  document.querySelectorAll("details").forEach(d=>{if(d.querySelector("#dataBox"))d.open=true});
- setTimeout(()=>{importData();if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
+ setTimeout(async()=>{await importData();if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
 let t0=1;try{t0=+localStorage.getItem("shiftTab")||0}catch(e){}
 tab(members().length?(t0>=1&&t0<=4?t0:2):1);
 </script>
