@@ -105,7 +105,7 @@ html.ios{}
 </style>
 </head>
 <body>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31f</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=6" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31g</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=6" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -185,7 +185,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031f"></script>
+<script src="solver.js?v=20261031g"></script>
 <script>
 const WD="日月火水木金土";
 const DEF_PERIODS=[{name:"ゴールデンウィーク",from:"",to:""},{name:"お盆休み",from:"",to:""},{name:"年末年始",from:"",to:""}];
@@ -464,7 +464,7 @@ function svgSheet(o){const W=841.89,H=595.28,x0=30,top=80,hh=22,K="#c0303a",PK="
  const L=(x1,y1,x2,y2,w=.5,c="#000",d="")=>g.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${c}" stroke-width="${w}"${d?` stroke-dasharray="${d}"`:""}/>`);
  const Rc=(x,y,w,h,f,st="")=>g.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${f}"${st}/>`);
  T(x0+40,55,16,o.title,"start");if(o.right)T(xe,55,o.rightSize||9,o.right,"end",o.rightColor||"#000");
- if(o.brand){T(xe,46,15,"いすゞ首都圏","end","#000","bold");T(xe,64,12,"八王子","end","#000","bold")}
+ if(o.brand){const bw=150,bh=26,bx=xe-bw,by=16,rw=30,cx=bx+bw/2;Rc(bx,by,rw,bh,"#e8221b");Rc(bx+rw,by,bw-rw,bh,"#1c1c1e");T(bx+rw+(bw-rw)/2,by+19.5,17,"いすゞ首都圏","middle","#fff","900");T(cx,by+bh+23,19,"八王子","middle","#000","900")}
  (o.notes||[]).forEach((t,k)=>T(x0+40,66+k*9,7.5,t[0],"start",t[1]||"#000"));
  T(x0+cwNo/2,top+hh+4,8,"社員番号");T(x0+cwNo+cwCo/2,top+hh-7,9,"所属");T(x0+cwNo+cwCo/2,top+2*hh-7,9,"会社");T(xd-cwNm/2,top+2*hh-7,7,"曜日");
  for(let d=1;d<=o.nd;d++){const cx=xd+(d-1)*cw+cw/2;T(cx,top+hh-7,10,String(d));T(cx,top+2*hh-7,10,o.shuku.includes(d)?"祝":WD[o.dow(d)])}
