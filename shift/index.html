@@ -109,7 +109,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31p</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31q</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -194,7 +194,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031p"></script>
+<script src="solver.js?v=20261031q"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -544,7 +544,7 @@ function svgSheet(o){const W=841.89,H=595.28,x0=30,top=80,hh=22,K="#c0303a",PK="
  /* 枠の大きさいっぱいに文字を入れる */
  const fitBox=(x1,y1,x2,y2,text,c)=>{const w=x2-x1,h=y2-y1;g.push(`<rect x="${x1.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="none" stroke="${c}" stroke-width=".9"/>`);
   const cands=[[text]];for(let k=1;k<text.length;k++)if("。、".includes(text[k-1]))cands.push([text.slice(0,k),text.slice(k)]);
-  const half=Math.ceil(text.length/2);cands.push([text.slice(0,half),text.slice(half)]);
+  const half=Math.ceil(text.length/2);cands.push([text.slice(0,half),text.slice(half)]);const P=[];for(let k=1;k<text.length;k++)if("。、".includes(text[k-1]))P.push(k);for(const a of P)for(const b of P)if(b>a)cands.push([text.slice(0,a),text.slice(a,b),text.slice(b)]);const t3=Math.ceil(text.length/3);cands.push([text.slice(0,t3),text.slice(t3,2*t3),text.slice(2*t3)]);
   let best=null;for(const ls of cands){const mx=Math.max(...ls.map(l=>l.length));const sz=Math.min((w-10)/mx,(h-6)/ls.length/1.18);if(!best||sz>best.sz)best={ls,sz}}
   const lh=best.sz*1.18,y0=y1+(h-lh*best.ls.length)/2+best.sz*.9;
   best.ls.forEach((l,k)=>T(x1+w/2,y0+k*lh,best.sz/BIG,l,"middle",c,"bold"))};
@@ -565,7 +565,7 @@ function svgHope(){const {y,m,nd,dow}=ymParts();const M=cur();const H=holOf(M);
  const rows=members().map(mb=>({id:mb.id,co:mb.co,nm:mb.name,cells:[...Array(nd)].map((_,d0)=>H.includes(d0+1)?"co":"")}));
  return svgSheet({title:`${y}年 ${m}月　希望休`,brand:true,nd,dow,shuku:M.shuku,rows,foot:"赤い点線＝週の区切り（日曜〜土曜）",
   boxes:{topFrom:10,split:14,top:"毎日お疲れ様です。希望休は3日まで、25日締め切りです。",
-   left:"休みたい日に × を書いてください。有給の場合は「有」を記入してください。",right:"※尚、有給の場合はスマホの勤怠アプリで有給の申請をして下さい"}})}
+   left:"休みたい日に × を書いてください。有給の場合は「有」を記入してください。",right:"※尚、有給の場合は表に「有」を書いても、スマホの勤怠アプリで有給の申請をしないと反映されません"}})}
 /* 印刷：A4横ぴったりのPDFを作って新しいタブで開く（iPhoneでもパソコンでも同じ大きさで印刷できる） */
 async function makePdf(svg){const W=841.89,H=595.28,sc=4.1;
  const img=new Image();img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);await img.decode();
