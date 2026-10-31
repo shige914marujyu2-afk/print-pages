@@ -33,8 +33,11 @@ input[type=date]{font:inherit;padding:6px 8px;border:1px solid var(--line);borde
 .wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;font-variant-numeric:tabular-nums}
 /* 会社の条件 */
-.cfg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px 18px}
-.cfg label{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px}
+.cfg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px 12px}
+.cfg label{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:13px}
+#mbSlot .mbl{display:none}
+.cfg input{width:3.2em!important;padding:4px!important}
+#mbSlot .monthbar{margin:0}
 /* メンバー表 */
 .mem th,.mem td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;font-size:14px;vertical-align:middle}
 .mem th{font-size:12px;color:var(--mut);font-weight:700;white-space:nowrap}
@@ -109,30 +112,19 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31s</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31t</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
- <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
+ <button id="t1" onclick="tab(1)">① 回送員・条件</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
  <button id="t3" onclick="tab(3)">③ 作成・印刷</button>
  <button id="t4" onclick="tab(4)">④ 希望休の表</button>
 </div>
-<div class="monthbar" id="monthbar">作る月：<select id="ym" onchange="loadMonth()"></select></div>
+<div class="monthbar" id="monthbar"><span class="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
 
 <!-- ① 条件・メンバー -->
 <section id="p1" hidden>
  <div class="card">
-  <h2>会社の条件（回送員の人数から自動・直せます）</h2>
-  <div id="cfgBox"></div>
-  <div class="row"><span class="hint" id="cfgMsg"></span></div>
- </div>
- <div class="card">
-  <h2>長い休み（全員休み＝全体休）</h2>
-  <p class="hint">ゴールデンウィーク・お盆・年末年始などを「何日から何日」で入れると、その日はシフト表で全員「全」になります。年をまたぐ年末年始もそのまま入れられます。毎年、日付を入れ直してください。<br>途中に出勤日がある飛び石の休み（例：5/2〜5/9で5/6だけ出勤）は、「<b>間の出勤日</b>」でその日を選ぶと、その日だけ出勤になります。</p>
-  <div class="wrap"><table class="mem" id="perTable"></table></div>
-  <div class="row"><button class="btn small" onclick="addPeriod()">＋ 休みの期間を追加</button></div>
- </div>
- <div class="card">
-  <h2>回送員（社員番号の小さい順）</h2>
+  <h2>① 回送員の登録（社員番号の小さい順）</h2>
   <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連休は平日だけ</b>＝連休を土日祝以外にします。<b>飛び石なし</b>＝「休→出→休」を作りません。<b>土日祝の休み</b>＝土・日・祝日に月何日休みたいか（空欄なら指定なし）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
   <div class="wrap"><table class="mem" id="memTable"></table></div>
   <div class="row"><button class="btn small" onclick="addMember()">＋ 回送員を追加</button><span class="hint" id="mmsg"></span></div>
@@ -146,6 +138,18 @@ html.ios{}
    <textarea id="dataBox" placeholder="ここに貼り付け"></textarea>
    <div class="row"><button class="btn sub small" onclick="exportData()">書き出す</button><button class="btn sub small" onclick="importData()">読み込む</button><span class="hint" id="dmsg"></span></div>
   </details>
+ </div>
+ <div class="card" id="mbSlot"><h2>② シフト表を作る月</h2></div>
+ <div class="card">
+  <h2>③ 作成の条件</h2>
+  <div id="cfgBox"></div>
+  <div class="row"><span class="hint" id="cfgMsg"></span></div>
+ </div>
+ <div class="card">
+  <h2>④ 長い休みがある場合（GW・お盆・年末年始）</h2>
+  <p class="hint"><b>長い休みがない月は入れなくてOK。</b>ゴールデンウィーク・お盆・年末年始などを「何日から何日」で入れると、その日はシフト表で全員「全」になります。<b style="color:#b8323d">注意：前の年の日付が残っていると、その日も「全」になります。使い終わったら日付を消すか、今年の日付に入れ直してください。</b>年をまたぐ年末年始もそのまま入れられます。<br>途中に出勤日がある飛び石の休み（例：5/2〜5/9で5/6だけ出勤）は、「<b>間の出勤日</b>」でその日を選ぶと、その日だけ出勤になります。</p>
+  <div class="wrap"><table class="mem" id="perTable"></table></div>
+  <div class="row"><button class="btn small" onclick="addPeriod()">＋ 休みの期間を追加</button></div>
  </div>
 </section>
 
@@ -194,7 +198,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031s"></script>
+<script src="solver.js?v=20261031t"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -216,7 +220,7 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 /* ---------- タブ ---------- */
-function tab(n){if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
+function tab(n){const mb=$("monthbar");if(n===1)$("mbSlot").appendChild(mb);else if(mb.parentNode.id==="mbSlot")$("p1").before(mb);if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
  $("monthbar").hidden=n===1;if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
 
@@ -260,15 +264,15 @@ function autoCfg(){const N=members().length||14;const avg=N*5/7;const min=Math.m
  return {min,wdMax:min+1,beTarget:min+1,beMax:min+2,weekOff:2,maxRun:3,minPairs:1}}
 /* 会社の条件：人数から自動で決めた値。ここで変えた数字はそちらを優先 */
 function effCfg(){return {...S.cfg,...autoCfg(),...(S.cfg.over||{})}}
-const CFG_ITEMS=[["min","毎日の出勤は最低","人"],["wdMax","普通の日の出勤は多くても","人まで"],["beTarget","繁忙日の出勤はできれば","人以上"],["beMax","繁忙日の出勤は多くても","人まで"],
- ["weekOff","1週間（日〜土）の休みは必ず","日"],["maxRun","連勤は最大","日まで"],["minPairs","連休は月に最低","回"]];
+const CFG_ITEMS=[["min","最低人数","人"],["wdMax","普通日の最多","人"],["beTarget","繁忙日の目標","人"],["beMax","繁忙日の最多","人"],
+ ["weekOff","週の休み","日"],["maxRun","連勤の上限","日"],["minPairs","連休(月)","回〜"]];
 function drawCfg(){drawPeriods();const c=effCfg(),a=autoCfg(),ov=S.cfg.over||{};const N=members().length;
- $("cfgBox").innerHTML=`<p class="hint" style="margin-top:0">回送員 <b>${N}人</b> から自動で決めた数字が入っています。変えたいところだけ数字を直してください（直した所は<b style="color:#b8323d">赤</b>になります）。5連勤は絶対に作りません。閑散日は最低人数より少なくてもよい日です。</p>
- <div class="cfg">${CFG_ITEMS.map(([k,t,u])=>`<label>${t}<input type="number" min="0" max="31" value="${c[k]}" style="${ov[k]!=null?"border-color:#b8323d;color:#b8323d;font-weight:700":""}" onchange="setOver('${k}',this.value)">${u}</label>`).join("")}</div>
- <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+ $("cfgBox").innerHTML=`<p class="hint" style="margin:0 0 6px">回送員${N}人から自動で入っています。直した所は<b style="color:#b8323d">赤</b>。週＝日〜土。</p>
+ <div class="cfg">${CFG_ITEMS.map(([k,t,u])=>`<label><span>${t}</span><span style="white-space:nowrap"><input type="number" min="0" max="31" value="${c[k]}" style="${ov[k]!=null?"border-color:#b8323d;color:#b8323d;font-weight:700":""}" onchange="setOver('${k}',this.value)"> ${u}</span></label>`).join("")}</div>
+ <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:13px">
   <label><input type="checkbox" ${c.tri?"checked":""} onchange="setCfg('tri',this.checked)">全体休を使って3連休を作る</label>
-  <label><input type="checkbox" ${c.runFirst?"checked":""} onchange="setCfg('runFirst',this.checked)">どうしても両立できない時は、最低人数より連勤を優先する</label>
-  <div><button class="btn sub small" onclick="resetOver()">人数からの自動の数字に戻す</button></div></div>`}
+  <label><input type="checkbox" ${c.runFirst?"checked":""} onchange="setCfg('runFirst',this.checked)">両立できない時は人数より連勤を優先</label>
+  <button class="btn sub small" onclick="resetOver()">自動の数字に戻す</button></div>`}
 function setOver(k,v){const a=autoCfg();S.cfg.over=S.cfg.over||{};const n=Math.max(0,Math.round(+v||0));if(n===a[k])delete S.cfg.over[k];else S.cfg.over[k]=n;store();drawCfg();if($("busyDays"))drawBusy();$("cfgMsg").textContent="保存しました"}
 function resetOver(){S.cfg.over={};store();drawCfg();$("cfgMsg").textContent="自動の数字に戻しました"}
 function setCfg(k,v){S.cfg[k]=!!v;store();drawCfg();$("cfgMsg").textContent="保存しました"}
