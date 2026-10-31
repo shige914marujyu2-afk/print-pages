@@ -45,6 +45,7 @@ table{border-collapse:collapse;font-variant-numeric:tabular-nums}
 #mbSlot .mbl{display:none}
 .cfg input{width:3.2em!important;padding:4px!important}
 #mbSlot .monthbar{margin:0}
+#mbSlot select{font-size:20px;padding:8px 12px}
 /* メンバー表 */
 .mem th,.mem td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;font-size:14px;vertical-align:middle}
 .mem th{font-size:12px;color:var(--mut);font-weight:700;white-space:nowrap}
@@ -94,8 +95,9 @@ th.shuku{color:var(--sun);background:#fde8eb}
 .hope .out td{height:34px}
 .ask{background:#fff4e0;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
 .ask label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.daychips{display:flex;flex-wrap:wrap;gap:4px}
-.daychips button{width:44px;padding:4px 0;border:1px solid var(--line);border-radius:7px;background:#fff;font:inherit;font-size:12px;line-height:1.25;cursor:pointer}
+.daychips{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:6px 0}
+.daychips button{padding:8px 0;border:2px solid var(--line);border-radius:9px;background:#fff;font:inherit;font-size:15px;font-weight:700;line-height:1.3;cursor:pointer}
+@media(min-width:700px){.daychips button{font-size:18px;padding:10px 0}}
 .daychips button.bz{background:#f6d0d6;border-color:#b8323d;color:#b8323d;font-weight:700}
 .daychips button.qt{background:#d6e4f7;border-color:#2f5fb3;color:#2f5fb3;font-weight:700}
 .daychips button.hl{background:#d9d9de;color:#777;cursor:default}
@@ -116,19 +118,20 @@ html.ios{}
 #perTable td{white-space:nowrap}
 #perTable input[type=text]{min-width:7em}
 .guide{background:#fff6e5;border:2px solid #e0a000;border-radius:12px;padding:10px 12px;margin:8px 0 10px}.gtitle{font-weight:700;font-size:17px}.gtext{font-size:14px;line-height:1.5;margin-top:2px}
+.card:has(> #printArea:empty){display:none}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01c</span></small></h1></div>
-<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=13" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=13" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01d</span></small></h1></div>
+<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=14" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=14" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員・条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休の表</span></button>
  <button id="t2" onclick="goTab(2)"><span class="n">③</span><span class="l">休みの入力</span></button>
  <button id="t3" onclick="goTab(3)"><span class="n">④</span><span class="l">作成・印刷</span></button>
 </div>
-<div class="monthbar" id="monthbar"><span class="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
+<div class="monthbar" id="monthbar"><span class="mbl" id="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
 
 <!-- ① 条件・メンバー -->
 <section id="p1" hidden>
@@ -144,7 +147,7 @@ html.ios{}
   <div class="wrap"><table class="mem" id="memTable"></table></div>
   <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連休は平日だけ</b>＝連休を土日祝以外にします。<b>飛び石なし</b>＝「休→出→休」を作りません。<b>土日祝の休み</b>＝土・日・祝日に月何日休みたいか（空欄なら指定なし）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
  </div>
- <div class="card" id="mbSlot"><h2>①-2 シフト表を作る月</h2></div>
+ <div class="card" id="mbSlot"><h2>①-2 シフト表を作る月</h2><p class="hint" style="margin:2px 0 6px">ここで作る月を選びます（②〜④の画面でも同じ月になります）。</p></div>
  <div class="card">
   <h2>①-3 作成の条件</h2>
   <div id="cfgBox"></div>
@@ -174,21 +177,25 @@ html.ios{}
  <div class="stepintro"><b class="t">③ 休みの入力</b>集めた希望休の紙を見ながら、マスをタップして休みを入れます。全体休が入った週の日数と、繁忙日・閑散日もここで決めます。</div>
  <div class="card">
   <div id="holWeeks"></div>
-  <div class="ask" style="background:#eef3fb;border-color:#c9d8f0"><b>繁忙日・閑散日（日付で指定）</b>
-   <span class="hint" style="margin:0">日付を押すたびに「普通」→「<b style="color:#b8323d">繁</b>」繁忙日（11〜12人に増やす）→「<b style="color:#2f5fb3">閑</b>」閑散日（10人より少なくてもよい）→「普通」。</span>
+  <div class="ask" style="background:#eef3fb;border-color:#c9d8f0"><b style="font-size:17px">繁忙日・閑散日（日付で指定）</b>
+   <div style="font-size:14px;line-height:1.55;margin:4px 0">日付を押すたびに 普通 →「<b style="color:#b8323d">繁</b>」繁忙日（11〜12人に増やす）→「<b style="color:#2f5fb3">閑</b>」閑散日（10人より少なくてもよい）→ 普通。<br><b>入れるメリット</b>：忙しい日に人を多く、ひまな日に少なく配置でき、現場に合った表になります。<br><b>入れないと</b>：全部の日が「普通の日」（10〜11人）として作られます。</div>
    <div id="busyDays" class="daychips"></div><div id="busyBal" class="hint" style="margin:0"></div></div>
   <p class="hint">・<b>日付をタップ</b>：「祝」（祝日）→「全」（全体休＝全員の休み）→ 元に戻る。祝日と、会社の条件で入れた長い休みは最初から入っています。<br>・<b>マスをタップ</b>するたびに「休」→「希」（希望休）→「有」（有休）→ 空白、と変わります。「休」は希望ではないが休みに決まっている日に使います。<br>・左の灰色7列は<b>前月の最後の1週間</b>。同じように休んだ日を入れます（月またぎの連勤チェック用。空のままの人はチェックしません）。前月をこのツールで「決定」していれば自動で入ります。</p>
  </div>
  <div class="card"><div class="wrap"><table class="grid" id="inGrid"></table></div></div>
- <button class="btn next" onclick="goTab(3);make()">次へ：④ 作成する →</button>
+ <button class="btn next" onclick="goTab(3)">次へ：④ 作成・印刷 →</button>
  <div class="row"><button class="btn sub" onclick="clearMonth()">この月の入力を消す</button><span class="hint" id="p2msg"></span></div>
 </section>
 
 <!-- ③ 作成・印刷 -->
 <section id="p3" hidden>
- <div class="stepintro"><b class="t">④ 作成・印刷</b>「作成する」を押すと表ができます。A案・B案・手動用から選び、必要ならマスをタップして直し、「正式なシフト表に採用」→「この表を印刷する」。</div>
+ <div class="stepintro"><b class="t">④ 作成・印刷</b>「シフト表を作る」を押すと表ができます。A案・B案・手動用から選び、必要ならマスをタップして直し、「正式なシフト表に採用」→「この表を印刷する」。</div>
  <div class="card">
-  <div class="row"><button class="btn" onclick="make()">作成する（A案・B案）</button><button class="btn sub" onclick="makeManual()">希望休だけの表（手動で入れる用）</button><span id="status" class="status"></span></div>
+  <button class="btn next" style="margin-top:4px" onclick="make()">シフト表を作る</button>
+  <p style="margin:2px 0 12px;font-size:14px;line-height:1.5">押すと<b>自動でA案とB案</b>が作られます（10〜30秒）。条件によっては<b>A案だけ</b>の場合があります。</p>
+  <button class="btn sub next" style="margin-top:0" onclick="makeManual()">手動で作る（希望休だけの表）</button>
+  <p style="margin:2px 0 8px;font-size:14px;line-height:1.5">自動では作らず、希望休・有休・全体休だけが入った表に、<b>1から休みを入れて作る</b>モードです。</p>
+  <div class="row"><span id="status" class="status"></span></div>
   <p class="hint">できあがった表のマスをタップすると「休」→「希」→「有」→ 空欄 と手で直せます（全体休の「全」は変わりません）。直すと下のチェックも出直します。</p>
   <div class="plans" id="planBtns"></div>
   <ul class="chk" id="checks"></ul>
@@ -220,7 +227,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101c"></script>
+<script src="solver.js?v=20261101d"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -244,7 +251,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;","
 /* ---------- タブ ---------- */
 function goTab(n){tab(n);window.scrollTo(0,0)}
 function tab(n){const mb=$("monthbar");if(n===1)$("mbSlot").appendChild(mb);else if(mb.parentNode.id==="mbSlot")$("p1").before(mb);if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
- $("monthbar").hidden=n===1;if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
+ $("mbl").textContent=n===4?"希望休を作る月を選択：":"シフト表を作る月：";if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
 
 /* ---------- 会社の条件 ---------- */
