@@ -108,45 +108,47 @@ html.ios{}
 .dpbtn{white-space:nowrap;word-break:keep-all}
 #perTable td{white-space:nowrap}
 #perTable input[type=text]{min-width:7em}
+.guide{background:#fff6e5;border:2px solid #e0a000;border-radius:12px;padding:10px 12px;margin:8px 0 10px}.gtitle{font-weight:700;font-size:17px}.gtext{font-size:14px;line-height:1.5;margin-top:2px}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31v</span></small></h1><a class="btn sub small" href="manual/?v=11" style="text-decoration:none">使い方を見る・印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01b</span></small></h1></div>
+<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=12" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=12" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 回送員・条件</button>
- <button id="t2" onclick="tab(2)">② 休みの入力</button>
- <button id="t3" onclick="tab(3)">③ 作成・印刷</button>
- <button id="t4" onclick="tab(4)">④ 希望休の表</button>
+ <button id="t4" onclick="tab(4)">② 希望休の表</button>
+ <button id="t2" onclick="tab(2)">③ 休みの入力</button>
+ <button id="t3" onclick="tab(3)">④ 作成・印刷</button>
 </div>
 <div class="monthbar" id="monthbar"><span class="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
 
 <!-- ① 条件・メンバー -->
 <section id="p1" hidden>
  <div class="card">
-  <h2>① 回送員の登録（社員番号の小さい順）</h2>
-  <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連休は平日だけ</b>＝連休を土日祝以外にします。<b>飛び石なし</b>＝「休→出→休」を作りません。<b>土日祝の休み</b>＝土・日・祝日に月何日休みたいか（空欄なら指定なし）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
+  <h2>①-1 回送員の登録（社員番号の小さい順）</h2>
+  <div class="row"><button class="btn" onclick="addMember()">＋ 回送員を追加（1人ずつ）</button><button class="btn" style="background:#2f5fb3" onclick="openBulk()">＋ まとめて登録（一括）</button><span class="hint" id="mmsg"></span></div>
+  <div id="bulkBox" class="ask" style="background:#eef3fb;border-color:#c9d8f0" hidden><b>まとめて登録（一括）</b>
+   <p class="hint" style="margin:2px 0 6px">1行に1人「<b>社員番号 名前 所属</b>」（間は空白）で貼り付けて「取り込む」。例：<br>995408 設楽 東西<br>995502 柿沼 ｴｸｽﾌﾟﾚｽ<br>※取り込むと今の一覧と入れ替わります。個人の条件は取り込んだあと1人ずつ入れてください。</p>
+   <textarea id="bulk" placeholder="ここに貼り付け"></textarea>
+   <div class="row"><button class="btn" style="background:#2f5fb3" onclick="importBulk()">取り込む</button><button class="btn sub small" onclick="$('bulkBox').hidden=true">閉じる</button></div>
+  </div>
   <div class="wrap"><table class="mem" id="memTable"></table></div>
-  <div class="row"><button class="btn small" onclick="addMember()">＋ 回送員を追加</button><span class="hint" id="mmsg"></span></div>
-  <details><summary class="hint" style="cursor:pointer">まとめて貼り付ける</summary>
-   <p class="hint">1行に1人「社員番号 名前 所属」。個人の条件は取り込んだあと、1人ずつ入れてください。取り込むと今の一覧と入れ替わります。</p>
-   <textarea id="bulk"></textarea>
-   <div class="row"><button class="btn sub small" onclick="importBulk()">取り込む</button></div>
-  </details>
+  <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連休は平日だけ</b>＝連休を土日祝以外にします。<b>飛び石なし</b>＝「休→出→休」を作りません。<b>土日祝の休み</b>＝土・日・祝日に月何日休みたいか（空欄なら指定なし）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
   <details><summary class="hint" style="cursor:pointer">データの書き出し・読み込み（別のスマホ・パソコンへ移す）</summary>
    <p class="hint">【文字で移す】移す元で「書き出す」→ 出た文字が自動でコピーされるので、LINEやメールで自分に送る → 移す先でこの欄を空にしてから全部貼り付けて「読み込む」。<br>【ファイルで移す】「ファイルに保存」→ そのファイルをLINEやメールで送る →「ファイルから読み込む」で選ぶ。<br>読み込むと今の内容と入れ替わります。</p>
    <textarea id="dataBox" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
    <div class="row"><button class="btn sub small" onclick="exportData()">書き出す</button><button class="btn sub small" onclick="importData()">読み込む</button><button class="btn sub small" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub small" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub small" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
   </details>
  </div>
- <div class="card" id="mbSlot"><h2>② シフト表を作る月</h2></div>
+ <div class="card" id="mbSlot"><h2>①-2 シフト表を作る月</h2></div>
  <div class="card">
-  <h2>③ 作成の条件</h2>
+  <h2>①-3 作成の条件</h2>
   <div id="cfgBox"></div>
   <div class="row"><span class="hint" id="cfgMsg"></span></div>
  </div>
  <div class="card">
-  <h2>④ 長い休みがある場合（GW・お盆・年末年始）</h2>
+  <h2>①-4 長い休みがある場合（GW・お盆・年末年始）</h2>
   <p class="hint"><b>長い休みがない月は入れなくてOK。</b>ゴールデンウィーク・お盆・年末年始などを「何日から何日」で入れると、その日はシフト表で全員「全」になります。<b style="color:#b8323d">注意：前の年の日付が残っていると、その日も「全」になります。使い終わったら日付を消すか、今年の日付に入れ直してください。</b>年をまたぐ年末年始もそのまま入れられます。<br>途中に出勤日がある飛び石の休み（例：5/2〜5/9で5/6だけ出勤）は、「<b>間の出勤日</b>」でその日を選ぶと、その日だけ出勤になります。</p>
   <div class="wrap"><table class="mem" id="perTable"></table></div>
   <div class="row"><button class="btn small" onclick="addPeriod()">＋ 休みの期間を追加</button></div>
@@ -189,7 +191,7 @@ html.ios{}
 <!-- ④ 希望休の表 -->
 <section id="p4" hidden>
  <div class="card">
-  <p class="hint">上で選んだ月の、みんなに書いてもらう希望休の紙です。祝日は赤、全体休（②や長い休みで入れた日）は灰色の「全」で出ます。</p>
+  <p class="hint">上で選んだ月の、みんなに書いてもらう希望休の紙です。祝日は赤、全体休（③ 休みの入力や長い休みで入れた日）は灰色の「全」で出ます。</p>
   <div class="row"><button class="btn" onclick="doPrint('hopeArea')">この表を印刷する</button><span class="hint" id="hopeMsg"></span></div>
  </div>
  <div class="card wrap"><div id="hopeArea"></div></div>
@@ -198,7 +200,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031v"></script>
+<script src="solver.js?v=20261101b"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -293,6 +295,7 @@ function drawMembers(){const t=$("memTable");
  t.innerHTML=h;if($("cfgBox"))drawCfg();$("bulk").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}`).join("\n")}
 function setMem(i,k,v){S.members[i][k]=typeof v==="string"?v.trim():v;if(k==="id"){sortMembers();drawMembers()}store();$("mmsg").textContent="保存しました"}
 function togDow(i,q){const a=S.members[i].offDows;const j=a.indexOf(q);j<0?a.push(q):a.splice(j,1);a.sort();store();drawMembers()}
+function openBulk(){$("bulkBox").hidden=false;$("bulk").focus();$("bulkBox").scrollIntoView({behavior:"smooth",block:"center"})}
 function addMember(){S.members.push({id:"",name:"",co:"",offDows:[],wdPair:false,noIso:false,weOff:""});store();drawMembers();
  const ins=$("memTable").querySelectorAll("td.id input");if(ins.length)ins[ins.length-1].focus()}
 function delMember(i){const m=S.members[i];if(!confirm(`${m.name||"この人"}さんを削除しますか？`))return;S.members.splice(i,1);store();drawMembers();$("mmsg").textContent="削除しました"}
@@ -369,7 +372,7 @@ function autoPrev(){const {y,m}=ymParts();const pd=new Date(y,m-2,1);const P=S.m
   M.prev[mb.id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k)?"k":"")}store()}
 
 /* ---------- 休みの入力 ---------- */
-function drawInput(){const t=$("inGrid");const mem=members();if(!mem.length){t.innerHTML="<tr><td style='padding:12px'>先に「① 条件・メンバー」で回送員を登録してください</td></tr>";return}
+function drawInput(){const t=$("inGrid");const mem=members();if(!mem.length){t.innerHTML="<tr><td style='padding:12px'>先に「① 回送員・条件」で回送員を登録してください</td></tr>";return}
  const M=cur(),{nd,dow}=ymParts();let h="<tr><th class='nm'>前月末→</th>";
  for(let k=0;k<7;k++)h+=`<th class='prev'>${k===6?"末":""}</th>`;
  for(let d=1;d<=nd;d++){const w=dow(d);const H=holOf(M).includes(d),Sh=M.shuku.includes(d);
@@ -382,7 +385,7 @@ function drawInput(){const t=$("inGrid");const mem=members();if(!mem.length){t.i
    h+=`<td class="tap ${w===0&&d>1?"wk":""} ${cellCls(v)}" onclick="togMark('${esc(mb.id)}',${d})">${cellTxt(v)}</td>`}
   h+="</tr>"}
  t.innerHTML=h}
-function togHol(d){setTimeout(()=>{drawHolWeeks();drawBusy()},0);const M=cur();if(periodDays().includes(d)){$("p2msg").textContent="長い休みの日は「① 条件・メンバー」で変えられます";return}const h=M.hol.indexOf(d),s=M.shuku.indexOf(d);
+function togHol(d){setTimeout(()=>{drawHolWeeks();drawBusy()},0);const M=cur();if(periodDays().includes(d)){$("p2msg").textContent="長い休みの日は「① 回送員・条件」で変えられます";return}const h=M.hol.indexOf(d),s=M.shuku.indexOf(d);
  if(h>=0)M.hol.splice(h,1);else if(s>=0){M.shuku.splice(s,1);M.hol.push(d)}else M.shuku.push(d);store();drawInput()}
 /* タップするたびに 休 → 希 → 有 → 空白 */
 const NEXT={"":"k",k:"h",h:"y",y:""};
@@ -521,7 +524,7 @@ function drawHope(){const {y,m,nd,dow}=ymParts();const M=cur();const mem=members
  h+="</tr>";
  for(const mb of mem){h+=`<tr><td class="id">${esc(mb.id)}</td><td class="co">${esc(mb.co)}</td><td class="nm">${esc(mb.name)}</td>`;
   for(let d=1;d<=nd;d++)h+=H.includes(d)?`<td class="c-co ${wk(d)}">全</td>`:`<td class="${wk(d)}"></td>`;h+="</tr>"}
- if(!mem.length)h+=`<tr><td colspan="${nd+3}" class="hint" style="padding:10px">「① 条件・メンバー」で回送員を登録すると、ここに名前が並びます。</td></tr>`;
+ if(!mem.length)h+=`<tr><td colspan="${nd+3}" class="hint" style="padding:10px">「① 回送員・条件」で回送員を登録すると、ここに名前が並びます。</td></tr>`;
  h+=`</table><div class="legend"><div>赤い点線＝週の区切り（日曜〜土曜）</div>${H.length?`<div><span class="c-co">全</span>全体休（全員休み）</div>`:""}</div></div>`;
  $("hopeArea").innerHTML=h}
 
