@@ -109,7 +109,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31n</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-10-31o</span></small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=9" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -194,7 +194,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031n"></script>
+<script src="solver.js?v=20261031o"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -527,11 +527,11 @@ function svgSheet(o){const W=841.89,H=595.28,x0=30,top=80,hh=22,K="#c0303a",PK="
  if(cwT){T(xr+cwT/2,top+hh-7,8,"休日");T(xr+cwT/2,top+2*hh-7,8,"日数");T(xr+cwT*1.5,top+hh-7,8,"出勤");T(xr+cwT*1.5,top+2*hh-7,8,"日数")}
  const sc=rh/29;
  o.rows.forEach((r,i)=>{const yt=top+2*hh+i*rh,yb=yt+rh/2+4;
-  T(x0+cwNo/2,yb-1,6.6/BIG,r.id,"middle","#000","400");T(x0+cwNo+cwCo/2,yb,String(r.co).length>2?7:8,r.co);T(xd-cwNm/2,yb,String(r.nm).length<3?12:11,r.nm);
+  T(x0+cwNo/2,yb-1,6.6/BIG,r.id,"middle","#000","400");T(x0+cwNo+cwCo/2,yb,String(r.co).length>2?7:8,r.co,"middle","#000","400");T(xd-cwNm/2,yb,String(r.nm).length<3?12:11,r.nm);
   r.cells.forEach((k,d0)=>{if(!k)return;const bx=xd+d0*cw,cx=bx+cw/2;
    if(k==="y"){g.push(`<circle cx="${cx.toFixed(1)}" cy="${(yb-3.5).toFixed(1)}" r="${Math.min(7.5,cw/2-1).toFixed(1)}" fill="none" stroke="${K}" stroke-width=".8"/>`);T(cx,yb,10,"有","middle",K);return}
    const rx=bx+2.5,ry=yt+5*sc,rw=cw-5,rhh=rh-10*sc;
-   if(k==="co"){Rc(rx,ry,rw,rhh,"#d9d9de");T(cx,yb,10,"全");return}
+   if(k==="co"){Rc(rx,ry,rw,rhh,"#d9d9de");T(cx,yb,10,"全","middle","#000","400");return}
    Rc(rx,ry,rw,rhh,PK,k==="h"?` stroke="${K}" stroke-width="1.2"`:"");T(cx,yb,10,k==="h"?"希":"公","middle",K)});
   if(cwT){T(xr+cwT/2,yb,10,String(r.off));T(xr+cwT*1.5,yb,10,String(r.work))}});
  for(let i=0;i<=n;i++)L(x0,top+2*hh+i*rh,xe,top+2*hh+i*rh);
