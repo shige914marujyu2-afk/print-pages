@@ -105,7 +105,7 @@ html.ios{}
 </style>
 </head>
 <body>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31i</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=7" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 2026-10-31j</small></h1><a class="btn sub small" href="manual/shift-manual.pdf?v=8" target="_blank" rel="noopener" style="text-decoration:none">使い方の紙を印刷する</a></div>
 <div class="tabs">
  <button id="t1" onclick="tab(1)">① 条件・メンバー</button>
  <button id="t2" onclick="tab(2)">② 休みの入力</button>
@@ -123,7 +123,7 @@ html.ios{}
  </div>
  <div class="card">
   <h2>長い休み（全員休み＝全体休）</h2>
-  <p class="hint">ゴールデンウィーク・お盆・年末年始などを「何日から何日」で入れると、その日はシフト表で全員「全」になります。年をまたぐ年末年始もそのまま入れられます。毎年、日付を入れ直してください。</p>
+  <p class="hint">ゴールデンウィーク・お盆・年末年始などを「何日から何日」で入れると、その日はシフト表で全員「全」になります。年をまたぐ年末年始もそのまま入れられます。毎年、日付を入れ直してください。<br>途中に出勤日がある飛び石の休み（例：5/2〜5/9で5/6だけ出勤）は、「<b>間の出勤日</b>」でその日を選ぶと、その日だけ出勤になります。</p>
   <div class="wrap"><table class="mem" id="perTable"></table></div>
   <div class="row"><button class="btn small" onclick="addPeriod()">＋ 休みの期間を追加</button></div>
  </div>
@@ -185,7 +185,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261031i"></script>
+<script src="solver.js?v=20261031j"></script>
 <script>
 const WD="日月火水木金土";
 const DEF_PERIODS=[{name:"ゴールデンウィーク",from:"",to:""},{name:"お盆休み",from:"",to:""},{name:"年末年始",from:"",to:""}];
@@ -204,13 +204,16 @@ function tab(n){for(const i of [1,2,3,4]){$("p"+i).hidden=i!==n;$("t"+i).classLi
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
 
 /* ---------- 会社の条件 ---------- */
-function drawPeriods(){const ps=S.cfg.periods;let h=`<tr><th>名前</th><th>何日から</th><th>何日まで</th><th></th></tr>`;
+function drawPeriods(){const ps=S.cfg.periods;let h=`<tr><th>名前</th><th>何日から</th><th>何日まで</th><th>間の出勤日<br><small>（飛び石のとき）</small></th><th></th></tr>`;
  ps.forEach((p,i)=>{h+=`<tr><td><input type="text" value="${esc(p.name)}" onchange="setPer(${i},'name',this.value)"></td>
   <td><input type="date" value="${esc(p.from)}" onchange="setPer(${i},'from',this.value)"></td>
   <td><input type="date" value="${esc(p.to)}" onchange="setPer(${i},'to',this.value)"></td>
+  <td>${(p.work||[]).map((t,k)=>`<span style="display:inline-block;background:#e8f0ff;border-radius:6px;padding:2px 6px;margin:2px;white-space:nowrap">${+t.slice(5,7)}/${+t.slice(8)} 出勤 <button class="del" style="padding:0 6px" onclick="delWork(${i},${k})">×</button></span>`).join("")}<input type="date" min="${esc(p.from)}" max="${esc(p.to)}" value="" onchange="addWork(${i},this.value)" title="期間の中で出勤する日"></td>
   <td><button class="del" onclick="delPeriod(${i})">削除</button></td></tr>`});
  $("perTable").innerHTML=h}
 function setPer(i,k,v){const p=S.cfg.periods[i];p[k]=v;if(k==="from"&&p.to&&p.to<v)p.to=v;if(k==="to"&&p.from&&p.from>v)p.from=v;store();drawPeriods();$("cfgMsg").textContent="保存しました"}
+function addWork(i,v){const p=S.cfg.periods[i];if(!v)return;if(p.from&&v<p.from||p.to&&v>p.to){$("cfgMsg").textContent="期間の中の日を選んでください";drawPeriods();return}p.work=[...new Set([...(p.work||[]),v])].sort();store();drawPeriods();$("cfgMsg").textContent="保存しました"}
+function delWork(i,k){S.cfg.periods[i].work.splice(k,1);store();drawPeriods()}
 function addPeriod(){S.cfg.periods.push({name:"",from:"",to:""});store();drawPeriods()}
 function delPeriod(i){if(!confirm(`「${S.cfg.periods[i].name||"この期間"}」を削除しますか？`))return;S.cfg.periods.splice(i,1);store();drawPeriods()}
 /* 回送員の人数から決まりを自動で出す（14人なら 最低10人・月〜木11人まで・金土日祝11〜12人） */
@@ -275,7 +278,7 @@ function cur(){const v=$("ym").value;if(!S.months[v]){const [y,m]=v.split("-");S
  const M=S.months[v];if(!M.shuku)M.shuku=[];if(!M.wkTotal)M.wkTotal={};return M}
 /* その月の全体休＝②で入れた日＋会社の条件の長い休み */
 function periodDays(){const {y,m,nd}=ymParts();const out=[];for(const p of S.cfg.periods||[]){if(!p.from||!p.to)continue;
-  for(let d=1;d<=nd;d++){const t=`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;if(t>=p.from&&t<=p.to)out.push(d)}}return out}
+  for(let d=1;d<=nd;d++){const t=`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;if(t>=p.from&&t<=p.to&&!(p.work||[]).includes(t))out.push(d)}}return out}
 function holOf(M){return [...new Set([...M.hol,...periodDays()])].sort((a,b)=>a-b)}
 function ymParts(){const [y,m]=$("ym").value.split("-").map(Number);return {y,m,nd:new Date(y,m,0).getDate(),dow:d=>new Date(y,m-1,d).getDay()}}
 function loadMonth(){cur();
