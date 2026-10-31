@@ -68,7 +68,7 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
   if(offDows[i]&&offDows[i].length)for(const w of W[i]){let any=false,has=false;for(let d=w.a;d<=w.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(o[d])has=true}}if(any&&!has)p+=PN.dowp}
   for(const w of W[i]){let c=0;for(const d of w.free)if(o[d])c++;p+=PN.wk*(Math.max(0,w.lo-c)+Math.max(0,c-w.hi))+150*Math.abs(c-w.ideal)}
   {let c=0;for(const d of MF[i])if(o[d])c++;p+=300*Math.abs(c-MT[i])}
-  for(let d=2;d<nd;d++)if(o[d-1]&&!o[d]&&o[d+1]&&!(fixed[i][d-1]&&fixed[i][d+1]))p+=st.iso;
+  for(let d=2;d<nd;d++)if(o[d-1]&&!o[d]&&o[d+1]&&!(fixed[i][d-1]&&fixed[i][d+1]))p+=(P.noIso&&P.noIso[i])?PN.pair:st.iso;
   if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(o[d]&&isWE(P,d))c++;p+=PN.we*Math.abs(c-P.weOff[i])}
   if(opt.ref){const rf=opt.ref[i];let c=0;for(let d=1;d<=nd;d++)if(o[d]!==rf[d])c++;p-=opt.div*Math.min(c,8)}
   return p}
