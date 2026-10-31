@@ -119,11 +119,12 @@ html.ios{}
 #perTable input[type=text]{min-width:7em}
 .guide{background:#fff6e5;border:2px solid #e0a000;border-radius:12px;padding:10px 12px;margin:8px 0 10px}.gtitle{font-weight:700;font-size:17px}.gtext{font-size:14px;line-height:1.5;margin-top:2px}
 .card:has(> #printArea:empty){display:none}
+#chkCard:has(#checks:empty){display:none}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01f</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01g</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=15" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=15" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -189,13 +190,13 @@ html.ios{}
   <div class="row"><span id="status" class="status"></span></div>
   <p class="hint">できあがった表のマスをタップすると「休」→「希」→「有」→ 空欄 と手で直せます（全体休の「全」は変わりません）。直すと下のチェックも出直します。</p>
   <div class="plans" id="planBtns"></div>
-  <ul class="chk" id="checks"></ul>
   <div class="printbar" id="pbar" hidden>
    <button class="btn" style="background:#1d7a3a" onclick="decide()">✔ この表を正式なシフト表に採用（決定）</button>
    <button class="btn" onclick="doPrint('printArea')">この表を印刷する</button>
   </div>
  </div>
  <div class="card wrap"><div id="printArea"></div></div>
+ <div class="card" id="chkCard"><h2>ルールのチェック（○×）</h2><p class="hint" style="margin:0 0 4px">マスを直すと、ここが自動で出直します。</p><ul class="chk" id="checks"></ul></div>
  <div class="card">
   <h2>採用したシフト表（月ごとに保存）</h2>
   <p class="hint">「この表を正式なシフト表に採用」を押した月がここに残り、いつでも印刷できます。翌月の「前月末」7列にも自動で入り、連休・3連休の平等化にも過去6か月分が使われます。</p>
@@ -244,7 +245,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101f"></script>
+<script src="solver.js?v=20261101g"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
