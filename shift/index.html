@@ -173,7 +173,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02f</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02g</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -308,7 +308,7 @@ table.stk .wk{border-left-width:2px!important}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261102f"></script>
+<script src="solver.js?v=20261102g"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -475,18 +475,27 @@ function saveDataFile(){packData().then(v=>{const a=document.createElement("a");
 function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$("dataBox").value=t;inp.value="";importData()})}
 /* 過去のシフト表だけを追加する（今のデータは消さない） */
 /* 操作が終わったら案内のポップアップを出す */
-/* 名前のある表は、横にずらしても名前までの列を左に止めておく */
-function stickNames(){document.querySelectorAll("table").forEach(t=>{if(t.offsetParent===null||t.id==="inGrid"||t.id==="memL")return;
+/* 名前のある表は、横にずらしても名前までの列を左に止めておく
+   （表の写しを左に重ねて、名前までの幅だけ見せる。iPhoneでも消えたりブレたりしない） */
+function stickNames(){document.querySelectorAll(".frz").forEach(e=>e.remove());
+ document.querySelectorAll("table").forEach(t=>{if(t.offsetParent===null||t.id==="inGrid"||t.id==="memL"||t.closest(".frz"))return;
+ const sc=t.closest(".wrap");if(!sc)return;
  const hd=[...t.querySelectorAll("tr:first-child th")].find(th=>th.textContent.trim()==="名前");if(!hd)return;
- if(!t.classList.contains("stk")){t.classList.add("stk");t.querySelectorAll("th,td").forEach(c=>{if(c.offsetLeft<3)c.classList.add("stl");if(c.parentElement.rowIndex===0)c.classList.add("stt")})}
- t.style.position="relative";const right=hd.offsetLeft+hd.offsetWidth;const sc=t.closest(".wrap");const pad=sc?parseFloat(getComputedStyle(sc).paddingLeft)||0:0;
- const useTf=!!t.querySelector("input,select");const lead=[];
- t.querySelectorAll("th,td").forEach(c=>{if(c.offsetLeft+c.offsetWidth<=right+1&&c.offsetLeft<right-2){lead.push(c);if(useTf){c.style.position="relative"}else{c.style.position="sticky";c.style.left=c.offsetLeft+"px"}c.style.zIndex=2;
-   const bg=getComputedStyle(c).backgroundColor;if(bg==="rgba(0, 0, 0, 0)"||bg==="transparent")c.style.background="#fff";
-   const sh=[];if(c.offsetLeft<3&&pad)sh.push(`-${pad+2}px 0 0 #fff`);if(c.offsetLeft+c.offsetWidth>=right-1)sh.push("2px 0 0 #999");c.style.boxShadow=sh.join(",")}});
- /* 入力欄のある表（iPhoneで止めると表示が消えるため）は、ずらした分だけ動かして止める */
- if(useTf&&sc){const mv=()=>{const x=sc.scrollLeft;for(const c of lead)c.style.transform=x?`translateX(${x}px)`:""};sc.onscroll=mv;mv()}})}
-let _stk=0;new MutationObserver(()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,60)}).observe(document.documentElement,{childList:true,subtree:true});
+ const tr=t.getBoundingClientRect(),hr=hd.getBoundingClientRect();const right=hr.right-tr.left;if(right<=0)return;
+ const par=sc.parentElement;if(getComputedStyle(par).position==="static")par.style.position="relative";
+ const pr=par.getBoundingClientRect();const st=getComputedStyle(sc);
+ const left=tr.left-pr.left+sc.scrollLeft,top=tr.top-pr.top;
+ const visL=sc.getBoundingClientRect().left-pr.left+sc.clientLeft;/* 枠の内側の左端 */
+ const box=document.createElement("div");box.className="frz";
+ box.style.cssText=`position:absolute;left:${visL}px;top:${top}px;width:${left-visL+right}px;height:${tr.height}px;overflow:hidden;background:#fff;z-index:3;box-shadow:2px 0 0 #999`;
+ const cl=t.cloneNode(true);cl.removeAttribute("id");cl.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));
+ cl.style.width=tr.width+"px";cl.style.margin="0";[...t.rows].forEach((r,k)=>{cl.rows[k].style.height=r.getBoundingClientRect().height+"px"});
+ let node=cl;for(let e=t.parentElement;e&&e!==sc;e=e.parentElement){const d=document.createElement(e.tagName);d.className=e.className;d.style.cssText="margin:0;padding:0;border:0;box-shadow:none";d.appendChild(node);node=d}
+ node.style.position="absolute";node.style.left=(left-visL)+"px";node.style.top="0";node.style.width=tr.width+"px";
+ box.appendChild(node);par.appendChild(box);
+ const show=()=>{box.style.visibility=sc.scrollLeft>0?"visible":"hidden"};sc.addEventListener("scroll",show,{passive:true});show()})}
+let _stk=0;new MutationObserver(rs=>{if(rs.every(r=>[...r.addedNodes,...r.removedNodes].every(n=>n.nodeType===1&&n.classList&&n.classList.contains("frz"))))return;
+ clearTimeout(_stk);_stk=setTimeout(stickNames,60)}).observe(document.documentElement,{childList:true,subtree:true});
 window.addEventListener("resize",()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,120)});
 function popMsg(t){if(!t)return;let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
  const ok=!/できません|足りません|切れて|先に|ありません/.test(t);
@@ -705,14 +714,14 @@ function outFit(){const t=$("printArea").querySelector("table.out");if(!t)return
  let other=0;if(sh)for(const c of sh.children)if(c!==t&&c.tagName!=="TABLE")other+=c.offsetHeight;
  const avail=window.innerHeight-top-other-40;const n=t.rows.length;
  const h=Math.max(24,Math.min(56,Math.floor(avail/n)));for(const r of t.rows)r.style.height=h+"px";
- const fs=Math.max(12,Math.min(19,Math.round(h*0.45)));t.querySelectorAll("th,td").forEach(c=>c.style.fontSize=fs+"px")}
+ const fs=Math.max(12,Math.min(19,Math.round(h*0.45)));t.querySelectorAll("th,td").forEach(c=>c.style.fontSize=fs+"px");setTimeout(stickNames,30)}
 window.addEventListener("resize",()=>{if(!$("p3").hidden)outFit()});
 /* 直す表を横いっぱい・画面の高さいっぱいに（一番下の「更新する」まで見える高さ） */
 function feFit(){const t=$("feTbl");if(!t)return;const tabs=document.querySelector(".tabs");const top=(tabs?tabs.offsetHeight:0)+8;
  const ask=$("finalEdit").querySelector(".ask");const btn=$("finalEdit").querySelector(".row");
  const avail=window.innerHeight-top-(ask?ask.offsetHeight:0)-(btn?btn.offsetHeight:0)-50;const n=t.rows.length;
  const h=Math.max(26,Math.min(60,Math.floor(avail/n)));for(const r of t.rows)r.style.height=h+"px";
- const fs=Math.max(12,Math.min(20,Math.round(h*0.45)));t.style.fontSize=fs+"px";t.querySelectorAll("th,td").forEach(c=>c.style.fontSize=fs+"px")}
+ const fs=Math.max(12,Math.min(20,Math.round(h*0.45)));t.style.fontSize=fs+"px";t.querySelectorAll("th,td").forEach(c=>c.style.fontSize=fs+"px");setTimeout(stickNames,30)}
 window.addEventListener("resize",()=>{if(FE)feFit()});
 const feCls=c=>c==="co"?"c-co":c==="h"?"c-h":c==="y"?"c-y":c?"c-off tapc":"tapc";
 const feTxt=c=>c==="co"?"全":c==="h"?"希":c==="y"?"有":c?"公":"";
