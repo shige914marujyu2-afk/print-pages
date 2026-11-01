@@ -131,12 +131,21 @@ html.ios{}
 #popBg .pop .ic{font-size:40px;line-height:1.2}
 #popBg .pop button{margin-top:12px;width:100%;padding:12px;font-size:18px}
 .msel{font-size:15px;padding:4px 2px;max-width:8em}
+ol.rules{margin:0 0 10px;padding-left:1.6em;font-size:17px;line-height:1.5}
+ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
+.cfgin{width:3.4em!important;font-size:18px!important;padding:4px 6px!important;text-align:center}
+#perTable{width:100%}#perTable th{font-size:14px}#perTable td{font-size:16px;padding:8px 6px}
+#perTable input[type=text]{font-size:16px;padding:8px;width:100%}
+#perTable .dpbtn{font-size:16px;padding:8px 12px;min-width:7em}
+#p1 .card > p.hint{font-size:15px;line-height:1.6}
+.grid{width:100%}.grid th,.grid td{height:34px;font-size:14px}
+@media(max-width:700px){ol.rules{font-size:16px}#perTable th:nth-child(4) small{display:none}}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01q</span></small></h1></div>
-<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=20" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=20" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01r</span></small></h1></div>
+<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
@@ -148,7 +157,7 @@ html.ios{}
 
 <!-- ① 条件・メンバー -->
 <section id="p1" hidden>
- <div class="stepintro"><b class="t">① 回送員・条件</b>回送員を登録して、作る月・作成の条件・長い休みを確かめます。下へ順番に <b>①-1 → ①-2 → ①-3</b>。終わったら一番下の「次へ」を押します。</div>
+ <div class="stepintro"><b class="t">① 回送員・条件</b>回送員を登録して、優先して守る条件・長い休みを確かめます。下へ順番に <b>①-1 → ①-2 → ①-3</b>。終わったら一番下の「次へ」を押します。</div>
  <div class="card">
   <h2>①-1 回送員の登録（社員番号の小さい順）</h2>
   <div class="row"><button class="btn" onclick="addMember()">＋ 回送員を追加（1人ずつ）</button><button class="btn" style="background:#2f5fb3" onclick="openBulk()">＋ まとめて登録（一括）</button><span class="hint" id="mmsg"></span></div>
@@ -161,7 +170,7 @@ html.ios{}
   <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連勤数</b>＝何連勤まで（5連勤は作りません）。<b>連休回数</b>＝月に何回連休を作るか。<b>連休の日</b>＝平日だけ／土日祝だけに作る。<b>月末/月初</b>＝月の最終日・翌月1日を休みにする（「どちらか」は前の月の最終日が休みでなければ1日を休みに）。<b>飛び石なし</b>＝「休→出→休」を作りません。<b>土日祝休</b>＝土・日・祝日の休みを月に何日にするか（1〜3日／2〜4日）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
  </div>
  <div class="card">
-  <h2>①-2 作成の条件</h2>
+  <h2>①-2 優先して守る条件</h2>
   <div id="cfgBox"></div>
   <div class="row"><span class="hint" id="cfgMsg"></span></div>
  </div>
@@ -238,7 +247,7 @@ html.ios{}
    <div>👥 <b>例2：担当の交代・お休みのとき</b><br>次に作る人のパソコンへ移せば、回送員・条件・<b>過去の採用した表</b>もそのまま。連休の平等化も続けて使えます。</div>
    <div>📲 <b>例3：機種変更・スマホの故障に備えて</b><br>「ファイルに保存」しておけば、新しいスマホに読み込むだけで元通り。</div>
   </div>
-  <p class="hint" style="margin:6px 0 0"><b>移るもの</b>：回送員と個人の条件、作成の条件、長い休み、各月の休みの入力、手で直した表、採用したシフト表</p>
+  <p class="hint" style="margin:6px 0 0"><b>移るもの</b>：回送員と個人の条件、優先して守る条件、長い休み、各月の休みの入力、手で直した表、採用したシフト表</p>
  </div>
  <div class="card">
   <h2>やり方（文字で移す）</h2>
@@ -256,7 +265,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101q"></script>
+<script src="solver.js?v=20261101r"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -334,11 +343,17 @@ function autoCfg(){const N=members().length||14;const avg=N*5/7;const min=Math.m
 function effCfg(){return {...S.cfg,...autoCfg(),...(S.cfg.over||{})}}
 const CFG_ITEMS=[["min","最低人数","人"],["wdMax","普通日の最多","人"],["beTarget","繁忙日の目標","人"],["beMax","繁忙日の最多","人"],
  ["weekOff","週の休み","日"]];
-function drawCfg(){drawPeriods();const c=effCfg(),a=autoCfg(),ov=S.cfg.over||{};const N=members().length;
- $("cfgBox").innerHTML=`<p class="hint" style="margin:0 0 6px">回送員${N}人から自動で入っています。直した所は<b style="color:#b8323d">赤</b>。週＝日〜土。</p>
- <div class="cfg">${CFG_ITEMS.map(([k,t,u])=>`<label><span>${t}</span><span style="white-space:nowrap"><input type="number" min="0" max="31" value="${c[k]}" style="${ov[k]!=null?"border-color:#b8323d;color:#b8323d;font-weight:700":""}" onchange="setOver('${k}',this.value)"> ${u}</span></label>`).join("")}</div>
- <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:13px">
-  <button class="btn sub small" onclick="resetOver()">自動の数字に戻す</button></div>`}
+function drawCfg(){drawPeriods();const c=effCfg(),ov=S.cfg.over||{};const N=members().length;
+ const inp=k=>`<input type="number" min="0" max="31" value="${c[k]}" class="cfgin" style="${ov[k]!=null?"border-color:#b8323d;color:#b8323d;font-weight:700":""}" onchange="setOver('${k}',this.value)">`;
+ $("cfgBox").innerHTML=`<p class="hint" style="margin:0 0 8px">上ほど優先します。数字は回送員${N}人から自動で入っています。直した所は<b style="color:#b8323d">赤</b>になります。</p>
+ <ol class="rules">
+  <li>希望休・有休は<b>必ず休み</b>にする</li>
+  <li>1週間（日曜〜土曜）の休みは<b>必ず</b> ${inp("weekOff")} 日</li>
+  <li>毎日の出勤は<b>最低</b> ${inp("min")} 人（閑散日は少なくてもよい）</li>
+  <li>普通の日の出勤は<b>多くても</b> ${inp("wdMax")} 人</li>
+  <li>繁忙日の出勤は<b>できれば</b> ${inp("beTarget")} 人以上、<b>多くても</b> ${inp("beMax")} 人</li>
+ </ol>
+ <button class="btn sub small" onclick="resetOver()">自動の数字に戻す</button>`}
 function setOver(k,v){const a=autoCfg();S.cfg.over=S.cfg.over||{};const n=Math.max(0,Math.round(+v||0));if(n===a[k])delete S.cfg.over[k];else S.cfg.over[k]=n;store();drawCfg();if($("busyDays"))drawBusy();$("cfgMsg").textContent="保存しました"}
 function resetOver(){S.cfg.over={};store();drawCfg();$("cfgMsg").textContent="自動の数字に戻しました"}
 function setCfg(k,v){S.cfg[k]=!!v;store();drawCfg();$("cfgMsg").textContent="保存しました"}
