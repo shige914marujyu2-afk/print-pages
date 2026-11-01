@@ -165,7 +165,7 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02a</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02b</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -300,7 +300,7 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261102a"></script>
+<script src="solver.js?v=20261102b"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -427,11 +427,35 @@ function members(){return S.members.filter(m=>m.id&&m.name)}
 /* データの書き出し：圧縮して短くする（LINEは長い文を分けたり切ったりするため） */
 const b64e=u8=>{let s="";for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)};
 const b64d=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
-async function zip(str){const cs=new CompressionStream("deflate");const w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();return new Uint8Array(await new Response(cs.readable).arrayBuffer())}
-async function unzip(u8){const ds=new DecompressionStream("deflate");const w=ds.writable.getWriter();w.write(u8);w.close();return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer())}
-async function packData(){const js=JSON.stringify(S);try{if(window.CompressionStream){const b=b64e(await zip(js));return "SHIFT2:"+b.length+":"+b}}catch(e){}return "SHIFT1:"+btoa(unescape(encodeURIComponent(js)))}
+async function zip(str,f="deflate"){const cs=new CompressionStream(f);const w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();return new Uint8Array(await new Response(cs.readable).arrayBuffer())}
+async function unzip(u8,f="deflate"){const ds=new DecompressionStream(f);const w=ds.writable.getWriter();w.write(u8);w.close();return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer())}
+/* 書き出しを短くするため、中身をつめた形に直す */
+const KC={"":".",off:"o",h:"h",y:"y",co:"c",k:"k"},KD={".":"","o":"off","h":"h","y":"y","c":"co","k":"k"};
+const enc=a=>a.map(c=>KC[c||""]||".").join(""),dec=t=>[...t].map(c=>KD[c]??"");
+function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,m.co,(m.offDows||[]).join(""),m.noIso?1:0,m.weOff,m.runMax,m.pairs,m.pairMode,m.edge]),mo:{},om:S0.openMonth};
+ ["tri","runFirst","maxRun","minPairs"].forEach(k=>delete o.cfg[k]);
+ for(const k in S0.months){const M=S0.months[k];const x={};
+  if(M.hol&&M.hol.length)x.h=M.hol;x.s=M.shuku;if(M.busy&&M.busy.length)x.b=M.busy;if(M.quiet&&M.quiet.length)x.q=M.quiet;
+  if(M.wkTotal&&Object.keys(M.wkTotal).length)x.w=M.wkTotal;if(M.mark&&Object.keys(M.mark).length)x.k=M.mark;
+  if(M.prev){const p={};for(const id in M.prev)if(M.prev[id].some(Boolean))p[id]=enc(M.prev[id]);if(Object.keys(p).length)x.p=p}
+  if(M.manual){const mm={};for(const id in M.manual){const r=M.manual[id];let n=0;for(const d in r)n=Math.max(n,+d);mm[id]=[...Array(n)].map((_,i)=>r[i+1]==null?"-":KC[r[i+1]]||".").join("")}x.u=mm}
+  if(M.finalSheet){const f=M.finalSheet;x.f=[f.label,f.at,f.upd?1:0,f.mem.map(m=>[m.id,m.co,m.name]),f.kinds.map(enc)]}
+  o.mo[k]=x}return o}
+function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows:[...String(a[3]||"")].map(Number),wdPair:a[8]==="wd",noIso:!!a[4],weOff:a[5]??"",runMax:a[6]??3,pairs:a[7]??1,pairMode:a[8]||"",edge:a[9]||""})),cfg:o.cfg,months:{},openMonth:o.om};
+ for(const k in o.mo){const x=o.mo[k];const M={hol:x.h||[],shuku:x.s||[],busy:x.b||[],quiet:x.q||[],wkTotal:x.w||{},mark:x.k||{},prev:{},final:null};
+  for(const id in x.p||{})M.prev[id]=dec(x.p[id]);
+  if(x.u){M.manual={};for(const id in x.u){const r={};[...x.u[id]].forEach((c,i)=>{if(c!=="-")r[i+1]=KD[c]??""});M.manual[id]=r}}
+  if(x.f){const [label,at,upd,mem,ks]=x.f;const kinds=ks.map(dec);M.finalSheet={label,at,upd:!!upd,nd:kinds[0].length,shuku:M.shuku.slice(),mem:mem.map(a=>({id:a[0],co:a[1],name:a[2]})),kinds};
+   M.final={};M.finalSheet.mem.forEach((mb,i)=>{M.final[mb.id||("_"+mb.name)]=[];kinds[i].forEach((c,d0)=>{if(c)M.final[mb.id||("_"+mb.name)].push(d0+1)})});
+   M.finalHol=[...Array(M.finalSheet.nd)].map((_,i)=>i+1).filter(d=>kinds.every(r=>r[d-1]==="co"))}
+  S1.months[k]=M}return S1}
+async function packData(){try{if(window.CompressionStream){const b=b64e(await zip(JSON.stringify(slim(S)),"deflate-raw"));return "S3:"+b.length+":"+b}}catch(e){}return "SHIFT1:"+btoa(unescape(encodeURIComponent(js)))}
 /* 貼り付けた文字から読み取る（改行・空白・分かれたメッセージもつなげる） */
-async function unpackData(raw){let t=String(raw).replace(/\s+/g,"");const k2=t.lastIndexOf("SHIFT2:"),k1=t.lastIndexOf("SHIFT1:");
+async function unpackData(raw){let t=String(raw).replace(/\s+/g,"");const k3=t.lastIndexOf("S3:");
+ if(k3>=0&&t.lastIndexOf("SHIFT")<k3){const m=t.slice(k3+3).match(/^(\d+):(.*)$/);if(!m)throw {msg:"文字の始めが足りません"};const n=+m[1];const b=m[2].replace(/[^A-Za-z0-9+/=]/g,"");
+  if(b.length<n)throw {msg:`文字が途中で切れています（${n}文字のうち${b.length}文字だけ）。LINEなどで2つ以上に分かれていたら、全部を続けて貼り付けてください`};
+  return fat(JSON.parse(await unzip(b64d(b.slice(0,n)),"deflate-raw")))}
+const k2=t.lastIndexOf("SHIFT2:"),k1=t.lastIndexOf("SHIFT1:");
  if(k2>=0){const m=t.slice(k2+7).match(/^(\d+):(.*)$/);if(!m)throw {msg:"文字の始めが足りません"};const n=+m[1];const b=m[2].replace(/[^A-Za-z0-9+/=]/g,"");
   if(b.length<n)throw {msg:`文字が途中で切れています（${n}文字のうち${b.length}文字だけ）。LINEなどで2つ以上に分かれていたら、全部を続けて貼り付けてください`};
   return JSON.parse(await unzip(b64d(b.slice(0,n))))}
