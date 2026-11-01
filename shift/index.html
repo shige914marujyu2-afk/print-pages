@@ -151,7 +151,7 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01v</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01w</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -286,7 +286,7 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101v"></script>
+<script src="solver.js?v=20261101w"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -587,7 +587,7 @@ function show(k){PI=k;drawPlanBtns();const {off}=PLANS[k];const KD=ensureKinds(P
  h+=`<tr><td colspan="3"><b>出勤人数</b></td>`;
  for(let d=1;d<=nd;d++){const c=cnt(d);const r=ShiftSolver.dayRange(P,d);const bad=r&&(c<r.lo||c>r.hi);h+=`<td class="${dow(d)===0&&d>1?"wk":""}" style="${bad?"color:var(--acc);font-weight:700":""}">${c}</td>`}
  h+=`<td></td><td></td></tr></table><div class="legend"><div><span class="c-off">公</span>休み</div><div><span class="c-h">希</span>希望休</div><div><span class="c-y">有</span>有休</div><div><span class="c-co">全</span>全体休（全員休み）</div><div>赤い点線＝週の区切り（日曜〜土曜）</div></div></div>`;
- $("printArea").innerHTML=h;$("pbar").hidden=false;
+ $("printArea").innerHTML=h;$("pbar").hidden=false;outFit();
  // チェック
  const staffNg=[];let bTot=0,bOk=0,bSum=0,qSum=0,qN=0;
  for(let d=1;d<=nd;d++){const r=ShiftSolver.dayRange(P,d);if(!r)continue;const c=cnt(d);if(c<r.lo||c>r.hi)staffNg.push(`${d}日(${c}人)`);
@@ -642,6 +642,14 @@ function editFinal(k){const f=S.months[k].finalSheet;FE={k,kinds:f.kinds.map(r=>
  h+=`<tr><td colspan="2">出勤人数</td>`;for(let d=1;d<=f.nd;d++)h+=`<td id="fet${d}">${FE.kinds.filter(r=>!r[d-1]).length}</td>`;h+=`<td></td></tr></table></div>
   <div class="row" style="margin-top:8px"><button class="btn" style="background:#1d7a3a" onclick="saveFinalEdit()">更新する（保存）</button><button class="btn sub" onclick="closeFinalEdit()">やめる</button></div>`;
  $("finalEdit").innerHTML=h;$("finalEdit").hidden=false;feFit();$("finalEdit").scrollIntoView({block:"start"})}
+/* A案・B案・手動用の表を横いっぱい・画面の高さいっぱいに */
+function outFit(){const t=$("printArea").querySelector("table.out");if(!t)return;t.classList.add("fe");const sh=$("printArea").querySelector(".sheet");
+ const tabs=document.querySelector(".tabs");const top=(tabs?tabs.offsetHeight:0)+8;const h3=sh?sh.querySelector("h3"):null;
+ let other=0;if(sh)for(const c of sh.children)if(c!==t&&c.tagName!=="TABLE")other+=c.offsetHeight;
+ const avail=window.innerHeight-top-other-40;const n=t.rows.length;
+ const h=Math.max(24,Math.min(56,Math.floor(avail/n)));for(const r of t.rows)r.style.height=h+"px";
+ const fs=Math.max(12,Math.min(19,Math.round(h*0.45)));t.querySelectorAll("th,td").forEach(c=>c.style.fontSize=fs+"px")}
+window.addEventListener("resize",()=>{if(!$("p3").hidden)outFit()});
 /* 直す表を横いっぱい・画面の高さいっぱいに（一番下の「更新する」まで見える高さ） */
 function feFit(){const t=$("feTbl");if(!t)return;const tabs=document.querySelector(".tabs");const top=(tabs?tabs.offsetHeight:0)+8;
  const ask=$("finalEdit").querySelector(".ask");const btn=$("finalEdit").querySelector(".row");
