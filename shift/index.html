@@ -20,6 +20,7 @@ h1{font-size:20px;margin:4px 0 12px}
 .tabs .n{font-size:24px}.tabs .l{font-size:12.5px;text-align:center}
 @media(min-width:700px){.tabs .n{font-size:32px}.tabs .l{font-size:16px}.tabs button{padding:12px 6px}}
 [hidden]{display:none!important}
+#finalEdit{scroll-margin-top:110px}
 .stepintro{background:#fff;border-left:6px solid var(--acc);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:15px;line-height:1.55}
 .stepintro b.t{display:block;font-size:19px;margin-bottom:2px}
 .next{display:block;width:100%;margin:14px 0 6px;padding:16px 10px;font-size:18px;border-radius:12px}
@@ -124,8 +125,8 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01g</span></small></h1></div>
-<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=15" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=15" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01h</span></small></h1></div>
+<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=16" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=16" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
@@ -198,9 +199,10 @@ html.ios{}
  <div class="card wrap"><div id="printArea"></div></div>
  <div class="card" id="chkCard"><h2>ルールのチェック（○×）</h2><p class="hint" style="margin:0 0 4px">マスを直すと、ここが自動で出直します。</p><ul class="chk" id="checks"></ul></div>
  <div class="card">
-  <h2>採用したシフト表（月ごとに保存）</h2>
-  <p class="hint">「この表を正式なシフト表に採用」を押した月がここに残り、いつでも印刷できます。翌月の「前月末」7列にも自動で入り、連休・3連休の平等化にも過去6か月分が使われます。</p>
+  <h2>過去のシフト表</h2>
+  <p class="hint">「この表を正式なシフト表に採用」を押した月がここに残ります。「<b>印刷する</b>」でいつでも印刷、「<b>直す</b>」で後から休みを変えて「更新する」で保存できます。翌月の「前月末」7列や、連休・3連休の平等化（過去6か月分）にも、直した内容が使われます。</p>
   <div id="finalList"></div><span class="hint" id="finalMsg"></span>
+  <div id="finalEdit" hidden></div>
  </div>
  <button class="btn sub next" onclick="goTab(1)">おつかれさまでした。次の月は ① から（← 最初に戻る）</button>
  <button class="btn sub next" style="margin-top:0" onclick="goTab(5)">iPhoneの入力をパソコンへ移すときは ⑤ データ移動 →</button>
@@ -245,7 +247,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101g"></script>
+<script src="solver.js?v=20261101h"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -548,11 +550,31 @@ function decide(){if(!PLANS.length||!SET)return;const pl=PLANS[PI];const {off}=p
  M.finalSheet={label:pl.label,at:new Date().toLocaleString("ja-JP"),nd,shuku:[...SET.shuku],mem:SET.mem.map(mb=>({id:mb.id,co:mb.co,name:mb.name})),kinds:SET.mem.map((_,i)=>{const r=[];for(let d=1;d<=nd;d++)r.push(KD[i][d]||"");return r})};
  /* 翌月の前月末7列を入れ直す */
  const {y,m}=ymParts();const nx=new Date(y,m,1);const nk=nx.getFullYear()+"-"+(nx.getMonth()+1);if(S.months[nk])fillPrev(S.months[nk],M,nd);
- store();drawFinals();$("status").textContent=`${pl.label}を${y}年${m}月の正式なシフト表に採用しました。下の「採用したシフト表」からいつでも印刷できます。`}
+ store();drawFinals();$("status").textContent=`${pl.label}を${y}年${m}月の正式なシフト表に採用しました。下の「過去のシフト表」からいつでも印刷・修正できます。`}
 function fillPrev(N,P,pnd){if(!N.prev)N.prev={};for(const id in P.final){const offs=P.final[id];N.prev[id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k)?"k":"")}}
 function finalKeys(){return Object.keys(S.months).filter(k=>S.months[k].finalSheet).sort((a,b)=>{const [ay,am]=a.split("-").map(Number),[by,bm]=b.split("-").map(Number);return by-ay||bm-am})}
 function drawFinals(){const el=$("finalList");if(!el)return;const ks=finalKeys();
- el.innerHTML=ks.length?ks.map(k=>{const f=S.months[k].finalSheet;const [y,m]=k.split("-");return `<div class="row" style="align-items:center;border-bottom:1px solid #eee;padding:6px 0"><b style="min-width:7em">${y}年${m}月</b><span class="hint">${esc(f.label)}（${esc(f.at)} 採用）</span><button class="btn small" onclick="printFinal('${k}')">印刷する</button></div>`}).join(""):`<p class="hint">まだありません。</p>`}
+ el.innerHTML=ks.length?ks.map(k=>{const f=S.months[k].finalSheet;const [y,m]=k.split("-");return `<div class="row" style="align-items:center;border-bottom:1px solid #eee;padding:6px 0"><b style="min-width:7em">${y}年${m}月</b><span class="hint">${esc(f.label)}（${esc(f.at)} ${f.upd?"更新":"採用"}）</span><button class="btn small" onclick="printFinal('${k}')">印刷する</button><button class="btn sub small" onclick="editFinal('${k}')">直す</button></div>`}).join(""):`<p class="hint">まだありません。</p>`}
+/* 過去のシフト表を後から直す（押したマスだけ書き換えるので画面は動かない） */
+let FE=null;
+function editFinal(k){const f=S.months[k].finalSheet;FE={k,kinds:f.kinds.map(r=>r.slice())};const [y,m]=k.split("-").map(Number);const dow=d=>new Date(y,m-1,d).getDay();
+ const hc=d=>{const w=dow(d);return w===0||f.shuku.includes(d)?"var(--sun)":w===6?"var(--sat)":"inherit"};
+ let h=`<div class="ask" style="background:#fff8e6;border-color:#f0d49a"><b style="font-size:17px">${y}年${m}月のシフト表を直す</b><span class="hint" style="margin:0">マスをタップ：「公」→「希」→「有」→ 空欄（「全」は変わりません）。直したら下の「<b>更新する</b>」を押してください。</span></div><div class="wrap"><table class="out"><tr><th>社員番号</th><th>名前</th>`;
+ for(let d=1;d<=f.nd;d++)h+=`<th style="color:${hc(d)}">${d}<br>${f.shuku.includes(d)?"祝":WD[dow(d)]}</th>`;
+ h+=`<th>休日</th></tr>`;
+ f.mem.forEach((mb,i)=>{h+=`<tr><td class="id">${esc(mb.id)}</td><td class="nm">${esc(mb.name)}</td>`;for(let d=1;d<=f.nd;d++)h+=`<td id="fe${i}_${d}" class="${feCls(FE.kinds[i][d-1])}" onclick="feTap(${i},${d})">${feTxt(FE.kinds[i][d-1])}</td>`;h+=`<td id="feo${i}">${FE.kinds[i].filter(c=>c&&c!=="y").length}</td></tr>`});
+ h+=`<tr><td colspan="2">出勤人数</td>`;for(let d=1;d<=f.nd;d++)h+=`<td id="fet${d}">${FE.kinds.filter(r=>!r[d-1]).length}</td>`;h+=`<td></td></tr></table></div>
+  <div class="row" style="margin-top:8px"><button class="btn" style="background:#1d7a3a" onclick="saveFinalEdit()">更新する（保存）</button><button class="btn sub" onclick="closeFinalEdit()">やめる</button></div>`;
+ $("finalEdit").innerHTML=h;$("finalEdit").hidden=false;$("finalEdit").scrollIntoView({block:"start"})}
+const feCls=c=>c==="co"?"c-co":c==="h"?"c-h":c==="y"?"c-y":c?"c-off tapc":"tapc";
+const feTxt=c=>c==="co"?"全":c==="h"?"希":c==="y"?"有":c?"公":"";
+function feTap(i,d){const c=FE.kinds[i][d-1];if(c==="co")return;const n=NEXTK[c]||"";FE.kinds[i][d-1]=n;const td=$(`fe${i}_${d}`);td.className=feCls(n);td.textContent=feTxt(n);
+ $(`feo${i}`).textContent=FE.kinds[i].filter(x=>x&&x!=="y").length;$(`fet${d}`).textContent=FE.kinds.filter(r=>!r[d-1]).length}
+function saveFinalEdit(){if(!FE)return;const M=S.months[FE.k];const f=M.finalSheet;f.kinds=FE.kinds;f.at=new Date().toLocaleString("ja-JP");f.upd=true;
+ M.final={};f.mem.forEach((mb,i)=>{M.final[mb.id]=[];f.kinds[i].forEach((c,d0)=>{if(c)M.final[mb.id].push(d0+1)})});
+ const [y,m]=FE.k.split("-").map(Number);const nx=new Date(y,m,1);const nk=nx.getFullYear()+"-"+(nx.getMonth()+1);if(S.months[nk])fillPrev(S.months[nk],M,f.nd);
+ store();closeFinalEdit();drawFinals();$("finalMsg").textContent=`${y}年${m}月のシフト表を更新しました`}
+function closeFinalEdit(){FE=null;$("finalEdit").hidden=true;$("finalEdit").innerHTML=""}
 function svgFinal(k){const f=S.months[k].finalSheet;const [y,m]=k.split("-").map(Number);const dow=d=>new Date(y,m-1,d).getDay();
  const rows=f.mem.map((mb,i)=>{let o=0,yu=0;f.kinds[i].forEach(c=>{if(c){if(c==="y")yu++;else o++}});return {id:mb.id,co:mb.co,nm:mb.name,cells:f.kinds[i],off:o,work:f.nd-o-yu}});
  const totals=[];for(let d=0;d<f.nd;d++)totals.push(f.kinds.filter(r=>!r[d]).length);
