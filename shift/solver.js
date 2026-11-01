@@ -68,6 +68,7 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
   if(cfg.tri&&!wdPair[i]){if(s.tri>=1)p-=st.tri*fair3[i];if(s.tri>=2)p-=st.tri*0.3*fair3[i]}
   for(const [a,b] of blocks(o,nd)){const L=b-a+1;if(L<3)continue;let allFix=true,hasHol=false;for(let d=a;d<=b;d++){if(!fixed[i][d])allFix=false;if(hol.has(d))hasHol=true}
    if(allFix)continue;if(!hasHol||!cfg.tri)p+=PN.off3*(L-2);else if(L>3)p+=PN.off3*(L-3)}
+  if(P.wantSets&&P.wantSets[i])for(const ws of P.wantSets[i])if(!ws.some(d=>o[d]))p+=PN.dowp;
   if(offDows[i]&&offDows[i].length)for(const w of W[i]){let any=false,has=false;for(let d=w.a;d<=w.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(o[d])has=true}}if(any&&!has)p+=PN.dowp}
   for(const w of W[i]){let c=0;for(const d of w.free)if(o[d])c++;p+=PN.wk*(Math.max(0,w.lo-c)+Math.max(0,c-w.hi))+150*Math.abs(c-w.ideal)}
   {let c=0;for(const d of MF[i])if(o[d])c++;p+=300*Math.abs(c-MT[i])}
@@ -105,6 +106,7 @@ function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;const w
 
   if(stats(P,i,off[i]).pairs<MP(P,i))v+=w.pair;
   if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(off[i][d]&&isWE(P,d))c++;v+=w.we*Math.abs(c-P.weOff[i])}
+  if(P.wantSets&&P.wantSets[i])for(const ws of P.wantSets[i])if(!ws.some(d=>off[i][d]))v+=w.dow;
   if(offDows[i]&&offDows[i].length)for(const wk of prep.W[i]){let any=false,has=false;for(let d=wk.a;d<=wk.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(off[i][d])has=true}}if(any&&!has)v+=w.dow}}
  return v}
 /* 1段目（正確な計算）：HiGHSでルールを守れる表を探す */
@@ -120,6 +122,7 @@ function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}
   const ys=[];for(let d=1;d<nd;d++){if(wdPair[i]&&!(isWD(d)&&isWD(d+1)))continue;if(P.wePair&&P.wePair[i]&&(isWD(d)||isWD(d+1)))continue;const y=`y${i}_${d}`;bin.push(y);ys.push(y);cons.push(`${y} - ${X(i,d)} <= 0`);cons.push(`${y} - ${X(i,d+1)} <= 0`)}
   if(MP(P,i)>0)cons.push(`${ys.length?ys.join(" + ")+" + ":""}${sl(w8.pair)} >= ${MP(P,i)}`);
   if(P.weOff&&P.weOff[i]!=null){const t=[];for(let d=1;d<=nd;d++)if(isWE(P,d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} - ${sl(w8.we)} + ${sl(w8.we)} = ${Math.min(P.weOff[i],t.length)}`)}
+  if(P.wantSets&&P.wantSets[i])for(const ws of P.wantSets[i])if(ws.length)cons.push(`${ws.map(d=>X(i,d)).join(" + ")} + ${sl(w8.dow)} >= 1`);
   if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){const t=[];for(let d=w.a;d<=w.b;d++)if(offDows[i].includes(dow(d))&&!hol.has(d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} + ${sl(w8.dow)} >= 1`)}}
  for(let d=1;d<=nd;d++){const rg=dayRange(P,d);if(!rg)continue;const t=[];for(let i=0;i<N;i++)t.push(X(i,d));const e=t.join(" + ");
   /* 足りない人数は1日に集めず散らす（1人目・2人目・3人目以降で重くする） */
