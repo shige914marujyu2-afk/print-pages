@@ -161,11 +161,15 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 .tophead h1{font-size:15px;text-align:right;line-height:1.3}
 .tophead h1 small{display:block;font-size:12px;color:#888;font-weight:400;white-space:nowrap}
 @media(max-width:420px){.sticker{height:44px}.sticker .r{width:26px}.sticker .b{font-size:21px;line-height:44px;padding:0 14px}.tophead h1{font-size:13px}.tophead h1 small{font-size:11px}}
+table.stk{border-collapse:separate;border-spacing:0}
+table.stk>tbody>tr>*,table.stk>tr>*{border-top-width:0!important;border-left-width:0!important}
+table.stk .stl{border-left-width:1px!important}table.stk .stt{border-top-width:1px!important}
+table.stk .wk{border-left-width:2px!important}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02c</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02d</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -300,7 +304,7 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261102c"></script>
+<script src="solver.js?v=20261102d"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -331,7 +335,7 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 /* ---------- タブ ---------- */
-function goTab(n){tab(n);window.scrollTo(0,0)}
+function goTab(n){tab(n);window.scrollTo(0,0);setTimeout(stickNames,80)}
 function tab(n){const mb=$("monthbar");mb.hidden=!(n===3||n===4);if($("p2mon")){const [yy,mm]=$("ym").value.split("-");$("p2mon").textContent=`${yy}年${mm}月`}if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4,5]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
  $("mbl").textContent=n===4?"希望休を作る月を選択：":"シフト表を作る月：";if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
@@ -469,6 +473,16 @@ function saveDataFile(){packData().then(v=>{const a=document.createElement("a");
 function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$("dataBox").value=t;inp.value="";importData()})}
 /* 過去のシフト表だけを追加する（今のデータは消さない） */
 /* 操作が終わったら案内のポップアップを出す */
+/* 名前のある表は、横にずらしても名前までの列を左に止めておく */
+function stickNames(){document.querySelectorAll("table").forEach(t=>{if(t.offsetParent===null||t.id==="inGrid")return;
+ const hd=[...t.querySelectorAll("tr:first-child th")].find(th=>th.textContent.trim()==="名前");if(!hd)return;
+ if(!t.classList.contains("stk")){t.classList.add("stk");t.querySelectorAll("th,td").forEach(c=>{if(c.offsetLeft<3)c.classList.add("stl");if(c.parentElement.rowIndex===0)c.classList.add("stt")})}
+ t.style.position="relative";const right=hd.offsetLeft+hd.offsetWidth;const sc=t.closest(".wrap");const pad=sc?parseFloat(getComputedStyle(sc).paddingLeft)||0:0;
+ t.querySelectorAll("th,td").forEach(c=>{if(c.offsetLeft+c.offsetWidth<=right+1&&c.offsetLeft<right-2){c.style.position="sticky";c.style.left=c.offsetLeft+"px";c.style.zIndex=2;
+   const bg=getComputedStyle(c).backgroundColor;if(bg==="rgba(0, 0, 0, 0)"||bg==="transparent")c.style.background="#fff";
+   const sh=[];if(c.offsetLeft<3&&pad)sh.push(`-${pad+2}px 0 0 #fff`);if(c.offsetLeft+c.offsetWidth>=right-1)sh.push("2px 0 0 #999");c.style.boxShadow=sh.join(",")}})})}
+let _stk=0;new MutationObserver(()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,60)}).observe(document.documentElement,{childList:true,subtree:true});
+window.addEventListener("resize",()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,120)});
 function popMsg(t){if(!t)return;let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
  const ok=!/できません|足りません|切れて|先に|ありません/.test(t);
  bg.innerHTML=`<div class="pop"><div class="ic">${ok?"✅":"⚠️"}</div><div>${esc(t)}</div><button class="btn">OK</button></div>`;
