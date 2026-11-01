@@ -135,7 +135,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01p</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01q</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=20" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=20" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -256,7 +256,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101p"></script>
+<script src="solver.js?v=20261101q"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -355,7 +355,7 @@ function drawMembers(){const t=$("memTable");
   <td><input type="text" value="${esc(m.co)}" onchange="setMem(${i},'co',this.value)"></td>
   <td><div class="chips">${[...WD].map((w,q)=>`<button class="${m.offDows.includes(q)?"on":""}" onclick="togDow(${i},${q})" aria-label="${w}曜">${w}</button>`).join("")}</div></td>
   <td>${sel(i,'runMax',m.runMax,[["","指定無し"],[3,"3連勤まで"],[4,"4連勤まで"]])}</td>
-  <td>${sel(i,'pairs',m.pairs,[[0,"指定無し"],[1,"月に1回"],[2,"月に2回"]])}</td>
+  <td>${sel(i,'pairs',m.pairs,[[0,"指定無し"],[1,"月1、2回"],[2,"月2回以上"]])}</td>
   <td>${sel(i,'pairMode',m.pairMode,[["","指定無し"],["wd","平日"],["we","土日"]])}</td>
   <td>${sel(i,'edge',m.edge,[["","指定無し"],["end","月末休み"],["start","月初休み"],["either","どちらか"]])}</td>
   <td style="text-align:center"><input type="checkbox" ${m.noIso?"checked":""} onchange="setMem(${i},'noIso',this.checked)" style="width:22px;height:22px" aria-label="飛び石の休みなし"></td>
