@@ -147,12 +147,16 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
 .mv5 .flow div.mvnote{background:#eefaf1;border:2px solid #1d7a3a;color:#14532d;font-weight:400}
 table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text-align:center}
 #finalEdit{scroll-margin-top:130px}
+.msplit{display:flex;align-items:flex-start}
+.msplit>.wrap{flex:1;min-width:0}
+#memL{flex:none;border-right:2px solid #999}
+#memL td.id input{width:6.2em;min-width:0}#memL td.nmc input{width:5.2em;min-width:0}
 #memTable{width:100%}
-#memTable th:nth-child(-n+4),#memTable td:nth-child(-n+4){width:1%;white-space:nowrap}
-#memTable td:nth-child(1) input{width:6.2em;min-width:0}
-#memTable td:nth-child(2) input{width:5.2em;min-width:0}
-#memTable td:nth-child(3) input{width:6em;min-width:0}
-#memTable td:nth-child(n+5){text-align:center}#memTable th:nth-child(n+5){text-align:center}
+#memTable th:nth-child(-n+2),#memTable td:nth-child(-n+2){width:1%;white-space:nowrap}
+#memTable td:nth-child(1) input{width:6em;min-width:0}
+#memTable td:nth-child(n+3){text-align:center}#memTable th:nth-child(n+3){text-align:center}
+.msplit .mem tr{height:52px}.msplit .mem tr:first-child{height:44px}
+.msplit .mem th,.msplit .mem td{padding-top:0;padding-bottom:0;white-space:nowrap}
 .tophead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 0 10px;padding-top:22px}
 .tophead h1{margin:0;min-width:0}
 .sticker{flex:none;display:flex;height:56px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
@@ -169,7 +173,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02e</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02f</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -191,7 +195,7 @@ table.stk .wk{border-left-width:2px!important}
    <textarea id="bulk" placeholder="ここに貼り付け"></textarea>
    <div class="row"><button class="btn" style="background:#2f5fb3" onclick="importBulk()">取り込む</button><button class="btn sub small" onclick="$('bulkBox').hidden=true">閉じる</button></div>
   </div>
-  <div class="wrap"><table class="mem" id="memTable"></table></div>
+  <div class="msplit"><table class="mem" id="memL"></table><div class="wrap"><table class="mem" id="memTable"></table></div></div>
   <p class="hint">入力するとすぐ保存されます。<b>毎週どれか休み</b>＝押した曜日のどれか1日を毎週休みにします（例：火・水）。<b>連勤数</b>＝何連勤まで（5連勤は作りません）。<b>連休回数</b>＝月に何回連休を作るか。<b>連休の日</b>＝平日だけ／土日祝だけに作る。<b>月末/月初</b>＝月の最終日・翌月1日を休みにする（「どちらか」は前の月の最終日が休みでなければ1日を休みに）。<b>飛び石なし</b>＝「休→出→休」を作りません。<b>土日祝休</b>＝土・日・祝日の休みを月に何日にするか（1〜3日／2〜4日）。<br>名前はこのパソコン（スマホ）の中にだけ保存され、ネットには送られません。</p>
  </div>
  <div class="card">
@@ -304,7 +308,7 @@ table.stk .wk{border-left-width:2px!important}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261102e"></script>
+<script src="solver.js?v=20261102f"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -402,11 +406,9 @@ function sortMembers(){S.members.sort((a,b)=>(a.id===""?1:0)-(b.id===""?1:0)||a.
 const sel=(i,k,v,opts)=>`<select class="msel" onchange="setMem(${i},'${k}',this.value===''?'':(isNaN(+this.value)||'${k}'==='weOff'?this.value:+this.value))">${opts.map(([o,t])=>`<option value="${o}" ${String(v)===String(o)?"selected":""}>${t}</option>`).join("")}</select>`;
 /* 土日祝の休み："1-3" や "2-4"（前の数字だけの形もそのまま使える） */
 function weRange(v){if(v===""||v==null)return null;const t=String(v).split("-").map(Number);return {lo:t[0],hi:t.length>1?t[1]:t[0]}}
-function drawMembers(){const t=$("memTable");
- let h=`<tr><th>社員番号</th><th>名前</th><th>所属</th><th>毎週どれか休み</th><th>連勤数</th><th>連休回数</th><th>連休の日</th><th>月末/月初</th><th>飛び石<br>なし</th><th>土日祝休</th><th></th></tr>`;
- S.members.forEach((m,i)=>{h+=`<tr><td class="id"><input type="text" inputmode="numeric" value="${esc(m.id)}" onchange="setMem(${i},'id',this.value)"></td>
-  <td><input type="text" value="${esc(m.name)}" onchange="setMem(${i},'name',this.value)"></td>
-  <td><input type="text" value="${esc(m.co)}" onchange="setMem(${i},'co',this.value)"></td>
+function drawMembers(){const t=$("memTable");let L=`<tr><th>社員番号</th><th>名前</th></tr>`;
+ let h=`<tr><th>所属</th><th>毎週どれか休み</th><th>連勤数</th><th>連休回数</th><th>連休の日</th><th>月末/月初</th><th>飛び石<br>なし</th><th>土日祝休</th><th></th></tr>`;
+ S.members.forEach((m,i)=>{L+=`<tr><td class="id"><input type="text" inputmode="numeric" value="${esc(m.id)}" onchange="setMem(${i},'id',this.value)"></td><td class="nmc"><input type="text" value="${esc(m.name)}" onchange="setMem(${i},'name',this.value)"></td></tr>`;h+=`<tr><td><input type="text" value="${esc(m.co)}" onchange="setMem(${i},'co',this.value)"></td>
   <td><div class="chips">${[...WD].map((w,q)=>`<button class="${m.offDows.includes(q)?"on":""}" onclick="togDow(${i},${q})" aria-label="${w}曜">${w}</button>`).join("")}</div></td>
   <td>${sel(i,'runMax',m.runMax,[["","指定無し"],[3,"3連勤まで"],[4,"4連勤まで"]])}</td>
   <td>${sel(i,'pairs',m.pairs,[[0,"指定無し"],[1,"月1、2回"],[2,"月2回以上"]])}</td>
@@ -415,13 +417,13 @@ function drawMembers(){const t=$("memTable");
   <td style="text-align:center"><input type="checkbox" ${m.noIso?"checked":""} onchange="setMem(${i},'noIso',this.checked)" style="width:22px;height:22px" aria-label="飛び石の休みなし"></td>
   <td>${sel(i,'weOff',m.weOff,[["","指定無し"],["1-3","1日〜3日"],["2-4","2日〜4日"],...(m.weOff!==""&&!["1-3","2-4"].includes(String(m.weOff))?[[m.weOff,m.weOff+"日"]]:[])])}</td>
   <td><button class="del" onclick="delMember(${i})">削除</button></td></tr>`});
- if(!S.members.length)h+=`<tr><td colspan="11" class="hint">まだ登録がありません。「＋ 回送員を追加」か「まとめて貼り付ける」から入れてください。</td></tr>`;
- t.innerHTML=h;if($("cfgBox"))drawCfg();$("bulk").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}`).join("\n")}
+ if(!S.members.length)h+=`<tr><td colspan="9" class="hint">まだ登録がありません。「＋ 回送員を追加」か「まとめて貼り付ける」から入れてください。</td></tr>`;
+ t.innerHTML=h;$("memL").innerHTML=S.members.length?L:"";if($("cfgBox"))drawCfg();$("bulk").value=S.members.map(m=>`${m.id} ${m.name} ${m.co}`).join("\n")}
 function setMem(i,k,v){S.members[i][k]=typeof v==="string"&&k!=="pairMode"?v.trim():v;if(k==="pairMode")S.members[i].wdPair=v==="wd";if(k==="id"){sortMembers();drawMembers()}store();$("mmsg").textContent="保存しました"}
 function togDow(i,q){const a=S.members[i].offDows;const j=a.indexOf(q);j<0?a.push(q):a.splice(j,1);a.sort();store();drawMembers()}
 function openBulk(){$("bulkBox").hidden=false;$("bulk").focus();$("bulkBox").scrollIntoView({behavior:"smooth",block:"center"})}
 function addMember(){S.members.push({id:"",name:"",co:"",offDows:[],wdPair:false,noIso:false,weOff:"",runMax:3,pairs:0,pairMode:"",edge:""});store();drawMembers();
- const ins=$("memTable").querySelectorAll("td.id input");if(ins.length)ins[ins.length-1].focus()}
+ const ins=$("memL").querySelectorAll("td.id input");if(ins.length)ins[ins.length-1].focus()}
 function delMember(i){const m=S.members[i];if(!confirm(`${m.name||"この人"}さんを削除しますか？`))return;S.members.splice(i,1);store();drawMembers();$("mmsg").textContent="削除しました"}
 function importBulk(){const list=$("bulk").value.split(/\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const sp=/[★*]/.test(l);const p=l.replace(/[★*]/g,"").trim().split(/[\s　,、]+/);
   return {id:p[0]||"",name:p[1]||"",co:p[2]||"",offDows:sp?[2,3]:[],wdPair:sp,noIso:false,weOff:"",runMax:3,pairs:0,pairMode:sp?"wd":"",edge:""}}).filter(m=>m.id&&m.name);
@@ -474,7 +476,7 @@ function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$
 /* 過去のシフト表だけを追加する（今のデータは消さない） */
 /* 操作が終わったら案内のポップアップを出す */
 /* 名前のある表は、横にずらしても名前までの列を左に止めておく */
-function stickNames(){document.querySelectorAll("table").forEach(t=>{if(t.offsetParent===null||t.id==="inGrid")return;
+function stickNames(){document.querySelectorAll("table").forEach(t=>{if(t.offsetParent===null||t.id==="inGrid"||t.id==="memL")return;
  const hd=[...t.querySelectorAll("tr:first-child th")].find(th=>th.textContent.trim()==="名前");if(!hd)return;
  if(!t.classList.contains("stk")){t.classList.add("stk");t.querySelectorAll("th,td").forEach(c=>{if(c.offsetLeft<3)c.classList.add("stl");if(c.parentElement.rowIndex===0)c.classList.add("stt")})}
  t.style.position="relative";const right=hd.offsetLeft+hd.offsetWidth;const sc=t.closest(".wrap");const pad=sc?parseFloat(getComputedStyle(sc).paddingLeft)||0:0;
