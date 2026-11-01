@@ -20,7 +20,7 @@ h1{font-size:20px;margin:4px 0 12px}
 .tabs .n{font-size:24px}.tabs .l{font-size:12.5px;text-align:center}
 @media(min-width:700px){.tabs .n{font-size:32px}.tabs .l{font-size:16px}.tabs button{padding:12px 6px}}
 [hidden]{display:none!important}
-#finalEdit{scroll-margin-top:110px}
+
 .stepintro{background:#fff;border-left:6px solid var(--acc);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:15px;line-height:1.55}
 .stepintro b.t{display:block;font-size:19px;margin-bottom:2px}
 .next{display:block;width:100%;margin:14px 0 6px;padding:16px 10px;font-size:18px;border-radius:12px}
@@ -145,11 +145,13 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
 .mv5 .flow{gap:2px}.mv5 .flow div{font-size:16px;line-height:1.55;padding:10px 12px}.mv5 .flow .ar{padding:0;font-size:16px;line-height:1}
 @media(max-width:800px){.mv5{grid-template-columns:1fr}}
 .mv5 .flow div.mvnote{background:#eefaf1;border:2px solid #1d7a3a;color:#14532d;font-weight:400}
+table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text-align:center}
+#finalEdit{scroll-margin-top:130px}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01u</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01v</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -284,7 +286,7 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101u"></script>
+<script src="solver.js?v=20261101v"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -633,13 +635,20 @@ function drawFinals(){const el=$("finalList");if(!el)return;const ks=finalKeys()
 let FE=null;
 function editFinal(k){const f=S.months[k].finalSheet;FE={k,kinds:f.kinds.map(r=>r.slice())};const [y,m]=k.split("-").map(Number);const dow=d=>new Date(y,m-1,d).getDay();
  const hc=d=>{const w=dow(d);return w===0||f.shuku.includes(d)?"var(--sun)":w===6?"var(--sat)":"inherit"};
- let h=`<div class="ask" style="background:#fff8e6;border-color:#f0d49a"><b style="font-size:17px">${y}年${m}月のシフト表を直す</b><span class="hint" style="margin:0">マスをタップ：「公」→「希」→「有」→ 空欄（「全」は変わりません）。直したら下の「<b>更新する</b>」を押してください。</span></div><div class="wrap"><table class="out"><tr><th>社員番号</th><th>名前</th>`;
+ let h=`<div class="ask" style="background:#fff8e6;border-color:#f0d49a"><b style="font-size:17px">${y}年${m}月のシフト表を直す</b><span class="hint" style="margin:0">マスをタップ：「公」→「希」→「有」→ 空欄（「全」は変わりません）。直したら下の「<b>更新する</b>」を押してください。</span></div><div class="wrap"><table class="out fe" id="feTbl"><tr><th>社員番号</th><th>名前</th>`;
  for(let d=1;d<=f.nd;d++)h+=`<th style="color:${hc(d)}">${d}<br>${f.shuku.includes(d)?"祝":WD[dow(d)]}</th>`;
  h+=`<th>休日</th></tr>`;
  f.mem.forEach((mb,i)=>{h+=`<tr><td class="id">${esc(mb.id)}</td><td class="nm">${esc(mb.name)}</td>`;for(let d=1;d<=f.nd;d++)h+=`<td id="fe${i}_${d}" class="${feCls(FE.kinds[i][d-1])}" onclick="feTap(${i},${d})">${feTxt(FE.kinds[i][d-1])}</td>`;h+=`<td id="feo${i}">${FE.kinds[i].filter(c=>c&&c!=="y").length}</td></tr>`});
  h+=`<tr><td colspan="2">出勤人数</td>`;for(let d=1;d<=f.nd;d++)h+=`<td id="fet${d}">${FE.kinds.filter(r=>!r[d-1]).length}</td>`;h+=`<td></td></tr></table></div>
   <div class="row" style="margin-top:8px"><button class="btn" style="background:#1d7a3a" onclick="saveFinalEdit()">更新する（保存）</button><button class="btn sub" onclick="closeFinalEdit()">やめる</button></div>`;
- $("finalEdit").innerHTML=h;$("finalEdit").hidden=false;$("finalEdit").scrollIntoView({block:"start"})}
+ $("finalEdit").innerHTML=h;$("finalEdit").hidden=false;feFit();$("finalEdit").scrollIntoView({block:"start"})}
+/* 直す表を横いっぱい・画面の高さいっぱいに（一番下の「更新する」まで見える高さ） */
+function feFit(){const t=$("feTbl");if(!t)return;const tabs=document.querySelector(".tabs");const top=(tabs?tabs.offsetHeight:0)+8;
+ const ask=$("finalEdit").querySelector(".ask");const btn=$("finalEdit").querySelector(".row");
+ const avail=window.innerHeight-top-(ask?ask.offsetHeight:0)-(btn?btn.offsetHeight:0)-50;const n=t.rows.length;
+ const h=Math.max(26,Math.min(60,Math.floor(avail/n)));for(const r of t.rows)r.style.height=h+"px";
+ const fs=Math.max(12,Math.min(20,Math.round(h*0.45)));t.style.fontSize=fs+"px";t.querySelectorAll("th,td").forEach(c=>c.style.fontSize=fs+"px")}
+window.addEventListener("resize",()=>{if(FE)feFit()});
 const feCls=c=>c==="co"?"c-co":c==="h"?"c-h":c==="y"?"c-y":c?"c-off tapc":"tapc";
 const feTxt=c=>c==="co"?"全":c==="h"?"希":c==="y"?"有":c?"公":"";
 function feTap(i,d){const c=FE.kinds[i][d-1];if(c==="co")return;const n=NEXTK[c]||"";FE.kinds[i][d-1]=n;const td=$(`fe${i}_${d}`);td.className=feCls(n);td.textContent=feTxt(n);
