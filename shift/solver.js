@@ -37,6 +37,8 @@ function prepare(P){
   if(len===7)lo=hi=Math.min(T,7);
   else if(wi===0&&prevKnown[i]){let po=0;for(let q=len;q<7;q++)if(prevOff[i][q])po++;lo=hi=Math.min(len,Math.max(0,T-po))}
   else{lo=Math.max(0,T-(7-len));hi=Math.min(T,len)}
+  /* 全体休が入った週は、休みが多くなってもエラーにしない */
+  if(hc&&fix>hi){hi=fix;lo=Math.min(lo,hi)}
   if(fix>hi)notes.push(`${P.names[i]}：${a}〜${b}日の週は希望休などで休みが${fix}日になります`);
   /* 月の休みの合計を基準にするので、週ごとは目安±1日まで動かせる */
   const tg=lo===hi?lo:T*len/7,sl=lo===hi?0:0;
