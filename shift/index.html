@@ -134,7 +134,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01k</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01l</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=17" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=17" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -175,7 +175,7 @@ html.ios{}
 
 <!-- ② 休みの入力 -->
 <section id="p2" hidden>
- <div class="stepintro"><b class="t">③ 休みの入力</b>集めた希望休の紙を見ながら、マスをタップして休みを入れます。全体休が入った週の日数と、繁忙日・閑散日もここで決めます。</div>
+ <div class="stepintro"><b class="t">③ 休みの入力（<span id="p2mon"></span>）</b><small style="color:#777">月は ② で選んだ月です。</small><br>集めた希望休の紙を見ながら、マスをタップして休みを入れます。全体休が入った週の日数と、繁忙日・閑散日もここで決めます。</div>
  <div class="card">
   <div id="holWeeks"></div>
   <div class="ask" style="background:#eef3fb;border-color:#c9d8f0"><b style="font-size:17px">繁忙日・閑散日（日付で指定）</b>
@@ -255,7 +255,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101k"></script>
+<script src="solver.js?v=20261101l"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -278,7 +278,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;","
 
 /* ---------- タブ ---------- */
 function goTab(n){tab(n);window.scrollTo(0,0)}
-function tab(n){const mb=$("monthbar");mb.hidden=(n===1);if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4,5]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
+function tab(n){const mb=$("monthbar");mb.hidden=!(n===3||n===4);if($("p2mon")){const [yy,mm]=$("ym").value.split("-");$("p2mon").textContent=`${yy}年${mm}月`}if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4,5]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
  $("mbl").textContent=n===4?"希望休を作る月を選択：":"シフト表を作る月：";if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
 
