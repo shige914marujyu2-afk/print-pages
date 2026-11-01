@@ -73,7 +73,7 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
   for(const w of W[i]){let c=0;for(const d of w.free)if(o[d])c++;p+=PN.wk*(Math.max(0,w.lo-c)+Math.max(0,c-w.hi))+150*Math.abs(c-w.ideal)}
   {let c=0;for(const d of MF[i])if(o[d])c++;p+=300*Math.abs(c-MT[i])}
   for(let d=2;d<nd;d++)if(o[d-1]&&!o[d]&&o[d+1]&&!(fixed[i][d-1]&&fixed[i][d+1]))p+=(P.noIso&&P.noIso[i])?PN.pair:st.iso;
-  if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(o[d]&&isWE(P,d))c++;p+=PN.we*Math.abs(c-P.weOff[i])}
+  if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(o[d]&&isWE(P,d))c++;const R=P.weOff[i];p+=PN.we*(Math.max(0,R.lo-c)+Math.max(0,c-R.hi))}
   if(opt.ref){const rf=opt.ref[i];let c=0;for(let d=1;d<=nd;d++)if(o[d]!==rf[d])c++;p-=opt.div*Math.min(c,8)}
   return p}
  const dp=d=>{const r=RG[d];if(!r)return 0;const w=work[d];const sh=Math.max(0,r.lo-w),ov=Math.max(0,w-r.hi);let p=PN.lo*sh*sh+PN.hi*ov*ov;
@@ -105,7 +105,7 @@ function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;const w
   for(const wk of prep.W[i]){let c=0;for(const d of wk.free)if(off[i][d])c++;v+=w.wk*(Math.max(0,wk.lo-c)+Math.max(0,c-wk.hi))}
 
   if(stats(P,i,off[i]).pairs<MP(P,i))v+=w.pair;
-  if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(off[i][d]&&isWE(P,d))c++;v+=w.we*Math.abs(c-P.weOff[i])}
+  if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(off[i][d]&&isWE(P,d))c++;const R=P.weOff[i];v+=w.we*(Math.max(0,R.lo-c)+Math.max(0,c-R.hi))}
   if(P.wantSets&&P.wantSets[i])for(const ws of P.wantSets[i])if(!ws.some(d=>off[i][d]))v+=w.dow;
   if(offDows[i]&&offDows[i].length)for(const wk of prep.W[i]){let any=false,has=false;for(let d=wk.a;d<=wk.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(off[i][d])has=true}}if(any&&!has)v+=w.dow}}
  return v}
@@ -121,7 +121,7 @@ function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}
    for(let s0=2-K;s0+K-1<=nd;s0++){if(s0<1&&r<1-s0)continue;const ds=[];for(let d=Math.max(1,s0);d<=s0+K-1;d++)ds.push(X(i,d));cons.push(hard?`${ds.join(" + ")} >= 1`:`${ds.join(" + ")} + ${sl(w8.run)} >= 1`)}}
   const ys=[];for(let d=1;d<nd;d++){if(wdPair[i]&&!(isWD(d)&&isWD(d+1)))continue;if(P.wePair&&P.wePair[i]&&(isWD(d)||isWD(d+1)))continue;const y=`y${i}_${d}`;bin.push(y);ys.push(y);cons.push(`${y} - ${X(i,d)} <= 0`);cons.push(`${y} - ${X(i,d+1)} <= 0`)}
   if(MP(P,i)>0)cons.push(`${ys.length?ys.join(" + ")+" + ":""}${sl(w8.pair)} >= ${MP(P,i)}`);
-  if(P.weOff&&P.weOff[i]!=null){const t=[];for(let d=1;d<=nd;d++)if(isWE(P,d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} - ${sl(w8.we)} + ${sl(w8.we)} = ${Math.min(P.weOff[i],t.length)}`)}
+  if(P.weOff&&P.weOff[i]!=null){const t=[];for(let d=1;d<=nd;d++)if(isWE(P,d))t.push(X(i,d));const R=P.weOff[i];if(t.length){cons.push(`${t.join(" + ")} + ${sl(w8.we)} >= ${Math.min(R.lo,t.length)}`);cons.push(`${t.join(" + ")} - ${sl(w8.we)} <= ${R.hi}`)}}
   if(P.wantSets&&P.wantSets[i])for(const ws of P.wantSets[i])if(ws.length)cons.push(`${ws.map(d=>X(i,d)).join(" + ")} + ${sl(w8.dow)} >= 1`);
   if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){const t=[];for(let d=w.a;d<=w.b;d++)if(offDows[i].includes(dow(d))&&!hol.has(d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} + ${sl(w8.dow)} >= 1`)}}
  for(let d=1;d<=nd;d++){const rg=dayRange(P,d);if(!rg)continue;const t=[];for(let i=0;i<N;i++)t.push(X(i,d));const e=t.join(" + ");
