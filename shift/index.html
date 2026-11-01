@@ -125,7 +125,7 @@ html.ios{}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01h</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01i</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=16" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=16" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -247,7 +247,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101h"></script>
+<script src="solver.js?v=20261101i"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -371,7 +371,17 @@ async function copyData(){const v=$("dataBox").value.trim();if(!v){$("dmsg").tex
  $("dmsg").textContent=ok?`コピーしました（${v.length}文字）。LINEやメールに貼り付けて送ってください`:"コピーできませんでした。欄の文字を長押し →「すべてを選択」→「コピー」してください"}
 function saveDataFile(){packData().then(v=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([v],{type:"text/plain"}));a.download="シフトのデータ.txt";document.body.appendChild(a);a.click();a.remove();$("dmsg").textContent="ファイルに保存しました（シフトのデータ.txt）"})}
 function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$("dataBox").value=t;inp.value="";importData()})}
+/* 過去のシフト表だけを追加する（今のデータは消さない） */
+function mergePast(d){const ks=Object.keys(d.past).sort();const lab=ks.map(k=>k.split("-")[1]+"月").join("・");
+ if(!confirm(`過去のシフト表（${lab}）を追加します。今の回送員や入力はそのまま残ります。よろしいですか？`))return false;
+ for(const k of ks){const p=d.past[k];const [y,m]=k.split("-");if(!S.months[k])S.months[k]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mark:{},prev:{},wkTotal:{},final:null};
+  const M=S.months[k];const nd=p.kinds[0].length;const f={label:p.label||"紙の表から",at:new Date().toLocaleString("ja-JP"),nd,shuku:M.shuku.slice(),mem:p.mem,kinds:p.kinds};
+  M.finalSheet=f;M.finalHol=[...Array(nd)].map((_,i)=>i+1).filter(d=>p.kinds.every(r=>r[d-1]==="co"));M.final={};
+  p.mem.forEach((mb,i)=>{M.final[mb.id||("_"+mb.name)]=[];p.kinds[i].forEach((c,d0)=>{if(c&&c!=="y")M.final[mb.id||("_"+mb.name)].push(d0+1)})})}
+ for(const k of ks){const [y,m]=k.split("-").map(Number);const nx=new Date(y,m,1);const nk=nx.getFullYear()+"-"+(nx.getMonth()+1);if(S.months[nk]&&!d.past[nk])fillPrev(S.months[nk],S.months[k],S.months[k].finalSheet.nd)}
+ store();return lab}
 async function importData(){try{const d=await unpackData($("dataBox").value);
+  if(d&&d.past){const lab=mergePast(d);if(lab){loadMonth();drawFinals();$("dmsg").textContent=`過去のシフト表（${lab}）を追加しました`}return}
   if(!d||!Array.isArray(d.members))throw 0;if(!confirm("今の内容と入れ替えます。よろしいですか？"))return;
   S=d;S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));
   S.members=S.members.map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||[],wdPair:!!m.wdPair,noIso:!!m.noIso,weOff:m.weOff??""}));sortMembers();store();
@@ -679,7 +689,7 @@ sortMembers();ymList();loadMonth();
 (function(){const h=decodeURIComponent(location.hash||"");let k=h.indexOf("SHIFT2:");if(k<0)k=h.indexOf("SHIFT1:");if(k<0)return;
  history.replaceState(null,"",location.pathname);tab(1);$("dataBox").value=h.slice(k);
  document.querySelectorAll("details").forEach(d=>{if(d.querySelector("#dataBox"))d.open=true});
- setTimeout(async()=>{await importData();if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
+ setTimeout(async()=>{await importData();if($("dmsg").textContent.startsWith("過去")){goTab(3);$("status").textContent="下の「過去のシフト表」に追加しました";return}if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
 let t0=1;try{t0=+localStorage.getItem("shiftTab")||0}catch(e){}
 tab(members().length?(t0>=1&&t0<=5?t0:2):1);
 </script>
