@@ -121,11 +121,19 @@ html.ios{}
 .guide{background:#fff6e5;border:2px solid #e0a000;border-radius:12px;padding:10px 12px;margin:8px 0 10px}.gtitle{font-weight:700;font-size:17px}.gtext{font-size:14px;line-height:1.5;margin-top:2px}
 .card:has(> #printArea:empty){display:none}
 #chkCard:has(#checks:empty){display:none}
+.flist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+@media(min-width:900px){.flist{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.fitem{border:1px solid var(--line);border-radius:10px;padding:6px 8px;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.3}
+.fitem small{color:#777;font-size:11.5px}.fbtn{display:flex;gap:4px}.fbtn .btn{flex:1;padding:6px 4px;font-size:14px}
+#popBg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+#popBg .pop{background:#fff;color:#111;border-radius:16px;padding:18px 16px;width:min(360px,100%);text-align:center;font-size:17px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#popBg .pop .ic{font-size:40px;line-height:1.2}
+#popBg .pop button{margin-top:12px;width:100%;padding:12px;font-size:18px}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01i</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01j</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=16" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=16" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -247,7 +255,7 @@ html.ios{}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101i"></script>
+<script src="solver.js?v=20261101j"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -372,6 +380,13 @@ async function copyData(){const v=$("dataBox").value.trim();if(!v){$("dmsg").tex
 function saveDataFile(){packData().then(v=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([v],{type:"text/plain"}));a.download="シフトのデータ.txt";document.body.appendChild(a);a.click();a.remove();$("dmsg").textContent="ファイルに保存しました（シフトのデータ.txt）"})}
 function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$("dataBox").value=t;inp.value="";importData()})}
 /* 過去のシフト表だけを追加する（今のデータは消さない） */
+/* 操作が終わったら案内のポップアップを出す */
+function popMsg(t){if(!t)return;let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
+ const ok=!/できません|足りません|切れて|先に|ありません/.test(t);
+ bg.innerHTML=`<div class="pop"><div class="ic">${ok?"✅":"⚠️"}</div><div>${esc(t)}</div><button class="btn">OK</button></div>`;
+ bg.querySelector("button").onclick=()=>bg.remove();bg.onclick=e=>{if(e.target===bg)bg.remove()};document.body.appendChild(bg)}
+function watchMsg(id){const el=$(id);if(!el)return;new MutationObserver(()=>{const t=el.textContent.trim();if(t)popMsg(t)}).observe(el,{childList:true,characterData:true,subtree:true})}
+window.addEventListener("load",()=>{watchMsg("dmsg");watchMsg("finalMsg")});
 function mergePast(d){const ks=Object.keys(d.past).sort();const lab=ks.map(k=>k.split("-")[1]+"月").join("・");
  if(!confirm(`過去のシフト表（${lab}）を追加します。今の回送員や入力はそのまま残ります。よろしいですか？`))return false;
  for(const k of ks){const p=d.past[k];const [y,m]=k.split("-");if(!S.months[k])S.months[k]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mark:{},prev:{},wkTotal:{},final:null};
@@ -564,7 +579,7 @@ function decide(){if(!PLANS.length||!SET)return;const pl=PLANS[PI];const {off}=p
 function fillPrev(N,P,pnd){if(!N.prev)N.prev={};for(const id in P.final){const offs=P.final[id];N.prev[id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k)?"k":"")}}
 function finalKeys(){return Object.keys(S.months).filter(k=>S.months[k].finalSheet).sort((a,b)=>{const [ay,am]=a.split("-").map(Number),[by,bm]=b.split("-").map(Number);return by-ay||bm-am})}
 function drawFinals(){const el=$("finalList");if(!el)return;const ks=finalKeys();
- el.innerHTML=ks.length?ks.map(k=>{const f=S.months[k].finalSheet;const [y,m]=k.split("-");return `<div class="row" style="align-items:center;border-bottom:1px solid #eee;padding:6px 0"><b style="min-width:7em">${y}年${m}月</b><span class="hint">${esc(f.label)}（${esc(f.at)} ${f.upd?"更新":"採用"}）</span><button class="btn small" onclick="printFinal('${k}')">印刷する</button><button class="btn sub small" onclick="editFinal('${k}')">直す</button></div>`}).join(""):`<p class="hint">まだありません。</p>`}
+ el.innerHTML=ks.length?`<div class="flist">`+ks.map(k=>{const f=S.months[k].finalSheet;const [y,m]=k.split("-");return `<div class="fitem"><div><b>${y}年${m}月</b><br><small>${esc(f.label)}・${esc(String(f.at).split(" ")[0])}${f.upd?"更新":""}</small></div><div class="fbtn"><button class="btn small" onclick="printFinal('${k}')">印刷</button><button class="btn sub small" onclick="editFinal('${k}')">直す</button></div></div>`}).join("")+`</div>`:`<p class="hint">まだありません。</p>`}
 /* 過去のシフト表を後から直す（押したマスだけ書き換えるので画面は動かない） */
 let FE=null;
 function editFinal(k){const f=S.months[k].finalSheet;FE={k,kinds:f.kinds.map(r=>r.slice())};const [y,m]=k.split("-").map(Number);const dow=d=>new Date(y,m-1,d).getDay();
