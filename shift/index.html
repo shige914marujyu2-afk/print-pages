@@ -149,7 +149,7 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01t</span></small></h1></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>シフト自動作成ツール <small style="font-size:12px;color:#888;font-weight:400">版 <span id="verNow">2026-11-01u</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -253,7 +253,7 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
     <div><b>① スマホ</b>：この ⑤ の画面で「<b>① 書き出す</b>」→「<b>② コピー</b>」</div><div class="ar">▼</div>
     <div><b>② スマホ</b>：LINEやメールで<b>自分あて</b>に貼り付けて送る</div><div class="ar">▼</div>
     <div><b>③ パソコン</b>：届いた文字をコピー → ツールの ⑤ を開く →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div>
-    <div class="mvnote">✅ ここで、スマホで入れたデータが<b>全部パソコンに移ります</b>（パソコンの前のデータは入れ替わります）</div><div class="ar">▼</div>
+    <div class="mvnote">✅ ここで、<b>スマホと同じ内容がパソコンにも入ります</b></div><div class="ar">▼</div>
     <div><b>④ パソコン</b>：「<b>④ 作成・印刷</b>」で表を作って印刷</div>
    </div>
   </div>
@@ -264,7 +264,7 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
     <div><b>① パソコン</b>：この ⑤ の画面で「<b>① 書き出す</b>」→「<b>② コピー</b>」</div><div class="ar">▼</div>
     <div><b>② パソコン</b>：LINE（パソコン版）やメールで<b>自分あて</b>（または次の担当の人）に貼り付けて送る</div><div class="ar">▼</div>
     <div><b>③ スマホ</b>：届いた文字を長押し →「コピー」→ ツールの ⑤ を開く →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div>
-    <div class="mvnote">✅ ここで、パソコンで入れたデータが<b>全部スマホに移ります</b>（スマホの前のデータは入れ替わります）</div><div class="ar">▼</div>
+    <div class="mvnote">✅ ここで、<b>パソコンと同じ内容がスマホにも入ります</b></div><div class="ar">▼</div>
     <div><b>④ スマホ</b>：「<b>④ 作成・印刷</b>」の下の「過去のシフト表」で見る・直す</div>
    </div>
   </div>
@@ -284,7 +284,7 @@ ol.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261101t"></script>
+<script src="solver.js?v=20261101u"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
