@@ -9,7 +9,9 @@ const PEN={run5:1000000,wk:3000000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000
 const W8=c=>c.runFirst?{run5:100000,wk:200000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:200000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
 /* 土日祝（全体休を除く）の日か */
 const isWE=(P,d)=>{const q=P.dow(d);return !P.hol.has(d)&&(q===0||q===6||P.shuku.has(d))};
-const ABS=c=>Math.max(4,c.maxRun);/* 5連勤は絶対に作らない */
+const ABS=c=>Math.max(4,c.maxRun);
+/* 回送員ごとの連勤の上限・連休の回数（なければ会社の条件） */
+const MR=(P,i)=>P.maxRunA&&P.maxRunA[i]!=null?P.maxRunA[i]:P.cfg.maxRun;const MP=(P,i)=>P.minPairsA&&P.minPairsA[i]!=null?P.minPairsA[i]:P.cfg.minPairs;/* 5連勤は絶対に作らない */
 function weeksOf(P){const w=[];let s=1;while(s<=P.nd){let e=s;while(e<P.nd&&P.dow(e)!==6)e++;w.push([s,e]);s=e+1}return w}
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 /* 日ごとの出勤人数：繁忙日＝最低〜12人（できれば11人以上）、閑散日＝最低より少なくてもよい、普通の日＝最低〜11人 */
@@ -22,7 +24,8 @@ function blocks(o,nd){const r=[];let s=0;for(let d=1;d<=nd+1;d++){if(d<=nd&&o[d]
 function stats(P,i,o){const isWD=isWDf(P);let pairs=0,tri=0,badPair=0;
  for(const [a,b] of blocks(o,P.nd)){const L=b-a+1;if(L<2)continue;
   let allWD=true,hasHol=false;for(let d=a;d<=b;d++){if(!isWD(d))allWD=false;if(P.hol.has(d))hasHol=true}
-  if(P.wdPair[i]){if(allWD)pairs++;else badPair++}else{pairs++;if(L>=3&&hasHol)tri++}}
+  let allWE=true;for(let d=a;d<=b;d++)if(isWD(d))allWE=false;
+  if(P.wdPair[i]){if(allWD)pairs++;else badPair++}else if(P.wePair&&P.wePair[i]){if(allWE)pairs++;else badPair++}else{pairs++;if(L>=3&&hasHol)tri++}}
  return {pairs,tri,badPair}}
 function prepare(P){
  const {N,hol,fixed,prevOff,prevKnown,mode,cfg}=P;const K=cfg.weekOff;const weeks=weeksOf(P);const W=[];const notes=[];
@@ -57,10 +60,10 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
  const work=new Int16Array(nd+2);for(let d=1;d<=nd;d++){let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;work[d]=c}
  const RG=[];for(let d=1;d<=nd;d++)RG[d]=dayRange(P,d);
  function pp(i){const o=off[i];let p=0,run=prevRun[i];
-  const AB=ABS(cfg);const rp=L=>(L>cfg.maxRun?PN.run*(L-cfg.maxRun):0)+(L>AB?PN.run5*(L-AB):0);
+  const AB=ABS(cfg);const mr=MR(P,i);const rp=L=>(L>mr?PN.run*(L-mr):0)+(L>AB?PN.run5*(L-AB):0);
   for(let d=1;d<=nd;d++){if(o[d]){p+=rp(run);run=0}else run++}p+=rp(run);
   const s=stats(P,i,o);
-  if(s.pairs<cfg.minPairs)p+=PN.pair*(cfg.minPairs-s.pairs);else if(s.pairs>cfg.minPairs)p-=st.pair2*fair[i];
+  const mp=MP(P,i);if(s.pairs<mp)p+=PN.pair*(mp-s.pairs);else if(s.pairs>mp)p-=st.pair2*fair[i];
   p+=PN.wdp*s.badPair;
   if(cfg.tri&&!wdPair[i]){if(s.tri>=1)p-=st.tri*fair3[i];if(s.tri>=2)p-=st.tri*0.3*fair3[i]}
   for(const [a,b] of blocks(o,nd)){const L=b-a+1;if(L<3)continue;let allFix=true,hasHol=false;for(let d=a;d<=b;d++){if(!fixed[i][d])allFix=false;if(hol.has(d))hasHol=true}
@@ -97,10 +100,10 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
 /* 守れていないルールの数（人数・連勤・連休・個人の曜日） */
 function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;const w=W8(cfg);const AB=ABS(cfg);let v=0;
  for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=w.lo*(r.lo-c)*(r.lo-c);if(c>r.hi)v+=w.hi*(c-r.hi)}
- for(let i=0;i<N;i++){let run=prevRun[i];for(let d=1;d<=nd;d++){run=off[i][d]?0:run+1;if(run>cfg.maxRun)v+=w.run;if(run>AB)v+=w.run5}
+ for(let i=0;i<N;i++){let run=prevRun[i];for(let d=1;d<=nd;d++){run=off[i][d]?0:run+1;if(run>MR(P,i))v+=w.run;if(run>AB)v+=w.run5}
   for(const wk of prep.W[i]){let c=0;for(const d of wk.free)if(off[i][d])c++;v+=w.wk*(Math.max(0,wk.lo-c)+Math.max(0,c-wk.hi))}
 
-  if(stats(P,i,off[i]).pairs<cfg.minPairs)v+=w.pair;
+  if(stats(P,i,off[i]).pairs<MP(P,i))v+=w.pair;
   if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(off[i][d]&&isWE(P,d))c++;v+=w.we*Math.abs(c-P.weOff[i])}
   if(offDows[i]&&offDows[i].length)for(const wk of prep.W[i]){let any=false,has=false;for(let d=wk.a;d<=wk.b;d++){if(offDows[i].includes(dow(d))&&!hol.has(d)){any=true;if(off[i][d])has=true}}if(any&&!has)v+=w.dow}}
  return v}
@@ -112,10 +115,10 @@ function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}
    cons.push(`${t} + ${sl(w8.wk)} >= ${Math.min(w.lo,w.free.length)}`);cons.push(`${t} - ${sl(w8.wk)} <= ${w.hi}`)}
   if(prep.MF[i].length)cons.push(`${prep.MF[i].map(d=>X(i,d)).join(" + ")} - ${sl(1)} + ${sl(1)} = ${prep.MT[i]}`);
   const r=prevRun[i];
-  for(const [K,hard] of [[cfg.maxRun+1,false],[ABS(cfg)+1,true]]){if(!hard&&K>ABS(cfg))continue;
+  for(const [K,hard] of [[MR(P,i)+1,false],[ABS(cfg)+1,true]]){if(!hard&&K>ABS(cfg))continue;
    for(let s0=2-K;s0+K-1<=nd;s0++){if(s0<1&&r<1-s0)continue;const ds=[];for(let d=Math.max(1,s0);d<=s0+K-1;d++)ds.push(X(i,d));cons.push(hard?`${ds.join(" + ")} >= 1`:`${ds.join(" + ")} + ${sl(w8.run)} >= 1`)}}
-  const ys=[];for(let d=1;d<nd;d++){if(wdPair[i]&&!(isWD(d)&&isWD(d+1)))continue;const y=`y${i}_${d}`;bin.push(y);ys.push(y);cons.push(`${y} - ${X(i,d)} <= 0`);cons.push(`${y} - ${X(i,d+1)} <= 0`)}
-  if(cfg.minPairs>0)cons.push(`${ys.length?ys.join(" + ")+" + ":""}${sl(w8.pair)} >= ${cfg.minPairs}`);
+  const ys=[];for(let d=1;d<nd;d++){if(wdPair[i]&&!(isWD(d)&&isWD(d+1)))continue;if(P.wePair&&P.wePair[i]&&(isWD(d)||isWD(d+1)))continue;const y=`y${i}_${d}`;bin.push(y);ys.push(y);cons.push(`${y} - ${X(i,d)} <= 0`);cons.push(`${y} - ${X(i,d+1)} <= 0`)}
+  if(MP(P,i)>0)cons.push(`${ys.length?ys.join(" + ")+" + ":""}${sl(w8.pair)} >= ${MP(P,i)}`);
   if(P.weOff&&P.weOff[i]!=null){const t=[];for(let d=1;d<=nd;d++)if(isWE(P,d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} - ${sl(w8.we)} + ${sl(w8.we)} = ${Math.min(P.weOff[i],t.length)}`)}
   if(offDows[i]&&offDows[i].length)for(const w of prep.W[i]){const t=[];for(let d=w.a;d<=w.b;d++)if(offDows[i].includes(dow(d))&&!hol.has(d))t.push(X(i,d));if(t.length)cons.push(`${t.join(" + ")} + ${sl(w8.dow)} >= 1`)}}
  for(let d=1;d<=nd;d++){const rg=dayRange(P,d);if(!rg)continue;const t=[];for(let i=0;i<N;i++)t.push(X(i,d));const e=t.join(" + ");
@@ -149,5 +152,5 @@ async function solvePlans(P,onProgress,highs,limit=12000){const prep=prepare(P);
 function countBlocks(offs,hol){const s=new Set(offs),h=new Set(hol||[]);let pairs=0,tri=0;
  for(const d of s){if(s.has(d-1))continue;let e=d;while(s.has(e+1))e++;const L=e-d+1;if(L>=2)pairs++;if(L>=3){for(let x=d;x<=e;x++)if(h.has(x)){tri++;break}}}
  return {pairs,tri}}
-root.ShiftSolver={ABS,solvePlans,hardViol,solve,prepare,weeksOf,countBlocks,stats,dayRange,STYLE};
+root.ShiftSolver={ABS,MR,MP,solvePlans,hardViol,solve,prepare,weeksOf,countBlocks,stats,dayRange,STYLE};
 })(typeof window!=="undefined"?window:globalThis);
