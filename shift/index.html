@@ -188,7 +188,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02k</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02l</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -314,7 +314,7 @@ table.stk .wk{border-left-width:2px!important}
   <p class="mv5p"><b>移るもの</b>：回送員と個人の条件、優先して守る条件、長い休み、各月の休みの入力、手で直した表、採用したシフト表。<br>
   ファイルで送るときは「ファイルに保存」→ そのファイルを送る →「ファイルから読み込む」。機種変更の前に保存しておくと安心です。<br>
   <b style="color:#b8323d">注意</b>：読み込むと、その機械に入っていた内容は全部入れ替わります。データには名前が入っているので、送る相手は職場の人だけに。</p>
-  <textarea id="dataBox" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
+  <textarea id="dataBox" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" placeholder="ここに貼り付け（前の文字は消してから）"></textarea>
    <div class="row"><button class="btn" onclick="exportData()">① 書き出す</button><button class="btn" style="background:#2f5fb3" onclick="copyData()">② コピー</button><button class="btn sub" onclick="importData()">読み込む</button><button class="btn sub" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
   </div>
  </div>
@@ -325,7 +325,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261102k"></script>
+<script src="solver.js?v=20261102l"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -476,7 +476,7 @@ function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows
   S1.months[k]=M}return S1}
 async function packData(){try{if(window.fflate||window.CompressionStream){const b=b64e(await zip(JSON.stringify(slim(S)),"deflate-raw"));return "S3:"+b.length+":"+b}}catch(e){}return "SHIFT1:"+btoa(unescape(encodeURIComponent(js)))}
 /* 貼り付けた文字から読み取る（改行・空白・分かれたメッセージもつなげる） */
-async function unpackData(raw){let t=String(raw).replace(/\s+/g,"");const k3=t.lastIndexOf("S3:");
+async function unpackData(raw){let t=String(raw).replace(/\s+/g,"").replace(/^([^:]*?)(s3:|shift1:|shift2:)/i,(m,a,b)=>a+b.toUpperCase());const k3=t.lastIndexOf("S3:");
  if(k3>=0&&t.lastIndexOf("SHIFT")<k3){const m=t.slice(k3+3).match(/^(\d+):(.*)$/);if(!m)throw {msg:"文字の始めが足りません"};const n=+m[1];const b=m[2].replace(/[^A-Za-z0-9+/=]/g,"");
   if(b.length<n)throw {msg:`文字が途中で切れています（${n}文字のうち${b.length}文字だけ）。LINEなどで2つ以上に分かれていたら、全部を続けて貼り付けてください`};
   return fat(JSON.parse(await unzip(b64d(b.slice(0,n)),"deflate-raw")))}
@@ -520,7 +520,7 @@ let _stk=0;new MutationObserver(rs=>{if(rs.every(r=>[...r.addedNodes,...r.remove
  clearTimeout(_stk);_stk=setTimeout(stickNames,60)}).observe(document.documentElement,{childList:true,subtree:true});
 window.addEventListener("resize",()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,120)});
 function popMsg(t){if(!t)return;let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
- const ok=!/できません|足りません|切れて|先に|ありません|ませんでした/.test(t);
+ const ok=!/できません|足りません|切れて|先に|ありません|ませんでした|見つかりません|ていません/.test(t);
  bg.innerHTML=`<div class="pop"><div class="ic">${ok?"✅":"⚠️"}</div><div>${esc(t)}</div><button class="btn">OK</button></div>`;
  bg.querySelector("button").onclick=()=>bg.remove();bg.onclick=e=>{if(e.target===bg)bg.remove()};document.body.appendChild(bg)}
 function watchMsg(id){const el=$(id);if(!el)return;new MutationObserver(()=>{const t=el.textContent.trim();if(t)popMsg(t)}).observe(el,{childList:true,characterData:true,subtree:true})}
