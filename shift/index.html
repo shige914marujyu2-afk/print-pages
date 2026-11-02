@@ -178,11 +178,17 @@ table.stk{border-collapse:separate;border-spacing:0}
 table.stk>tbody>tr>*,table.stk>tr>*{border-top-width:0!important;border-left-width:0!important}
 table.stk .stl{border-left-width:1px!important}table.stk .stt{border-top-width:1px!important}
 table.stk .wk{border-left-width:2px!important}
+.pastcard{border:3px solid #1d7a3a;background:#f2fbf4;scroll-margin-top:130px}
+.pastcard h2{font-size:22px;color:#1d7a3a}
+.pastcard .fitem{background:#fff;border-color:#9fd3ad;font-size:16px}
+.pastcard .fitem b{font-size:18px}
+.pastcard.flash{animation:fl 0.8s ease-in-out 3}@keyframes fl{50%{box-shadow:0 0 0 8px rgba(29,122,58,.35)}}
+#popBg .pop div{white-space:pre-line}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02h</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02i</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -255,8 +261,8 @@ table.stk .wk{border-left-width:2px!important}
  </div>
  <div class="card wrap"><div id="printArea"></div></div>
  <div class="card" id="chkCard"><h2>ルールのチェック（○×）</h2><p class="hint" style="margin:0 0 4px">マスを直すと、ここが自動で出直します。</p><ul class="chk" id="checks"></ul></div>
- <div class="card">
-  <h2>過去のシフト表</h2>
+ <div class="card pastcard" id="pastCard">
+  <h2>📚 過去のシフト表</h2>
   <p class="hint">「この表を正式なシフト表に採用」を押した月がここに残ります。「<b>印刷する</b>」でいつでも印刷、「<b>直す</b>」で後から休みを変えて「更新する」で保存できます。翌月の「前月末」7列や、連休・3連休の平等化（過去6か月分）にも、直した内容が使われます。</p>
   <div id="finalList"></div><span class="hint" id="finalMsg"></span>
   <div id="finalEdit" hidden></div>
@@ -318,7 +324,7 @@ table.stk .wk{border-left-width:2px!important}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261102h"></script>
+<script src="solver.js?v=20261102i"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -524,7 +530,7 @@ function mergePast(d){const ks=Object.keys(d.past).sort();const lab=ks.map(k=>k.
  for(const k of ks){const [y,m]=k.split("-").map(Number);const nx=new Date(y,m,1);const nk=nx.getFullYear()+"-"+(nx.getMonth()+1);if(S.months[nk]&&!d.past[nk])fillPrev(S.months[nk],S.months[k],S.months[k].finalSheet.nd)}
  store();return lab}
 async function importData(){try{const d=await unpackData($("dataBox").value);
-  if(d&&d.past){const lab=mergePast(d);if(lab){loadMonth();drawFinals();$("dmsg").textContent=`読み込み完了しました。過去のシフト表（${lab}）を追加しました`}return}
+  if(d&&d.past){const lab=mergePast(d);if(lab){ymList();loadMonth();drawFinals();$("dmsg").textContent=`読み込み完了しました。過去のシフト表（${lab}）を追加しました`}return}
   if(!d||!Array.isArray(d.members))throw 0;if(!confirm("今の内容と入れ替えます。よろしいですか？"))return;
   S=d;S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));S.cfg.tri=true;S.cfg.runFirst=false;if(S.cfg.over){delete S.cfg.over.maxRun;delete S.cfg.over.minPairs}
   S.members=S.members.map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||[],wdPair:!!m.wdPair,noIso:!!m.noIso,weOff:m.weOff??"",runMax:m.runMax!=null?m.runMax:(m.runLim===false?4:3),pairs:m.pairs!=null&&m.pairs!==""?+m.pairs:1,pairMode:m.pairMode!=null?m.pairMode:(m.wdPair?"wd":""),edge:m.edge||""}));sortMembers();store();
@@ -535,9 +541,13 @@ async function importData(){try{const d=await unpackData($("dataBox").value);
 const SHUKU={"2026":["1-1","1-12","2-11","2-23","3-20","4-29","5-3","5-4","5-5","5-6","7-20","8-11","9-21","9-22","9-23","10-12","11-3","11-23"],
  "2027":["1-1","1-11","2-11","2-23","3-21","3-22","4-29","5-3","5-4","5-5","7-19","8-11","9-20","9-23","10-11","11-3","11-23"],
  "2028":["1-1","1-10","2-11","2-23","3-20","4-29","5-3","5-4","5-5","7-17","8-11","9-18","9-22","10-9","11-3","11-23"]};
-function ymList(){const s=$("ym");const now=new Date();s.innerHTML="";
- for(let k=-1;k<=3;k++){const d=new Date(now.getFullYear(),now.getMonth()+k,1);const v=d.getFullYear()+"-"+(d.getMonth()+1);
-  const o=document.createElement("option");o.value=v;o.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月";if(k===1)o.selected=true;s.appendChild(o)}}
+/* 作る月の一覧：採用した月は「過去のシフト表」へ移るので出さない。いつも5か月分を出す */
+function ymList(){const s=$("ym");const old=s.value;const now=new Date();s.innerHTML="";let n=0;
+ for(let k=-1;k<=36&&n<5;k++){const d=new Date(now.getFullYear(),now.getMonth()+k,1);const v=d.getFullYear()+"-"+(d.getMonth()+1);
+  if(S.months[v]&&S.months[v].finalSheet)continue;
+  const o=document.createElement("option");o.value=v;o.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月";s.appendChild(o);n++}
+ const vs=[...s.options].map(o=>o.value);const nx=new Date(now.getFullYear(),now.getMonth()+1,1);const nv=nx.getFullYear()+"-"+(nx.getMonth()+1);
+ s.value=vs.includes(old)?old:vs.includes(nv)?nv:vs[0]}
 function cur(){const v=$("ym").value;if(!S.months[v]){const [y,m]=v.split("-");S.months[v]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mark:{},prev:{},wkTotal:{},final:null}}
  const M=S.months[v];if(!M.shuku)M.shuku=[];if(!M.wkTotal)M.wkTotal={};return M}
 /* その月の全体休＝②で入れた日＋会社の条件の長い休み */
@@ -723,7 +733,9 @@ function decide(){if(!PLANS.length||!SET)return;const pl=PLANS[PI];const {off}=p
  M.finalSheet={label:pl.label,at:new Date().toLocaleString("ja-JP"),nd,shuku:[...SET.shuku],mem:SET.mem.map(mb=>({id:mb.id,co:mb.co,name:mb.name})),kinds:SET.mem.map((_,i)=>{const r=[];for(let d=1;d<=nd;d++)r.push(KD[i][d]||"");return r})};
  /* 翌月の前月末7列を入れ直す */
  const {y,m}=ymParts();const nx=new Date(y,m,1);const nk=nx.getFullYear()+"-"+(nx.getMonth()+1);if(S.months[nk])fillPrev(S.months[nk],M,nd);
- store();drawFinals();$("status").textContent=`${pl.label}を${y}年${m}月の正式なシフト表に採用しました。下の「過去のシフト表」からいつでも印刷・修正できます。`}
+ store();ymList();loadMonth();drawFinals();$("status").textContent=`${y}年${m}月は「過去のシフト表」に移りました。`;
+ popMsg(`${pl.label}を${y}年${m}月の正式なシフト表に採用しました。\n「過去のシフト表」に移動します。`);
+ setTimeout(()=>{const c=$("pastCard");if(c){c.scrollIntoView({behavior:"smooth",block:"start"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),2500)}},300)}
 function fillPrev(N,P,pnd){if(!N.prev)N.prev={};for(const id in P.final){const offs=P.final[id];N.prev[id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k)?"k":"")}}
 function finalKeys(){return Object.keys(S.months).filter(k=>S.months[k].finalSheet).sort((a,b)=>{const [ay,am]=a.split("-").map(Number),[by,bm]=b.split("-").map(Number);return by-ay||bm-am})}
 function drawFinals(){const el=$("finalList");if(!el)return;const ks=finalKeys();
