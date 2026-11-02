@@ -188,7 +188,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02i</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-02j</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -324,7 +324,8 @@ table.stk .wk{border-left-width:2px!important}
 <div id="printRoot"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="solver.js?v=20261102i"></script>
+<script src="fflate.js?v=1"></script>
+<script src="solver.js?v=20261102j"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -449,8 +450,8 @@ function members(){return S.members.filter(m=>m.id&&m.name)}
 /* データの書き出し：圧縮して短くする（LINEは長い文を分けたり切ったりするため） */
 const b64e=u8=>{let s="";for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)};
 const b64d=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
-async function zip(str,f="deflate"){const cs=new CompressionStream(f);const w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();return new Uint8Array(await new Response(cs.readable).arrayBuffer())}
-async function unzip(u8,f="deflate"){const ds=new DecompressionStream(f);const w=ds.writable.getWriter();w.write(u8);w.close();return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer())}
+async function zip(str,f="deflate"){if(window.fflate){const u=new TextEncoder().encode(str);return f==="deflate-raw"?fflate.deflateSync(u,{level:9}):fflate.zlibSync(u,{level:9})}const cs=new CompressionStream(f);const w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();return new Uint8Array(await new Response(cs.readable).arrayBuffer())}
+async function unzip(u8,f="deflate"){if(window.fflate){try{return new TextDecoder().decode(f==="deflate-raw"?fflate.inflateSync(u8):fflate.unzlibSync(u8))}catch(e){}}const ds=new DecompressionStream(f);const w=ds.writable.getWriter();w.write(u8);w.close();return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer())}
 /* 書き出しを短くするため、中身をつめた形に直す */
 const KC={"":".",off:"o",h:"h",y:"y",co:"c",k:"k"},KD={".":"","o":"off","h":"h","y":"y","c":"co","k":"k"};
 const enc=a=>a.map(c=>KC[c||""]||".").join(""),dec=t=>[...t].map(c=>KD[c]??"");
@@ -473,7 +474,7 @@ function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows
    M.final={};M.finalSheet.mem.forEach((mb,i)=>{M.final[mb.id||("_"+mb.name)]=[];kinds[i].forEach((c,d0)=>{if(c)M.final[mb.id||("_"+mb.name)].push(d0+1)})});
    M.finalHol=[...Array(M.finalSheet.nd)].map((_,i)=>i+1).filter(d=>kinds.every(r=>r[d-1]==="co"))}
   S1.months[k]=M}return S1}
-async function packData(){try{if(window.CompressionStream){const b=b64e(await zip(JSON.stringify(slim(S)),"deflate-raw"));return "S3:"+b.length+":"+b}}catch(e){}return "SHIFT1:"+btoa(unescape(encodeURIComponent(js)))}
+async function packData(){try{if(window.fflate||window.CompressionStream){const b=b64e(await zip(JSON.stringify(slim(S)),"deflate-raw"));return "S3:"+b.length+":"+b}}catch(e){}return "SHIFT1:"+btoa(unescape(encodeURIComponent(js)))}
 /* 貼り付けた文字から読み取る（改行・空白・分かれたメッセージもつなげる） */
 async function unpackData(raw){let t=String(raw).replace(/\s+/g,"");const k3=t.lastIndexOf("S3:");
  if(k3>=0&&t.lastIndexOf("SHIFT")<k3){const m=t.slice(k3+3).match(/^(\d+):(.*)$/);if(!m)throw {msg:"文字の始めが足りません"};const n=+m[1];const b=m[2].replace(/[^A-Za-z0-9+/=]/g,"");
@@ -516,7 +517,7 @@ let _stk=0;new MutationObserver(rs=>{if(rs.every(r=>[...r.addedNodes,...r.remove
  clearTimeout(_stk);_stk=setTimeout(stickNames,60)}).observe(document.documentElement,{childList:true,subtree:true});
 window.addEventListener("resize",()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,120)});
 function popMsg(t){if(!t)return;let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
- const ok=!/できません|足りません|切れて|先に|ありません/.test(t);
+ const ok=!/できません|足りません|切れて|先に|ありません|ませんでした/.test(t);
  bg.innerHTML=`<div class="pop"><div class="ic">${ok?"✅":"⚠️"}</div><div>${esc(t)}</div><button class="btn">OK</button></div>`;
  bg.querySelector("button").onclick=()=>bg.remove();bg.onclick=e=>{if(e.target===bg)bg.remove()};document.body.appendChild(bg)}
 function watchMsg(id){const el=$(id);if(!el)return;new MutationObserver(()=>{const t=el.textContent.trim();if(t)popMsg(t)}).observe(el,{childList:true,characterData:true,subtree:true})}
@@ -535,7 +536,7 @@ async function importData(){try{const d=await unpackData($("dataBox").value);
   S=d;S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));S.cfg.tri=true;S.cfg.runFirst=false;if(S.cfg.over){delete S.cfg.over.maxRun;delete S.cfg.over.minPairs}
   S.members=S.members.map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||[],wdPair:!!m.wdPair,noIso:!!m.noIso,weOff:m.weOff??"",runMax:m.runMax!=null?m.runMax:(m.runLim===false?4:3),pairs:m.pairs!=null&&m.pairs!==""?+m.pairs:1,pairMode:m.pairMode!=null?m.pairMode:(m.wdPair?"wd":""),edge:m.edge||""}));sortMembers();store();
   ymList();if(d.openMonth&&[...$("ym").options].some(o=>o.value===d.openMonth))$("ym").value=d.openMonth;loadMonth();drawMembers();drawCfg();$("dmsg").textContent=`読み込み完了しました（回送員${members().length}人・休みの入力・過去のシフト表まで全部移りました）`}
- catch(e){$("dmsg").textContent=(e&&e.msg)||"読み込めませんでした。書き出した文字を、最初の「SHIFT」から最後まで全部貼り付けてください"}}
+ catch(e){$("dmsg").textContent=(e&&e.msg)||("読み込めませんでした。書き出した文字を、最初の「S3:」から最後まで全部貼り付けてください。（くわしく："+((e&&e.message)||e)+"）")}}
 
 /* ---------- 月 ---------- */
 const SHUKU={"2026":["1-1","1-12","2-11","2-23","3-20","4-29","5-3","5-4","5-5","5-6","7-20","8-11","9-21","9-22","9-23","10-12","11-3","11-23"],
