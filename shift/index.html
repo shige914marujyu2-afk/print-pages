@@ -206,7 +206,7 @@ table.stk .wk{border-left-width:2px!important}
   <h2>①-1 回送員の登録（社員番号の小さい順）</h2>
   <div class="row"><button class="btn" onclick="addMember()">＋ 回送員を追加（1人ずつ）</button><button class="btn" style="background:#2f5fb3" onclick="openBulk()">＋ まとめて登録（一括）</button><span class="hint" id="mmsg"></span></div>
   <div id="bulkBox" class="ask" style="background:#eef3fb;border-color:#c9d8f0" hidden><b>まとめて登録（一括）</b>
-   <p class="hint" style="margin:2px 0 6px">1行に1人「<b>社員番号 名前 所属</b>」（間は空白）で貼り付けて「取り込む」。例：<br>995408 設楽 東西<br>995502 柿沼 ｴｸｽﾌﾟﾚｽ<br>※取り込むと今の一覧と入れ替わります。個人の条件は取り込んだあと1人ずつ入れてください。</p>
+   <p class="hint" style="margin:2px 0 6px">1行に1人「<b>社員番号 名前 所属</b>」（間は空白）で貼り付けて「取り込む」。例：<br>100001 山田 〇〇<br>100002 鈴木 〇〇<br>※取り込むと今の一覧と入れ替わります。個人の条件は取り込んだあと1人ずつ入れてください。</p>
    <textarea id="bulk" placeholder="ここに貼り付け"></textarea>
    <div class="row"><button class="btn" style="background:#2f5fb3" onclick="importBulk()">取り込む</button><button class="btn sub small" onclick="$('bulkBox').hidden=true">閉じる</button></div>
   </div>
