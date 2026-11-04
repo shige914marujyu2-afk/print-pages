@@ -303,7 +303,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-05b</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-05c</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button></span></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -440,7 +440,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261105b"></script>
+<script src="solver.js?v=20261105c"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -1042,7 +1042,7 @@ async function doPrintSvg(fn,msg){const win=window.open("","_blank");
 /* ---------- 起動 ---------- */
 sortMembers();ymList();if(S.openMonth&&[...$("ym").options].some(o=>o.value===S.openMonth))$("ym").value=S.openMonth;loadMonth();
 /* リンクの # に入ったデータを読み込む（データはネットには送られない） */
-(function(){const h=decodeURIComponent(location.hash||"");let k=h.indexOf("SHIFT2:");if(k<0)k=h.indexOf("SHIFT1:");if(k<0)return;
+(function(){const h=decodeURIComponent(location.hash||"");let k=h.indexOf("S3:");if(k<0)k=h.indexOf("SHIFT2:");if(k<0)k=h.indexOf("SHIFT1:");if(k<0)return;
  history.replaceState(null,"",location.pathname);tab(1);$("dataBox").value=h.slice(k);
  document.querySelectorAll("details").forEach(d=>{if(d.querySelector("#dataBox"))d.open=true});
  setTimeout(async()=>{await importData();if($("dmsg").textContent.startsWith("過去")){goTab(3);$("status").textContent="下の「過去のシフト表」に追加しました";return}if(members().length){tab(3);makeManual();$("status").textContent="読み込みました。手動用の表を開いています"}},50)})();
