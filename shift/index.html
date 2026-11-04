@@ -178,7 +178,7 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 @media screen{.wrap{max-height:calc(100vh - 160px);overflow:auto}}
 @media print{.wrap{max-height:none!important;overflow:visible!important}.wrap th,.wrap td{position:static!important;box-shadow:none!important}}
 .tophead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 0 10px;padding-top:22px}
-.tophead h1{margin:0;min-width:0}
+.tophead h1{margin:0;min-width:0}.tophead .vchk{display:block;margin:6px 0 0 auto;font-size:14px;padding:6px 10px;white-space:nowrap}
 .sticker{flex:none;display:flex;height:56px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .sticker .r{width:36px;background:#e8221b}
 .sticker .b{background:#1c1c1e;color:#fff;font-weight:500;letter-spacing:.06em;font-size:28px;line-height:56px;padding:0 20px;white-space:nowrap}
@@ -199,7 +199,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04b</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04c</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -342,6 +342,10 @@ table.stk .wk{border-left-width:2px!important}
 let VER_NEW="";
 async function verCheck(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});const j=await r.json();
  if(j.v&&j.v>document.getElementById("verNow").textContent){VER_NEW=j.v;document.getElementById("verNew").textContent="版 "+j.v;document.getElementById("verBar").hidden=false;verPop()}}catch(e){}}
+/* 「最新か確認」ボタン：押したときに確かめて、結果を必ず知らせる */
+async function verManual(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});const j=await r.json();const now=document.getElementById("verNow").textContent;
+ if(j.v&&j.v>now){VER_NEW=j.v;document.getElementById("verNew").textContent="版 "+j.v;document.getElementById("verBar").hidden=false;verPop()}
+ else popMsg("最新の版です（版 "+now+"）。このまま使えます。")}catch(e){popMsg("確認できませんでした。インターネットにつながっているか確かめて、もう一度押してください。")}}
 /* 新しい版があれば、どの画面・どの位置でも真ん中にお知らせを出す */
 function verPop(){if(document.getElementById("verPopBg"))return;const bg=document.createElement("div");bg.id="verPopBg";
  bg.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px";
