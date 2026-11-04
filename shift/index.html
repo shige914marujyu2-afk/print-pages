@@ -210,7 +210,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04d</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04a</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -347,7 +347,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261102l"></script>
+<script src="solver.js?v=20261104a"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -481,7 +481,7 @@ async function unzip(u8,f="deflate"){if(window.fflate){try{return new TextDecode
 /* 書き出しを短くするため、中身をつめた形に直す */
 const KC={"":".",off:"o",h:"h",y:"y",co:"c",k:"k"},KD={".":"","o":"off","h":"h","y":"y","c":"co","k":"k"};
 const enc=a=>a.map(c=>KC[c||""]||".").join(""),dec=t=>[...t].map(c=>KD[c]??"");
-function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,m.co,(m.offDows||[]).join(""),m.noIso?1:0,m.weOff,m.runMax,m.pairs,m.pairMode,m.edge]),mo:{},om:S0.openMonth};
+function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,m.co,(m.offDows||[]).join(""),m.noIso?1:0,m.weOff,m.runMax,m.pairs,m.pairMode,m.edge]),mo:{},om:S0.openMonth,ht:S0.hopeText};
  ["tri","runFirst","maxRun","minPairs"].forEach(k=>delete o.cfg[k]);
  for(const k in S0.months){const M=S0.months[k];const x={};
   if(M.hol&&M.hol.length)x.h=M.hol;x.s=M.shuku;if(M.busy&&M.busy.length)x.b=M.busy;if(M.quiet&&M.quiet.length)x.q=M.quiet;
@@ -491,7 +491,7 @@ function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,
   if(M.auto)x.a=M.auto;
   if(M.finalSheet){const f=M.finalSheet;x.f=[f.label,f.at,f.upd?1:0,f.mem.map(m=>[m.id,m.co,m.name]),f.kinds.map(enc)]}
   o.mo[k]=x}return o}
-function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows:[...String(a[3]||"")].map(Number),wdPair:a[8]==="wd",noIso:!!a[4],weOff:a[5]??"",runMax:a[6]??3,pairs:a[7]??1,pairMode:a[8]||"",edge:a[9]||""})),cfg:o.cfg,months:{},openMonth:o.om};
+function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows:[...String(a[3]||"")].map(Number),wdPair:a[8]==="wd",noIso:!!a[4],weOff:a[5]??"",runMax:a[6]??3,pairs:a[7]??1,pairMode:a[8]||"",edge:a[9]||""})),cfg:o.cfg,months:{},openMonth:o.om,hopeText:o.ht,hopeV2:1};
  for(const k in o.mo){const x=o.mo[k];const M={hol:x.h||[],shuku:x.s||[],busy:x.b||[],quiet:x.q||[],wkTotal:x.w||{},mark:x.k||{},prev:{},final:null};
   for(const id in x.p||{})M.prev[id]=dec(x.p[id]);
   if(x.u){M.manual={};for(const id in x.u){const r={};[...x.u[id]].forEach((c,i)=>{if(c!=="-")r[i+1]=KD[c]??""});M.manual[id]=r}}
@@ -809,15 +809,22 @@ async function printFinal(k){await doPrintSvg(()=>svgFinal(k),$("finalMsg"))}
 const HOPE_DEF={top:"毎日お疲れ様です。希望休は3日まで、25日締め切りです。",
  left:"休みたい日に「✖\uFE0E」を書いてください。有休の場合は「有」を記入してください。",
  right:"※尚、有休の場合はこのシフト表に「有」だけ書いても、スマホの勤怠アプリで有休の申請をしないと反映されません"};
-function hopeTxt(k){const t=S.hopeText||{};return (t[k]??"")!==""?t[k]:HOPE_DEF[k]}
+/* 文が空（""）なら、その枠は印刷しない。まだ一度も書きかえていなければ最初の文 */
+function hopeTxt(k){const t=S.hopeText||{};return t[k]==null?HOPE_DEF[k]:t[k]}
+if(S.hopeText&&!S.hopeV2){for(const k in S.hopeText)if(S.hopeText[k]==="")delete S.hopeText[k]}S.hopeV2=1;
 function drawHope(){const box=(k,n,lab,col)=>`<label class="htx"><span class="hn">${n}</span><span class="hl">${lab}</span>
-  <textarea rows="3" style="color:${col}" oninput="setHopeTxt('${k}',this.value)">${esc(hopeTxt(k))}</textarea></label>`;
+  <textarea rows="3" id="htx_${k}" style="color:${col}" placeholder="（空＝この枠は印刷されません）" oninput="setHopeTxt('${k}',this.value)">${esc(hopeTxt(k))}</textarea></label>`;
  $("hopeArea").innerHTML=`<div class="hopePrevT">印刷イメージ（A4横・このまま印刷されます）</div><div class="hopePrev" id="hopePrev"></div>
   <div class="hopeIn"><div class="hopePrevT" style="margin-top:12px">下の①②③を書きかえると、上の印刷イメージがすぐ変わります（自動で保存）</div>
   ${box("top","①","上の赤い枠","#c0303a")}${box("left","②","下の左（黒い枠）","#000")}${box("right","③","下の右（赤い枠）","#c0303a")}
   <div class="row" style="margin:4px 0 0"><button class="btn sub small" onclick="resetHopeTxt()">①②③を最初の文に戻す</button></div></div>`;drawHopePrev()}
 function drawHopePrev(){const el=$("hopePrev");if(el)el.innerHTML=svgHope()}
-function setHopeTxt(k,v){S.hopeText=S.hopeText||{};S.hopeText[k]=v;store();clearTimeout(window._hp);window._hp=setTimeout(drawHopePrev,150)}
+function setHopeTxt(k,v){S.hopeText=S.hopeText||{};
+ if(!v.trim()&&hopeTxt(k).trim()){const prev=hopeTxt(k);confirmPop("この枠の文をすべて消すと、印刷からも<b>枠ごと消えます</b>。<br>よろしいですか？<br><small>（入力欄は残るので、文を書けばまた枠が出ます）</small>","枠ごと消す",()=>{S.hopeText[k]="";store();drawHopePrev()},()=>{$("htx_"+k).value=prev});return}
+ S.hopeText[k]=v;store();clearTimeout(window._hp);window._hp=setTimeout(drawHopePrev,150)}
+function confirmPop(html,okLabel,onOk,onNo){let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
+ bg.innerHTML=`<div class="pop"><div class="ic">⚠️</div><div>${html}</div><button class="btn" data-ok>${okLabel}</button><button class="btn sub" data-no style="margin-top:8px">やめる（文を戻す）</button></div>`;
+ bg.querySelector("[data-ok]").onclick=()=>{bg.remove();onOk()};bg.querySelector("[data-no]").onclick=()=>{bg.remove();onNo&&onNo()};document.body.appendChild(bg)}
 function resetHopeTxt(){S.hopeText={};store();drawHope()}
 
 /* ---------- 印刷 ---------- */
@@ -855,7 +862,7 @@ function svgSheet(o){const W=841.89,H=595.28,x0=30,top=80,hh=22,K="#c0303a",PK="
  if(o.totals){T(x0+14,bot+15,10,"出勤人数合計","start");o.totals.forEach((c,d0)=>T(xd+d0*cw+cw/2,bot+15,10,String(c)))}
  if(o.foot)T(o.boxes?x0+40:x0,o.boxes?73:bot+16,o.boxes?7:8,o.foot,"start");
  /* 枠の大きさいっぱいに文字を入れる */
- const fitBox=(x1,y1,x2,y2,text,c)=>{const w=x2-x1,h=y2-y1;g.push(`<rect x="${x1.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="none" stroke="${c}" stroke-width=".9"/>`);
+ const fitBox=(x1,y1,x2,y2,text,c)=>{if(!String(text||"").trim())return;const w=x2-x1,h=y2-y1;g.push(`<rect x="${x1.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="none" stroke="${c}" stroke-width=".9"/>`);
   const cands=[[text]];for(let k=1;k<text.length;k++)if("。、".includes(text[k-1]))cands.push([text.slice(0,k),text.slice(k)]);
   const half=Math.ceil(text.length/2);cands.push([text.slice(0,half),text.slice(half)]);const P=[];for(let k=1;k<text.length;k++)if("。、".includes(text[k-1]))P.push(k);for(const a of P)for(const b of P)if(b>a)cands.push([text.slice(0,a),text.slice(a,b),text.slice(b)]);const t3=Math.ceil(text.length/3);cands.push([text.slice(0,t3),text.slice(t3,2*t3),text.slice(2*t3)]);
   let best=null;for(const ls of cands){const mx=Math.max(...ls.map(l=>l.length));const sz=Math.min((w-10)/mx,(h-6)/ls.length/1.18);if(!best||sz>best.sz)best={ls,sz}}
