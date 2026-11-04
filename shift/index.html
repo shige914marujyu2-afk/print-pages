@@ -221,11 +221,12 @@ table.stk .wk{border-left-width:2px!important}
  #perTable td:nth-child(4) .dpbtn{width:auto}
  #perTable input[type=text]{min-width:0}
 }
+@media(max-height:520px){#dpBg [data-d],#dpBg .dpe{padding:2px 0!important;font-size:14px!important}#dpBg>div{padding:8px 12px!important}#dpBg>div>div:first-child{margin-bottom:2px!important}}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04i</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04j</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -362,7 +363,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261104i"></script>
+<script src="solver.js?v=20261104j"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -418,15 +419,16 @@ function pickWork(i){const p=S.cfg.periods[i];if(!p.from||!p.to){$("cfgMsg").tex
 function pickDate(title,val,min,max,cb,canClear){const z=n=>String(n).padStart(2,"0");const ds=(y,m,d)=>`${y}-${z(m)}-${z(d)}`;
  const b0=val||min||ds(new Date().getFullYear(),new Date().getMonth()+1,new Date().getDate());let y=+b0.slice(0,4),m=+b0.slice(5,7);
  let bg=document.getElementById("dpBg");if(!bg){bg=document.createElement("div");bg.id="dpBg";document.body.appendChild(bg)}
- bg.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px";
+ bg.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;padding:12px;overflow:auto";
  const close=()=>{bg.remove()};bg.onclick=e=>{if(e.target===bg)close()};
- const draw=()=>{const nd=new Date(y,m,0).getDate(),f=new Date(y,m-1,1).getDay();let h=`<div style="background:#fff;color:#111;border-radius:14px;padding:14px;width:min(340px,100%);font-size:16px">
+ const draw=()=>{const nd=new Date(y,m,0).getDate(),f=new Date(y,m-1,1).getDay();let h=`<div style="background:#fff;color:#111;border-radius:14px;padding:14px;width:min(340px,100%);margin:auto;font-size:16px">
   <div style="font-weight:700;margin-bottom:8px">${esc(title)}</div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><button class="btn sub small" data-mv="-1">◀</button><b>${y}年${m}月</b><button class="btn sub small" data-mv="1">▶</button></div>
   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">`+["日","月","火","水","木","金","土"].map((w,k)=>`<div style="font-size:12px;color:${k===0?"#c0303a":k===6?"#2a5bd7":"#666"}">${w}</div>`).join("");
   for(let k=0;k<f;k++)h+="<div></div>";
   for(let d=1;d<=nd;d++){const t=ds(y,m,d);const ng=(min&&t<min)||(max&&t>max);const sel=t===val;
    h+=`<button ${ng?"disabled":""} data-d="${t}" style="padding:9px 0;border-radius:8px;border:1px solid ${sel?"#c0303a":"#ddd"};background:${sel?"#c0303a":ng?"#f2f2f2":"#fff"};color:${sel?"#fff":ng?"#bbb":"#111"};font-size:16px">${d}</button>`}
+  for(let k=f+nd;k<42;k++)h+=`<div class="dpe" style="padding:9px 0;border:1px solid transparent;font-size:16px;visibility:hidden">0</div>`;/* いつも6段にして高さをそろえる */
   h+=`</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">${canClear&&val?`<button class="btn sub small" data-clr="1">日付を消す</button>`:""}<button class="btn sub small" data-x="1">やめる</button></div></div>`;
   bg.innerHTML=h;
   bg.querySelectorAll("[data-mv]").forEach(e=>e.onclick=()=>{m+=+e.dataset.mv;if(m<1){m=12;y--}if(m>12){m=1;y++}draw()});
