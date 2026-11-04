@@ -248,11 +248,51 @@ table.stk .wk{border-left-width:2px!important}
  #perTable td:nth-child(1) input{width:calc(100% - 52px)}
  #perTable td.pdel{position:absolute;top:32px;right:12px}
 }
+/* ===== ダークモード ===== */
+html[data-theme=dark]{--bg:#15171c;--card:#22252c;--fg:#e6e8ec;--mut:#a5abb5;--line:#3b4049;--sat:#86a8ff;--sun:#ff7c86;--warn:#ffb454;color-scheme:dark}
+html[data-theme=dark] body{background:var(--bg);color:var(--fg)}
+html[data-theme=dark] :is(.card,.stepintro,.fitem,.mv5 .flow div:not(.ar):not(.mvnote),.flow div:not(.ar):not(.mvnote),.tabs button:not(.on),.monthbar){background:var(--card)!important;color:var(--fg)}
+html[data-theme=dark] .tabs{background:var(--bg)!important}
+html[data-theme=dark] :is(input,select,textarea){background:#1a1d23!important;color:var(--fg)!important;border-color:#4a505b}
+html[data-theme=dark] .btn.sub,html[data-theme=dark] .plans button:not(.on),html[data-theme=dark] .chips button:not(.on),html[data-theme=dark] .daychips button:not(.bz):not(.qt):not(.hl){background:#2b2f37!important;color:var(--fg)!important;border-color:#4a505b!important}
+html[data-theme=dark] :is(th,td):not(.c-off):not(.c-h):not(.c-y):not(.c-co):not(.prev){background-color:var(--card)!important;color:inherit;border-color:#4a505b}
+html[data-theme=dark] .grid th,html[data-theme=dark] .grid td,html[data-theme=dark] table.out :is(th,td){border-color:#5a606b!important}
+html[data-theme=dark] :is(.c-off,.c-h,.c-y,.c-co){color:#222!important}
+html[data-theme=dark] .c-off,html[data-theme=dark] .c-h{color:#b8323d!important}html[data-theme=dark] .c-y{color:#2f5fb3!important}
+html[data-theme=dark] :is(.ask,.guide,#verBar){background:#2a2618!important;border-color:#6d5c2b!important;color:var(--fg)}
+html[data-theme=dark] .pastcard{background:#1b2a20!important;border-color:#3f8f5a!important}
+html[data-theme=dark] .pastcard .fitem{background:var(--card)!important;border-color:#3f8f5a!important}
+html[data-theme=dark] .mv5 .flow div.mvnote{background:#1b2a20!important;color:#bfe8cc!important;border-color:#3f8f5a!important}
+html[data-theme=dark] #perTable tr:nth-child(3n+2){--pb:#1c2a21;--pl:#3f6e52}
+html[data-theme=dark] #perTable tr:nth-child(3n+3){--pb:#2e2416;--pl:#7a5a30}
+html[data-theme=dark] #perTable tr:nth-child(3n+4){--pb:#1b2333;--pl:#40598a}
+html[data-theme=dark] #perTable tr:not(:first-child)>td{background:var(--pb)!important}
+html[data-theme=dark] #perTable tr:not(:first-child)>td:first-child input{background:#1a1d23!important}
+html[data-theme=dark] :is(#popBg .pop,#mkPop .pop,#dpBg>div,#verPopBg>div){background:var(--card)!important;color:var(--fg)!important}
+html[data-theme=dark] #dpBg [data-d]:not([disabled]){background:#2b2f37!important;color:var(--fg)!important;border-color:#4a505b!important}
+html[data-theme=dark] #dpBg [data-d][disabled]{background:#1a1d23!important;color:#555!important}
+html[data-theme=dark] .hint{color:var(--mut)}
+html[data-theme=dark] .hopePrev{background:#fff;border-radius:6px}
+html[data-theme=dark] .frz,html[data-theme=dark] .fixhead{background:var(--card)!important}
+html[data-theme=dark] a{color:#8fb3ff}
+html[data-theme=dark] .sheet{background:var(--card)!important;color:var(--fg)!important}
+html[data-theme=dark] .sheet h3{color:var(--fg)!important}
+html[data-theme=dark] .grid .prev:not(.c-off):not(.c-h):not(.c-y){background:#30343c!important;color:#bbb!important}
+html[data-theme=dark] .legend span{color:#222}
+.thbtn{display:block;margin:6px 0 0 auto;font-size:14px;padding:6px 10px;white-space:nowrap}
 </style>
+<script>
+/* ダークモード：前に選んだ方を使う。まだ選んでいなければスマホ・パソコンの設定に合わせる */
+(function(){let t=null;try{t=localStorage.getItem("shiftTheme")}catch(e){}if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t})();
+function toggleTheme(){const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("shiftTheme",t)}catch(e){}thLabel()}
+function thLabel(){const b=document.getElementById("thBtn");if(b)b.textContent=document.documentElement.dataset.theme==="dark"?"☀️ ライトモード":"🌙 ダークモード";
+ let m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement("meta");m.name="theme-color";document.head.appendChild(m)}m.content=document.documentElement.dataset.theme==="dark"?"#15171c":"#f6f7f9"}
+document.addEventListener("DOMContentLoaded",thLabel);
+</script>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04p</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-05a</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()">🌙 ダークモード</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -389,7 +429,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261104p"></script>
+<script src="solver.js?v=20261105a"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
