@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="ja">
 <head>
+<link rel="apple-touch-icon" href="icon-180.png?v=1">
+<link rel="icon" type="image/png" href="favicon-32.png?v=1">
+<meta name="apple-mobile-web-app-title" content="シフト表">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
@@ -280,19 +283,27 @@ html[data-theme=dark] .sheet h3{color:var(--fg)!important}
 html[data-theme=dark] .grid .prev:not(.c-off):not(.c-h):not(.c-y){background:#30343c!important;color:#bbb!important}
 html[data-theme=dark] .legend span{color:#222}
 .thbtn{display:block;margin:6px 0 0 auto;font-size:14px;padding:6px 10px;white-space:nowrap}
+/* 上の帯：右（ツール名・版・ボタン）の高さとステッカーの高さをそろえる */
+.tophead{align-items:stretch!important}
+.sticker{height:auto!important;align-self:stretch}
+.sticker .b{display:flex;align-items:center;justify-content:center;line-height:1.1!important}
+.tophead h1{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;gap:2px}
+.hbtns{display:flex;gap:6px;margin-top:2px}
+.hbtns .btn{margin:0!important;display:inline-flex!important;align-items:center;gap:3px;font-size:13px!important;padding:4px 8px!important;flex:none!important;white-space:nowrap}
+@media(max-width:420px){.hbtns .btn span{font-size:11px}}
 </style>
 <script>
 /* ダークモード：前に選んだ方を使う。まだ選んでいなければスマホ・パソコンの設定に合わせる */
 (function(){let t=null;try{t=localStorage.getItem("shiftTheme")}catch(e){}if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t})();
 function toggleTheme(){const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("shiftTheme",t)}catch(e){}thLabel()}
-function thLabel(){const b=document.getElementById("thBtn");if(b)b.textContent=document.documentElement.dataset.theme==="dark"?"☀️ ライトモード":"🌙 ダークモード";
+function thLabel(){const b=document.getElementById("thBtn");if(b)b.innerHTML=document.documentElement.dataset.theme==="dark"?"☀️<span>ライト</span>":"🌙<span>ダーク</span>";
  let m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement("meta");m.name="theme-color";document.head.appendChild(m)}m.content=document.documentElement.dataset.theme==="dark"?"#15171c":"#f6f7f9"}
 document.addEventListener("DOMContentLoaded",thLabel);
 </script>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-05a</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()">🌙 ダークモード</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-05b</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button></span></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -429,7 +440,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261105a"></script>
+<script src="solver.js?v=20261105b"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -438,7 +449,7 @@ async function verCheck(){try{const r=await fetch("version.json?t="+Date.now(),{
 /* 「最新か確認」ボタン：押したときに確かめて、結果を必ず知らせる */
 async function verManual(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});const j=await r.json();const now=document.getElementById("verNow").textContent;
  if(j.v&&j.v>now){VER_NEW=j.v;document.getElementById("verNew").textContent="版 "+j.v;document.getElementById("verBar").hidden=false;verPop()}
- else popMsg("最新の版です（版 "+now+"）。このまま使えます。")}catch(e){popMsg("確認できませんでした。インターネットにつながっているか確かめて、もう一度押してください。")}}
+ else popMsg("最新バージョンです")}catch(e){popMsg("確認できませんでした。インターネットにつながっているか確かめて、もう一度押してください。")}}
 /* 新しい版があれば、どの画面・どの位置でも真ん中にお知らせを出す */
 function verPop(){if(document.getElementById("verPopBg"))return;const bg=document.createElement("div");bg.id="verPopBg";
  bg.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px";
