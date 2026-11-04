@@ -182,7 +182,8 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 .hopeIn{display:grid;gap:8px;margin-bottom:10px}
 .htx{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center}
 .htx .hn{grid-row:span 2;font-size:22px;font-weight:700;color:#c0303a}
-.htx .hl{font-size:13px;color:var(--mut);font-weight:700}
+.htx .hl{font-size:13px;color:var(--mut);font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.htx .hdef{flex:none;padding:4px 10px;font-size:13px;margin:2px 0;border-color:#2f5fb3;color:#2f5fb3}
 .htx textarea{width:100%;font-size:16px;font-weight:700;padding:8px;border:2px solid #c0303a;border-radius:8px;font-family:inherit;line-height:1.4;min-height:0;height:auto;resize:vertical}
 .htx:nth-child(3) textarea{border-color:#000}
 .hopePrevT{font-size:13px;font-weight:700;color:var(--mut);margin:6px 0 4px}
@@ -210,7 +211,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04f</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04g</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -347,7 +348,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261104f"></script>
+<script src="solver.js?v=20261104g"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -481,7 +482,7 @@ async function unzip(u8,f="deflate"){if(window.fflate){try{return new TextDecode
 /* 書き出しを短くするため、中身をつめた形に直す */
 const KC={"":".",off:"o",h:"h",y:"y",co:"c",k:"k"},KD={".":"","o":"off","h":"h","y":"y","c":"co","k":"k"};
 const enc=a=>a.map(c=>KC[c||""]||".").join(""),dec=t=>[...t].map(c=>KD[c]??"");
-function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,m.co,(m.offDows||[]).join(""),m.noIso?1:0,m.weOff,m.runMax,m.pairs,m.pairMode,m.edge]),mo:{},om:S0.openMonth,ht:S0.hopeText};
+function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,m.co,(m.offDows||[]).join(""),m.noIso?1:0,m.weOff,m.runMax,m.pairs,m.pairMode,m.edge]),mo:{},om:S0.openMonth,ht:S0.hopeText,hd:S0.hopeDef};
  ["tri","runFirst","maxRun","minPairs"].forEach(k=>delete o.cfg[k]);
  for(const k in S0.months){const M=S0.months[k];const x={};
   if(M.hol&&M.hol.length)x.h=M.hol;x.s=M.shuku;if(M.busy&&M.busy.length)x.b=M.busy;if(M.quiet&&M.quiet.length)x.q=M.quiet;
@@ -491,7 +492,7 @@ function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,
   if(M.auto)x.a=M.auto;
   if(M.finalSheet){const f=M.finalSheet;x.f=[f.label,f.at,f.upd?1:0,f.mem.map(m=>[m.id,m.co,m.name]),f.kinds.map(enc)]}
   o.mo[k]=x}return o}
-function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows:[...String(a[3]||"")].map(Number),wdPair:a[8]==="wd",noIso:!!a[4],weOff:a[5]??"",runMax:a[6]??3,pairs:a[7]??1,pairMode:a[8]||"",edge:a[9]||""})),cfg:o.cfg,months:{},openMonth:o.om,hopeText:o.ht,hopeV2:1};
+function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows:[...String(a[3]||"")].map(Number),wdPair:a[8]==="wd",noIso:!!a[4],weOff:a[5]??"",runMax:a[6]??3,pairs:a[7]??1,pairMode:a[8]||"",edge:a[9]||""})),cfg:o.cfg,months:{},openMonth:o.om,hopeText:o.ht,hopeDef:o.hd,hopeV2:1};
  for(const k in o.mo){const x=o.mo[k];const M={hol:x.h||[],shuku:x.s||[],busy:x.b||[],quiet:x.q||[],wkTotal:x.w||{},mark:x.k||{},prev:{},final:null};
   for(const id in x.p||{})M.prev[id]=dec(x.p[id]);
   if(x.u){M.manual={};for(const id in x.u){const r={};[...x.u[id]].forEach((c,i)=>{if(c!=="-")r[i+1]=KD[c]??""});M.manual[id]=r}}
@@ -810,14 +811,18 @@ const HOPE_DEF={top:"毎日お疲れ様です。希望休は3日まで、25日�
  left:"休みたい日に「×」を書いてください。有休の場合は「有」を記入してください。",
  right:"※尚、有休の場合はこのシフト表に「有」だけ書いても、スマホの勤怠アプリで有休の申請をしないと反映されません"};
 /* 文が空（""）なら、その枠は印刷しない。まだ一度も書きかえていなければ最初の文 */
-function hopeTxt(k){const t=S.hopeText||{};return t[k]==null?HOPE_DEF[k]:t[k]}
+/* 「戻す」で戻る文：「デフォルトに設定」で決めた文があればそれ、なければ最初の文 */
+function hopeDef(k){const d=S.hopeDef||{};return d[k]!=null&&String(d[k]).trim()?d[k]:HOPE_DEF[k]}
+function hopeTxt(k){const t=S.hopeText||{};return t[k]==null?hopeDef(k):t[k]}
+function setHopeDef(k,n){const v=$("htx_"+k).value;if(!v.trim()){popMsg("文が空のままでは、デフォルトに設定できません");return}
+ S.hopeDef=S.hopeDef||{};S.hopeDef[k]=v;store();popMsg(`${n}の今の文を「デフォルト」に設定しました。\n「戻す」を押すと、この文に戻ります。`)}
 if(S.hopeText&&!S.hopeV2){for(const k in S.hopeText)if(S.hopeText[k]==="")delete S.hopeText[k]}S.hopeV2=1;
-function drawHope(){const box=(k,n,lab,col)=>`<label class="htx"><span class="hn">${n}</span><span class="hl">${lab}</span>
+function drawHope(){const box=(k,n,lab,col)=>`<label class="htx"><span class="hn">${n}</span><span class="hl"><span>${lab}</span><button type="button" class="btn sub small hdef" onclick="event.preventDefault();setHopeDef('${k}','${n}')">デフォルトに設定</button></span>
   <textarea rows="3" id="htx_${k}" style="color:${col}" placeholder="（空＝この枠は印刷されません）" onfocus="if(!$('popBg'))HOPE_SNAP['${k}']=hopeTxt('${k}')" onblur="hopeBlur('${k}',this)" oninput="setHopeTxt('${k}',this.value)">${esc(hopeTxt(k))}</textarea></label>`;
  $("hopeArea").innerHTML=`<div class="hopePrevT">印刷イメージ（A4横・このまま印刷されます）</div><div class="hopePrev" id="hopePrev"></div>
   <div class="hopeIn"><div class="hopePrevT" style="margin-top:12px">下の①②③を書きかえると、上の印刷イメージがすぐ変わります（自動で保存）</div>
   ${box("top","①","上の赤い枠","#c0303a")}${box("left","②","下の左（黒い枠）","#000")}${box("right","③","下の右（赤い枠）","#c0303a")}
-  <div class="row" style="margin:4px 0 0;flex-wrap:wrap;gap:6px"><button class="btn sub small" onclick="resetHopeTxt('top')">①だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('left')">②だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('right')">③だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt()">①②③をまとめて戻す</button></div><div class="hint" style="margin-top:2px">「戻す」＝最初の文に戻します</div></div>`;drawHopePrev()}
+  <div class="row" style="margin:4px 0 0;flex-wrap:wrap;gap:6px"><button class="btn sub small" onclick="resetHopeTxt('top')">①だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('left')">②だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('right')">③だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt()">①②③をまとめて戻す</button></div><div class="hint" style="margin-top:2px">「戻す」＝デフォルトの文に戻します（「デフォルトに設定」で決めた文。設定していなければ最初の文）</div></div>`;drawHopePrev()}
 function drawHopePrev(){const el=$("hopePrev");if(el)el.innerHTML=svgHope()}
 const HOPE_START={},HOPE_SNAP={};let HOPE_ASK=false;
 /* 入力中は空にしても何も聞かない。空のまま欄から離れたときだけ確認する */
