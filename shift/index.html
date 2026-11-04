@@ -207,11 +207,25 @@ table.stk .wk{border-left-width:2px!important}
 .pastcard .fitem b{font-size:18px}
 .pastcard.flash{animation:fl 0.8s ease-in-out 3}@keyframes fl{50%{box-shadow:0 0 0 8px rgba(29,122,58,.35)}}
 #popBg .pop div{white-space:pre-line}
+#perTable{table-layout:auto}#perTable td:first-child{width:40%}#perTable .dpbtn{min-width:0;width:100%;white-space:nowrap}
+#perTable td{white-space:normal}
+/* 画面が狭いとき（iPhoneの縦・横）は1つの休みを2段のカードにして横いっぱいに収める */
+@media(max-width:820px){
+ #perTable,#perTable tbody{display:block;width:100%}
+ #perTable tr:first-child{display:none}
+ #perTable tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;padding:10px 0;border-bottom:1px solid var(--line)}
+ #perTable td{display:block;padding:0!important;border:0!important;width:auto!important;font-size:15px}
+ #perTable td[data-l]::before{content:attr(data-l);display:block;font-size:12px;color:var(--mut);font-weight:700;margin-bottom:2px}
+ #perTable td:nth-child(1){grid-column:1}#perTable td.pdel{grid-column:2;grid-row:1;align-self:end;text-align:right}
+ #perTable td:nth-child(4){grid-column:1/-1}
+ #perTable td:nth-child(4) .dpbtn{width:auto}
+ #perTable input[type=text]{min-width:0}
+}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04h</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04i</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -348,7 +362,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261104h"></script>
+<script src="solver.js?v=20261104i"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -390,11 +404,11 @@ function tab(n){const mb=$("monthbar");mb.hidden=!(n===3||n===4);if($("p2mon")){
 
 /* ---------- 会社の条件 ---------- */
 function drawPeriods(){const ps=S.cfg.periods;let h=`<tr><th>名前</th><th>何日から</th><th>何日まで</th><th>間の出勤日<br><small>（飛び石のとき）</small></th><th></th></tr>`;
- ps.forEach((p,i)=>{h+=`<tr><td><input type="text" value="${esc(p.name)}" onchange="setPer(${i},'name',this.value)"></td>
-  <td><button class="btn sub small dpbtn" onclick="pickPer(${i},'from')">${fmtD(p.from)}</button></td>
-  <td><button class="btn sub small dpbtn" onclick="pickPer(${i},'to')">${fmtD(p.to)}</button></td>
-  <td>${(p.work||[]).map((t,k)=>`<span style="display:inline-block;background:#e8f0ff;border-radius:6px;padding:2px 6px;margin:2px;white-space:nowrap">${+t.slice(5,7)}/${+t.slice(8)} 出勤 <button class="del" style="padding:0 6px" onclick="delWork(${i},${k})">×</button></span>`).join("")}<button class="btn sub small dpbtn" onclick="pickWork(${i})">＋ 出勤日</button></td>
-  <td><button class="del" onclick="delPeriod(${i})">削除</button></td></tr>`});
+ ps.forEach((p,i)=>{h+=`<tr><td data-l="名前"><input type="text" value="${esc(p.name)}" onchange="setPer(${i},'name',this.value)"></td>
+  <td data-l="何日から"><button class="btn sub small dpbtn" onclick="pickPer(${i},'from')">${fmtD(p.from)}</button></td>
+  <td data-l="何日まで"><button class="btn sub small dpbtn" onclick="pickPer(${i},'to')">${fmtD(p.to)}</button></td>
+  <td data-l="間の出勤日（飛び石のとき）">${(p.work||[]).map((t,k)=>`<span style="display:inline-block;background:#e8f0ff;border-radius:6px;padding:2px 6px;margin:2px;white-space:nowrap">${+t.slice(5,7)}/${+t.slice(8)} 出勤 <button class="del" style="padding:0 6px" onclick="delWork(${i},${k})">×</button></span>`).join("")}<button class="btn sub small dpbtn" onclick="pickWork(${i})">＋ 出勤日</button></td>
+  <td class="pdel"><button class="del" onclick="delPeriod(${i})">削除</button></td></tr>`});
  $("perTable").innerHTML=h}
 function setPer(i,k,v){const p=S.cfg.periods[i];p[k]=v;if(k==="from"&&p.to&&p.to<v)p.to=v;if(k==="to"&&p.from&&p.from>v)p.from=v;if(p.work)p.work=p.work.filter(t=>(!p.from||t>=p.from)&&(!p.to||t<=p.to));store();drawPeriods();$("cfgMsg").textContent="保存しました"}
 /* 自前のカレンダー（iPhoneの日付欄は開いただけで今日が入ってしまうため、押した日だけを入れる） */
@@ -528,7 +542,7 @@ function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$
    （表の写しを左に重ねて、名前までの幅だけ見せる。iPhoneでも消えたりブレたりしない） */
 function stickNames(){document.querySelectorAll(".frz").forEach(e=>e.remove());
  const tr0="rgba(0, 0, 0, 0)",bgw=c=>{if(getComputedStyle(c).backgroundColor===tr0)c.style.background="#fff"};
- document.querySelectorAll(".wrap table").forEach(t=>{if(t.offsetParent===null)return;
+ document.querySelectorAll(".wrap table").forEach(t=>{if(t.offsetParent===null||t.id==="perTable")return;
   const sc=getComputedStyle(t.closest(".wrap")),pl=-parseFloat(sc.paddingLeft||0),pt=-parseFloat(sc.paddingTop||0);
   /* 上の項目（日付・曜日の行）を縦にずらしても残す */
   let top=pt;for(const r of t.rows){const cs=[...r.cells];if(!cs.length||!cs.every(c=>c.tagName==="TH"))break;
