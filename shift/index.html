@@ -210,7 +210,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04c</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04d</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -347,7 +347,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261104c"></script>
+<script src="solver.js?v=20261104d"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -813,7 +813,7 @@ const HOPE_DEF={top:"毎日お疲れ様です。希望休は3日まで、25日�
 function hopeTxt(k){const t=S.hopeText||{};return t[k]==null?HOPE_DEF[k]:t[k]}
 if(S.hopeText&&!S.hopeV2){for(const k in S.hopeText)if(S.hopeText[k]==="")delete S.hopeText[k]}S.hopeV2=1;
 function drawHope(){const box=(k,n,lab,col)=>`<label class="htx"><span class="hn">${n}</span><span class="hl">${lab}</span>
-  <textarea rows="3" id="htx_${k}" style="color:${col}" placeholder="（空＝この枠は印刷されません）" onfocus="if(!HOPE_ASK)HOPE_START['${k}']=this.value" onblur="hopeBlur('${k}',this)" oninput="setHopeTxt('${k}',this.value)">${esc(hopeTxt(k))}</textarea></label>`;
+  <textarea rows="3" id="htx_${k}" style="color:${col}" placeholder="（空＝この枠は印刷されません）" onblur="hopeBlur('${k}',this)" oninput="setHopeTxt('${k}',this.value)">${esc(hopeTxt(k))}</textarea></label>`;
  $("hopeArea").innerHTML=`<div class="hopePrevT">印刷イメージ（A4横・このまま印刷されます）</div><div class="hopePrev" id="hopePrev"></div>
   <div class="hopeIn"><div class="hopePrevT" style="margin-top:12px">下の①②③を書きかえると、上の印刷イメージがすぐ変わります（自動で保存）</div>
   ${box("top","①","上の赤い枠","#c0303a")}${box("left","②","下の左（黒い枠）","#000")}${box("right","③","下の右（赤い枠）","#c0303a")}
@@ -821,13 +821,14 @@ function drawHope(){const box=(k,n,lab,col)=>`<label class="htx"><span class="hn
 function drawHopePrev(){const el=$("hopePrev");if(el)el.innerHTML=svgHope()}
 const HOPE_START={};let HOPE_ASK=false;
 /* 入力中は空にしても何も聞かない。空のまま欄から離れたときだけ確認する */
-function hopeBlur(k,el){setTimeout(()=>{if(document.activeElement===el)return;const prev=HOPE_START[k]||"";if(el.value.trim()||!prev.trim())return;HOPE_ASK=true;
- confirmPop("この枠の文が空になっています。どうしますか？","枠ごと消す（印刷に出さない）",()=>{HOPE_ASK=false;S.hopeText[k]="";store();drawHopePrev();HOPE_START[k]=""},
-  ()=>{HOPE_ASK=false;S.hopeText[k]=prev;store();el.value=prev;drawHopePrev()},
-  ["✏️ 新しく文字を入れる",()=>{HOPE_ASK=false;el.focus()}])},150)}
+function hopeBlur(k,el){setTimeout(()=>{if(document.activeElement===el)return;const prev=hopeTxt(k);if(el.value.trim()||!prev.trim()||$("popBg"))return;
+ confirmPop("この枠の文が空になっています。どうしますか？","枠ごと消す（印刷に出さない）",()=>{S.hopeText[k]="";store();drawHopePrev()},
+  ()=>{el.value=prev;drawHopePrev()},
+  ["✏️ 新しく文字を入れる",()=>{el.focus()}])},150)}
 function setHopeTxt(k,v){S.hopeText=S.hopeText||{};
 
- S.hopeText[k]=v;store();clearTimeout(window._hp);window._hp=setTimeout(drawHopePrev,150)}
+ /* 空にしただけでは保存しない（「枠ごと消す」を押したときだけ空にする） */
+ if(!v.trim())return;S.hopeText[k]=v;store();clearTimeout(window._hp);window._hp=setTimeout(drawHopePrev,150)}
 function confirmPop(html,okLabel,onOk,onNo,mid){let bg=$("popBg");if(bg)bg.remove();bg=document.createElement("div");bg.id="popBg";
  bg.innerHTML=`<div class="pop"><div class="ic">⚠️</div><div>${html}</div><button class="btn" data-ok>${okLabel}</button>${mid?`<button class="btn" data-mid style="margin-top:8px;background:#2f5fb3">${mid[0]}</button>`:""}<button class="btn sub" data-no style="margin-top:8px">やめる（元の文に戻す）</button></div>`;
  if(mid)bg.querySelector("[data-mid]").onclick=()=>{bg.remove();mid[1]()};
