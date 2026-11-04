@@ -227,11 +227,30 @@ table.stk .wk{border-left-width:2px!important}
 @media(max-width:420px){.row>.btn,.row>label.btn,.printbar>.btn{flex-basis:120px}}
 .row>.status,.row>.hint,.row>span:not(.btn){flex:1 1 100%}
 .printbar{display:flex;flex-wrap:wrap;gap:8px}
+/* 長い休み：1つずつ色分けして区切りをはっきり */
+#perTable tr:nth-child(3n+2){--pc:#1d7a3a;--pb:#eefaf1}
+#perTable tr:nth-child(3n+3){--pc:#c46a00;--pb:#fff4e5}
+#perTable tr:nth-child(3n+4){--pc:#2f5fb3;--pb:#eef3fb}
+#perTable tr:not(:first-child)>td{background:var(--pb);border-top:2px solid var(--pc)!important;border-bottom:2px solid var(--pc)!important}
+#perTable tr:not(:first-child)>td:first-child{box-shadow:inset 8px 0 0 var(--pc);padding-left:14px!important}
+#perTable tr:not(:first-child)>td:first-child input{font-weight:700;color:var(--pc);border-color:var(--pc)}
+#perTable{border-collapse:separate;border-spacing:0 10px}
+@media(max-width:820px){
+ #perTable{border-spacing:0}
+ #perTable tr:not(:first-child){background:var(--pb);border:2px solid var(--pc)!important;border-left-width:10px!important;border-radius:12px;padding:10px 12px!important;margin:0 0 12px}
+ #perTable tr:not(:first-child)>td{background:none;border:0!important}
+ #perTable tr:not(:first-child)>td:first-child{box-shadow:none;padding-left:0!important}
+ #perTable td[data-l]::before{color:var(--pc)}
+ #perTable tr:not(:first-child){position:relative}
+ #perTable td:nth-child(1){grid-column:1/-1!important}
+ #perTable td:nth-child(1) input{width:calc(100% - 52px)}
+ #perTable td.pdel{position:absolute;top:30px;right:10px}
+}
 </style>
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04l</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04m</span></small><button type="button" class="btn sub small vchk" onclick="verManual()">🔄 最新か確認</button></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -368,7 +387,7 @@ table.stk .wk{border-left-width:2px!important}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261104l"></script>
+<script src="solver.js?v=20261104m"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
