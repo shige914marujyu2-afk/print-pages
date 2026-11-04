@@ -173,6 +173,10 @@ table.fe{width:100%;table-layout:auto}table.fe td,table.fe th{padding:0 2px;text
 #memTable td.id input{width:6.2em;min-width:0}#memTable td.nmc input{width:5.2em;min-width:0}
 #memTable tr{height:52px}#memTable th,#memTable td{padding-top:0;padding-bottom:0;white-space:nowrap}
 #memTable td:nth-child(n+3),#memTable th:nth-child(n+3){text-align:center}
+
+/* 画面で見るとき：表は枠の中でずらす（上の項目と名前が残る） */
+@media screen{.wrap{max-height:calc(100vh - 160px);overflow:auto}}
+@media print{.wrap{max-height:none!important;overflow:visible!important}.wrap th,.wrap td{position:static!important;box-shadow:none!important}}
 .tophead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 0 10px;padding-top:22px}
 .tophead h1{margin:0;min-width:0}
 .sticker{flex:none;display:flex;height:56px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
@@ -195,7 +199,7 @@ table.stk .wk{border-left-width:2px!important}
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04a</span></small></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-04b</span></small></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -507,22 +511,16 @@ function loadDataFile(inp){const f=inp.files[0];if(!f)return;f.text().then(t=>{$
 /* 名前のある表は、横にずらしても名前までの列を左に止めておく
    （表の写しを左に重ねて、名前までの幅だけ見せる。iPhoneでも消えたりブレたりしない） */
 function stickNames(){document.querySelectorAll(".frz").forEach(e=>e.remove());
- document.querySelectorAll("table").forEach(t=>{if(t.offsetParent===null||t.id==="inGrid"||t.id==="memTable"||t.closest(".frz"))return;
- const sc=t.closest(".wrap");if(!sc)return;
- const hd=[...t.querySelectorAll("tr:first-child th")].find(th=>th.textContent.trim()==="名前");if(!hd)return;
- const tr=t.getBoundingClientRect(),hr=hd.getBoundingClientRect();const right=hr.right-tr.left;if(right<=0)return;
- const par=sc.parentElement;if(getComputedStyle(par).position==="static")par.style.position="relative";
- const pr=par.getBoundingClientRect();const st=getComputedStyle(sc);
- const left=tr.left-pr.left+sc.scrollLeft,top=tr.top-pr.top;
- const visL=sc.getBoundingClientRect().left-pr.left+sc.clientLeft;/* 枠の内側の左端 */
- const box=document.createElement("div");box.className="frz";
- box.style.cssText=`position:absolute;left:${visL}px;top:${top}px;width:${left-visL+right}px;height:${tr.height}px;overflow:hidden;background:#fff;z-index:3;box-shadow:2px 0 0 #999`;
- const cl=t.cloneNode(true);cl.removeAttribute("id");cl.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));
- cl.style.width=tr.width+"px";cl.style.margin="0";[...t.rows].forEach((r,k)=>{cl.rows[k].style.height=r.getBoundingClientRect().height+"px"});
- let node=cl;for(let e=t.parentElement;e&&e!==sc;e=e.parentElement){const d=document.createElement(e.tagName);d.className=e.className;d.style.cssText="margin:0;padding:0;border:0;box-shadow:none";d.appendChild(node);node=d}
- node.style.position="absolute";node.style.left=(left-visL)+"px";node.style.top="0";node.style.width=tr.width+"px";
- box.appendChild(node);par.appendChild(box);
- const show=()=>{box.style.visibility=sc.scrollLeft>0?"visible":"hidden"};sc.addEventListener("scroll",show,{passive:true});show()})}
+ const tr0="rgba(0, 0, 0, 0)",bgw=c=>{if(getComputedStyle(c).backgroundColor===tr0)c.style.background="#fff"};
+ document.querySelectorAll(".wrap table").forEach(t=>{if(t.offsetParent===null)return;
+  const sc=getComputedStyle(t.closest(".wrap")),pl=-parseFloat(sc.paddingLeft||0),pt=-parseFloat(sc.paddingTop||0);
+  /* 上の項目（日付・曜日の行）を縦にずらしても残す */
+  let top=pt;for(const r of t.rows){const cs=[...r.cells];if(!cs.length||!cs.every(c=>c.tagName==="TH"))break;
+   cs.forEach(c=>{c.style.position="sticky";c.style.top=top+"px";c.style.zIndex=3;bgw(c)});top+=r.getBoundingClientRect().height}
+  /* 名前の列を横にずらしても左に残す */
+  const hd=t.rows[0]?[...t.rows[0].cells].find(c=>c.textContent.trim()==="名前"||c.classList.contains("nm")||c.classList.contains("nmh")):null;
+  const nm=[...t.querySelectorAll("td.nm,th.nm,td.nmc")];if(hd)nm.push(hd);
+  nm.forEach(c=>{c.style.position="sticky";c.style.left=pl+"px";c.style.zIndex=c.style.top?5:2;c.style.boxShadow="2px 0 0 #999";bgw(c)})})}
 let _stk=0;new MutationObserver(rs=>{if(rs.every(r=>[...r.addedNodes,...r.removedNodes].every(n=>n.nodeType===1&&n.classList&&n.classList.contains("frz"))))return;
  clearTimeout(_stk);_stk=setTimeout(stickNames,60)}).observe(document.documentElement,{childList:true,subtree:true});
 window.addEventListener("resize",()=>{clearTimeout(_stk);_stk=setTimeout(stickNames,120)});
