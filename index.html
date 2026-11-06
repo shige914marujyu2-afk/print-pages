@@ -303,7 +303,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<span id="baseTag" hidden style="margin-left:6px;font-size:.7em;background:#2f5fb3;color:#fff;border-radius:8px;padding:1px 8px;vertical-align:middle"></span><small>版 <span id="verNow">2026-11-06c</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><h1>シフト自動作成ツール<span id="baseTag" hidden style="margin-left:6px;font-size:.7em;background:#2f5fb3;color:#fff;border-radius:8px;padding:1px 8px;vertical-align:middle"></span><small>版 <span id="verNow">2026-11-06d</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button></span></h1></div>
 <div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div id="admBar" hidden style="margin:8px 0;text-align:right"><button type="button" class="btn sub small" onclick="admOpen()">🔑 見られる人の登録（管理者）</button></div>
 <div class="tabs">
@@ -1053,25 +1053,32 @@ tab(members().length?(t0>=1&&t0<=5?t0:2):1);
 <div id="ob" style="position:fixed;inset:0;z-index:300;background:var(--bg);display:none;align-items:center;justify-content:center;padding:16px;overflow:auto"><div id="obCard" style="background:var(--card);color:var(--fg);border-radius:20px;box-shadow:0 10px 40px #0003;max-width:440px;width:100%;padding:24px 20px;text-align:center"></div></div>
 <style>#obCard h2{margin:6px 0 10px;font-size:24px}#obCard p{margin:6px 0 14px;font-size:16px;line-height:1.6}#obCard .big{display:block;width:100%;font-size:20px;padding:14px;margin:10px 0;border-radius:14px}#obCard .ico{font-size:56px;line-height:1.1}#obCard textarea{width:100%;box-sizing:border-box;height:110px;font-size:14px;padding:10px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}#obCard .lnk{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:14px;margin-top:6px;cursor:pointer}</style>
 <script>
-const BASES=["八王子","東村山","瑞穂"];let OB_BASE="";
+let BASES=["八王子","東村山","瑞穂"];let OB_BASE="";
+const LSP="shiftPulled";function pulled(){try{return +localStorage.getItem(LSP)||0}catch(e){return 0}}function setPulled(t){try{localStorage.setItem(LSP,String(t||0))}catch(e){}}
+async function api(q,body){const r=await fetch("api/access"+(q||""),body?{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify(body)}:{credentials:"same-origin",cache:"no-store"});const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||r.status);return j}
+async function loadBases(){try{const j=await api("?op=bases");if(Array.isArray(j.bases)&&j.bases.length)BASES=j.bases}catch(e){}return BASES}
 function obShow(h){window.OB_ON=true;$("obCard").innerHTML=h;$("ob").style.display="flex";$("ob").scrollTop=0}
 function obHide(){window.OB_ON=false;$("ob").style.display="none"}
 function baseTag(){const b=S.cfg&&S.cfg.base,t=$("baseTag");if(t){t.hidden=!b;t.textContent=b||""}}
 function obWelcome(){obShow(`<div class="ico">✅</div><h2>ログインできました</h2><p>シフト表を使えるようにします</p><button class="btn big" onclick="obBase()">はじめる</button>`)}
-function obBase(next){OB_BASE="";obShow(`<div class="ico">📍</div><h2>拠点を選んでください</h2>${BASES.map(b=>`<button class="btn big" onclick="obPick('${b}','${next||""}')">${b}</button>`).join("")}`)}
-function obPick(b,next){OB_BASE=b;if(next==="sara")return obSara(b);if(next==="set"){S.cfg.base=b;store();baseTag();return obDone(`${b}に設定しました`)}obData()}
-function obData(){obShow(`<div class="ico">📋</div><h2>${OB_BASE}のデータを貼り付け</h2><p>管理者から届いた<b>S3:</b>で始まる文字を<br>全部コピーして貼り付けてください</p><textarea id="obBox" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ここを長押しして「ペースト」"></textarea><button class="btn big" onclick="obRead()">読み込む</button><button class="lnk" onclick="obBase()">← 拠点を選び直す</button>`)}
-async function obRead(){const v=$("obBox").value.trim();if(!v)return obErr("貼り付けがまだです","「S3:」で始まる文字を貼り付けてから<br>「読み込む」を押してください");
- let d=null;try{d=await unpackData(v)}catch(e){}if(!d||!Array.isArray(d.members))return obErr("読み込めませんでした","文字が途中で切れているかもしれません。<br>最後まで全部コピーしてもう一度どうぞ");
- const db=d.cfg&&d.cfg.base;if(db&&db!==OB_BASE)return obErr("拠点がちがいます",`これは<b>${db}</b>のデータです。<br>拠点を選び直してください`,"obBase()");
- $("dataBox").value=v;const c=window.confirm;window.confirm=()=>true;try{await importData()}finally{window.confirm=c}
- if(!members().length)return obErr("読み込めませんでした","もう一度コピーして貼り付けてください");
- S.cfg.base=OB_BASE;store();baseTag();$("dmsg").textContent="";obDone(`${OB_BASE}のシフト表が<br>できました`)}
-function obErr(t,m,back){obShow(`<div class="ico">⚠️</div><h2>${t}</h2><p>${m}</p><button class="btn big" onclick="${back||"obData()"}">もどる</button>`)}
+async function obBase(next){OB_BASE="";obShow(`<div class="ico">📍</div><h2>拠点を選んでください</h2><p>読み込み中…</p>`);await loadBases();obShow(`<div class="ico">📍</div><h2>拠点を選んでください</h2>${BASES.map(b=>`<button class="btn big" onclick="obPick('${b.replace(/'/g,"")}','${next||""}')">${b}</button>`).join("")}${next?'<button class="lnk" onclick="obHide()">やめる</button>':''}`)}
+async function obPick(b,next){OB_BASE=b;if(next==="sara")return obSara(b);
+ obShow(`<div class="ico">⏳</div><h2>${b}のシフト表を準備中…</h2>`);
+ let j=null;try{j=await api("?op=data&base="+encodeURIComponent(b))}catch(e){}
+ if(!j||!j.data){if(next==="set"){S.cfg.base=b;store();baseTag();return obDone(`${b}に設定しました`)}
+  return obShow(`<div class="ico">📭</div><h2>${b}のデータがまだありません</h2><p>管理者に連絡してください</p>${ADM?`<button class="btn big" onclick="obSaraGo('${b}')">サラで始める（管理者）</button>`:""}<button class="btn big sub" onclick="obBase()">もどる</button>`)}
+ if(!(await pullData(j,b)))return obShow(`<div class="ico">⚠️</div><h2>うまく入りませんでした</h2><p>管理者に連絡してください</p><button class="btn big" onclick="obBase()">もどる</button>`);
+ obDone(`${b}のシフト表が<br>できました`)}
+async function pullData(j,b){$("dataBox").value=j.data;const c=window.confirm;window.confirm=()=>true;const was=window.OB_ON;window.OB_ON=true;try{await importData()}catch(e){}finally{window.confirm=c;window.OB_ON=was}
+ if(!members().length)return false;S.cfg.base=b;store();baseTag();setPulled(j.updated);$("dmsg").textContent="";return true}
 function obDone(t){obShow(`<div class="ico">🎉</div><h2>${t}</h2><button class="btn big" onclick="obHide();goTab(1);scrollTo(0,0)">使い始める</button>`)}
 function obSara(b){obShow(`<div class="ico">🆕</div><h2>${b}のサラのシフト表</h2><p>この端末の今の内容は<b>全部消えて</b><br>空っぽの表から始まります</p><button class="btn big" style="background:#b5323a" onclick="obSaraGo('${b}')">サラで作る</button><button class="lnk" onclick="obHide()">やめる</button>`)}
 function obSaraGo(b){S={members:[],months:{},cfg:{...DEF_CFG,periods:JSON.parse(JSON.stringify(DEF_PERIODS)),base:b}};store();location.reload()}
-window.addEventListener("load",()=>{baseTag();if(!members().length&&!(S.cfg&&S.cfg.base))obWelcome();else if(!(S.cfg&&S.cfg.base))obBase("set")});
+async function checkNew(){const b=S.cfg&&S.cfg.base;if(!b)return;let j=null;try{j=await api("?op=data&base="+encodeURIComponent(b))}catch(e){return}
+ if(!j||!j.data||!j.updated||j.updated<=pulled())return;
+ obShow(`<div class="ico">🔔</div><h2>${b}の新しいデータがあります</h2><p>入れ替えると、この端末の内容は<br>管理者のデータに変わります</p><button class="btn big" onclick="obNew()">入れ替える</button><button class="lnk" onclick="setPulled(${j.updated});obHide()">今回は入れ替えない</button>`);window._NEWJ=j}
+async function obNew(){const j=window._NEWJ;obShow(`<div class="ico">⏳</div><h2>入れ替え中…</h2>`);if(await pullData(j,S.cfg.base))obDone("新しいデータに<br>なりました");else obShow(`<div class="ico">⚠️</div><h2>うまく入りませんでした</h2><button class="btn big" onclick="obHide()">閉じる</button>`)}
+window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("http"))return;if(!members().length&&!(S.cfg&&S.cfg.base))obWelcome();else if(!(S.cfg&&S.cfg.base))obBase("set");else checkNew()});
 </script>
 <div id="admBg" style="position:fixed;inset:0;background:#0008;z-index:200;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:16px"><div style="background:var(--card);color:var(--fg);border-radius:16px;max-width:520px;width:100%;padding:16px;box-shadow:0 10px 40px #0005">
 <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:18px">🔑 見られる人の登録</b><button type="button" class="btn sub small" onclick="admClose()">閉じる</button></div>
@@ -1090,9 +1097,13 @@ window.addEventListener("load",()=>{baseTag();if(!members().length&&!(S.cfg&&S.c
 <div style="font-size:13px;color:var(--mut)">ここに入れた人も、上の「見られる人」を追加・削除できます。変えられるのは持ち主だけです。</div>
 <div style="display:flex;gap:6px;margin:8px 0"><input id="admNewA" type="email" inputmode="email" autocapitalize="off" autocorrect="off" placeholder="管理者にするメール" style="flex:1;min-width:0;font-size:16px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"><button type="button" class="btn small" onclick="admDo('addAdmin',$('admNewA').value)">管理者にする</button></div>
 <div id="admAList"></div></div>
-<div style="margin-top:14px;border-top:2px dashed var(--line);padding-top:10px"><div style="font-weight:700">データ</div>
-<div class="row" style="margin:8px 0 0"><button type="button" class="btn small" onclick="admCopyData()">📋 配る用データをコピー</button><button type="button" class="btn sub small" onclick="admClose();obBase('sara')">🆕 サラのシフト表を作る</button></div>
-<div style="font-size:13px;color:var(--mut);margin-top:4px">コピーした文字をメールやLINEで送ると、相手はそれを貼り付けるだけで使えます。</div></div>
+<div style="margin-top:14px;border-top:2px dashed var(--line);padding-top:10px"><div style="font-weight:700">拠点のデータ（みんなに配る）</div>
+<div style="font-size:13px;color:var(--mut)">ここに保存すると、その拠点を選んだ人に自動でデータが入ります。</div>
+<button type="button" class="btn small" style="margin:8px 0;width:100%" onclick="admSaveMine()">📤 この端末のデータを配る（<span id="admMyBase">-</span>）</button>
+<details style="margin:4px 0"><summary style="cursor:pointer;font-size:14px">貼り付けたデータを保存する</summary><select id="admPBase" style="font-size:16px;padding:6px;margin:6px 0;border-radius:8px"></select><textarea id="admPaste" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="S3:…を貼り付け" style="width:100%;box-sizing:border-box;height:70px;font-size:13px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></textarea><button type="button" class="btn small" onclick="admSavePaste()">この拠点に保存</button></details>
+<div style="font-weight:700;margin-top:10px">拠点</div><div id="admBases"></div>
+<div style="display:flex;gap:6px;margin:8px 0"><input id="admNewB" placeholder="新しい拠点名" style="flex:1;min-width:0;font-size:16px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"><button type="button" class="btn small" onclick="admBase('addBase',$('admNewB').value)">追加</button></div>
+<button type="button" class="btn sub small" style="width:100%" onclick="admClose();obBase('sara')">🆕 サラのシフト表を作る</button></div>
 </div></div>
 <script>
 let ADM=null;
@@ -1104,8 +1115,11 @@ async function admSend(k){const t=admInvTxt();if(k==="mail")location.href="mailt
 async function admLoad(){try{const r=await fetch("api/access",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(j.role&&j.role!=="none"){ADM=j;$("admBar").hidden=false}return j}catch(e){return null}}
 function admRow(e,act,tag){const me=ADM&&e===ADM.me,own=ADM&&e===ADM.owner;return `<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)"><span style="flex:1;word-break:break-all;font-size:15px">${e}${own?' <small style="color:var(--mut)">（持ち主）</small>':''}${me&&!own?' <small style="color:var(--mut)">（自分）</small>':''}${tag||''}</span>${act==='removeMember'&&!me?`<button type="button" class="btn sub small" onclick="admInvite('${e}')">案内</button>`:''}${own||me?'':`<button type="button" class="btn sub small" onclick="admDo('${act}','${e}')">${act==='removeAdmin'?'外す':'削除'}</button>`}</div>`}
 function admDraw(){if(!ADM)return;const a=ADM.admins||[];$("admList").innerHTML=(ADM.members||[]).map(e=>admRow(e,"removeMember",a.includes(e)?' <small style="color:#2f5fb3">（管理者）</small>':'')).join("")||"<div>まだいません</div>";$("admOwner").hidden=ADM.role!=="owner";$("admAList").innerHTML=a.map(e=>admRow(e,"removeAdmin")).join("")||'<div style="font-size:14px;color:var(--mut)">まだいません（持ち主だけ）</div>';$("admMsg").textContent=ADM.role==="owner"?"あなたは持ち主です（"+ADM.me+"）":"あなたは管理者です（"+ADM.me+"）"}
-async function admOpen(){$("admBg").style.display="flex";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}admDraw()}
-async function admCopyData(){try{const t=await packData();await navigator.clipboard.writeText(t);$("admMsg").textContent="配る用データをコピーしました ✅（"+(S.cfg.base||"拠点未設定")+"・回送員"+members().length+"人）"}catch(e){$("admMsg").textContent="コピーできませんでした。⑤ データ移動の「書き出す」を使ってください"}}
+async function admOpen(){$("admBg").style.display="flex";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}admDraw();admBasesDraw()}
+async function admBasesDraw(){await loadBases();$("admMyBase").textContent=(S.cfg&&S.cfg.base)||"拠点未設定";$("admPBase").innerHTML=BASES.map(b=>`<option>${b}</option>`).join("");$("admBases").innerHTML=BASES.map(b=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--line)"><span style="flex:1">${b}</span><button type="button" class="btn sub small" onclick="admBase('removeBase','${b.replace(/'/g,"")}')">削除</button></div>`).join("")}
+async function admSaveMine(){const b=S.cfg&&S.cfg.base;if(!b){$("admMsg").textContent="先に拠点を設定してください";return}if(!members().length){$("admMsg").textContent="回送員が入っていません";return}if(!confirm(b+"のデータとして、この端末の内容をみんなに配りますか？"))return;$("admMsg").textContent="保存中…";try{const j=await api("",{action:"saveData",base:b,data:await packData()});setPulled(Date.now()+5000);$("admMsg").textContent="✅ "+b+"のデータを配りました（回送員"+members().length+"人）"}catch(e){$("admMsg").textContent="できませんでした："+e.message}}
+async function admSavePaste(){const b=$("admPBase").value,t=$("admPaste").value.replace(/\s+/g,"");let d=null;try{d=await unpackData(t)}catch(e){}if(!d||!Array.isArray(d.members)){$("admMsg").textContent="貼り付けたデータが読めません。最後まで全部貼り付けてください";return}if(!confirm(b+"のデータとして保存しますか？"))return;try{await api("",{action:"saveData",base:b,data:t});$("admPaste").value="";$("admMsg").textContent="✅ "+b+"のデータを保存しました（回送員"+d.members.length+"人）"}catch(e){$("admMsg").textContent="できませんでした："+e.message}}
+async function admBase(action,name){name=String(name||"").trim();if(!name)return;if(action==="removeBase"&&!confirm(name+" を拠点から消しますか？（その拠点の配るデータも消えます）"))return;try{const j=await api("",{action,base:name});BASES=j.bases;$("admNewB").value="";admBasesDraw();$("admMsg").textContent="✅ 拠点を"+(action==="addBase"?"追加":"削除")+"しました（"+name+"）"}catch(e){$("admMsg").textContent="できませんでした："+e.message}}
 function admClose(){$("admBg").style.display="none"}
 async function admDo(action,email){email=String(email||"").trim();if(!email){$("admMsg").textContent="メールアドレスを入れてください";return}
 if(action.startsWith("remove")&&!confirm(email+" を"+(action==="removeAdmin"?"管理者から外し":"削除し")+"ますか？"))return;

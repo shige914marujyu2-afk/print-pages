@@ -55,10 +55,22 @@ async function adminPolicy(env, create) {
   return pol;
 }
 
+const DEF_BASES = ["八王子", "東村山", "瑞穂"];
+async function getBases(env) { const v = env.SHIFT_KV && await env.SHIFT_KV.get("bases"); return v ? JSON.parse(v) : DEF_BASES; }
+
 export async function onRequest({ request, env }) {
   try {
     const me = await whoAmI(request);
     if (!me) return J({ error: "ログインが確認できません" }, 401);
+    const url = new URL(request.url), op = url.searchParams.get("op");
+    // だれでも（ログインした人）：拠点の一覧・拠点のデータ
+    if (request.method === "GET" && op === "bases") return J({ bases: await getBases(env) });
+    if (request.method === "GET" && op === "data") {
+      const b = url.searchParams.get("base") || "";
+      if (!env.SHIFT_KV) return J({ data: null });
+      const v = await env.SHIFT_KV.get("data:" + b, "json");
+      return J(v || { data: null });
+    }
     if (!env.CF_API_TOKEN || !env.OWNER_EMAIL) return J({ me, role: "none", setup: false });
     const owner = low(env.OWNER_EMAIL);
     const apol = await adminPolicy(env, false);
@@ -70,7 +82,26 @@ export async function onRequest({ request, env }) {
     let members = emailsOf(mpol);
 
     if (request.method === "POST") {
-      const { action, email } = await request.json();
+      const body = await request.json();
+      const { action, email } = body;
+      if (["saveData", "addBase", "removeBase"].includes(action)) {
+        if (!env.SHIFT_KV) return J({ error: "データの保存場所がまだ設定されていません" }, 500);
+        const name = String(body.base || "").trim().slice(0, 20);
+        if (!name) return J({ error: "拠点名がありません" }, 400);
+        let bases = await getBases(env);
+        if (action === "saveData") {
+          const d = String(body.data || "");
+          if (!/^(S3|SHIFT[12]):/.test(d) || d.length > 2000000) return J({ error: "データの形が正しくありません" }, 400);
+          await env.SHIFT_KV.put("data:" + name, JSON.stringify({ data: d, updated: Date.now(), by: me }));
+          if (!bases.includes(name)) { bases.push(name); await env.SHIFT_KV.put("bases", JSON.stringify(bases)); }
+        } else if (action === "addBase") {
+          if (!bases.includes(name)) { bases.push(name); await env.SHIFT_KV.put("bases", JSON.stringify(bases)); }
+        } else {
+          bases = bases.filter(x => x !== name); await env.SHIFT_KV.put("bases", JSON.stringify(bases));
+          await env.SHIFT_KV.delete("data:" + name);
+        }
+        return J({ ok: true, bases });
+      }
       const e = low(email);
       if (!okMail(e)) return J({ error: "メールアドレスの形が正しくありません" }, 400);
       if (action === "addMember") {
