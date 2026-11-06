@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-06k</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-06l</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle" style="cursor:pointer">📖 はじめての方へ（動画・使い方）<small style="font-weight:400;font-size:12px;margin-left:6px">タップで開く／閉じる</small></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -1084,7 +1084,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <div class="admHead"><b>🔑 管理者メニュー</b><button type="button" class="btn sub small" onclick="admClose()">閉じる</button></div>
 <div id="admWho" class="admWho"></div>
 <div id="admMsg" class="admMsg"></div>
-<div class="row" style="margin:0 0 4px"><a id="admVid" class="btn small" style="text-decoration:none;background:#c4302b" href="#" target="_blank" rel="noopener" hidden>📺 管理者メニューの動画</a><a class="btn sub small" style="text-decoration:none" href="manual/admin.html?v=1" target="_blank" rel="noopener">🖨 管理者の使い方（印刷用）</a></div>
+<div class="row" style="margin:0 0 4px"><a id="admVid" class="btn small" style="text-decoration:none;background:#c4302b" href="#" target="_blank" rel="noopener" hidden>📺 管理者メニューの動画</a><a class="btn sub small" style="text-decoration:none" href="manual/admin.html?v=2" target="_blank" rel="noopener">🖨 管理者の使い方（印刷用）</a></div>
 <div class="admCard" style="--c:#2f5fb3"><div class="admT">👥 見られる人</div><div class="admD">ここに入れたメールの人だけが、ログインして開けます</div>
 <div class="admIn"><input id="admNew" type="email" inputmode="email" autocapitalize="off" autocorrect="off" placeholder="メールアドレス"><button type="button" class="btn small" onclick="admAdd()">追加</button></div>
 <div id="admInv" hidden class="admInv"><div style="font-weight:700;font-size:14px">📨 <span id="admInvTo"></span> さんに案内を送る</div>
@@ -1122,7 +1122,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 #admTop{display:none}#admTop.on{display:inline-flex!important}
 </style>
 <script>
-let ADM=null;const ADM_VIDEO="";
+let ADM=null;const ADM_VIDEO="https://youtu.be/VPTx0xcTiDg";
 const SHIFT_URL="https://kaisou-shift.pages.dev",VIDEOS=[["はじめかた","https://youtu.be/OlbNL82OshU"],["使い方","https://youtu.be/ooWpoM8IgBE"]];let INV_TO="",ADM_CUR=null;
 function admWhoTxt(){return ADM.role==="owner"?"あなたは<b>シフト管理者</b>です（"+ADM.me+"）":"あなたは<b>管理者</b>です（"+ADM.me+"）"}
 async function admLoad(){try{const r=await fetch("api/access",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(j.role&&j.role!=="none"){ADM=j;$("admTop").classList.add("on")}return j}catch(e){return null}}
