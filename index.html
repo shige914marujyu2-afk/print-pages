@@ -304,8 +304,8 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-06h</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
-<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=21" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=21" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-06i</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="guide"><div class="gtitle">📖 はじめての方へ</div><div class="gtext">使い方の説明（A4で2ページ）を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" href="manual/?v=22" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=22" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
@@ -1089,7 +1089,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <div id="admInv" hidden class="admInv"><div style="font-weight:700;font-size:14px">📨 <span id="admInvTo"></span> さんに案内を送る</div>
 <div style="display:flex;gap:10px;align-items:center;margin:6px 0"><img src="qr-shift.png" alt="QRコード" style="width:96px;height:96px;background:#fff;border-radius:6px;flex:none"><div style="font-size:12px;line-height:1.5">スマホのカメラで読むとシフト表が開きます<br><b>kaisou-shift.pages.dev</b></div></div>
 <div class="row" style="margin:0"><button type="button" class="btn small" onclick="admSend('mail')">✉️ メール</button><button type="button" class="btn small" style="background:#06c755" onclick="admSend('line')">LINE</button><button type="button" class="btn sub small" onclick="admSend('copy')">文をコピー</button></div></div>
-<div id="admList" class="admList"></div></div>
+<div id="admList" class="admList"></div><div class="admD" style="margin-top:4px">👑 シフト管理者　🔑 管理者</div></div>
 <div class="admCard" style="--c:#e07a1f"><div class="admT">📦 拠点のデータ</div><div class="admD">登録したデータが「デフォルト」になり、その拠点を選んだ人全員に自動で入ります</div>
 <div class="admIn"><select id="admPBase" onchange="admMode(ADM_MODE)"></select></div>
 <div class="seg"><button type="button" data-m="def" onclick="admMode('def')">デフォルトデータ</button><button type="button" data-m="mine" onclick="admMode('mine')">この端末のデータ</button><button type="button" data-m="blank" onclick="admMode('blank')">空欄</button></div>
@@ -1115,7 +1115,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 .admIn .btn{flex:none!important;margin:0!important}
 .admBox textarea{width:100%;box-sizing:border-box;height:170px!important;min-height:0!important;font-size:12px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
 .admList{margin-top:4px}.admRow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:400;line-height:1.4}
-.admRow span{flex:1;min-width:0;word-break:break-all}.admRow small{color:var(--mut)}.admRow .btn{flex:none!important;margin:0!important;font-size:12px!important;padding:3px 8px!important}
+.admRow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.admRow .no{flex:none;width:1.6em;text-align:right;color:var(--mut);font-size:12px;font-weight:600}.admRow i{flex:none;font-style:normal;font-size:12px}.admRow small{color:var(--mut)}.admRow .btn{flex:none!important;margin:0!important;font-size:12px!important;padding:3px 8px!important}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0 0 6px}.seg button{flex:1;border:0;background:var(--bg);color:var(--fg);font-size:13px;padding:8px 2px;cursor:pointer;font-weight:600}.seg button+button{border-left:1px solid var(--line)}.seg button.on{background:#e07a1f;color:#fff}.lnk2{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:12px;margin-top:6px;cursor:pointer}
 .admInv{margin:6px 0;padding:8px;border:2px solid #2e9e5b;border-radius:10px;background:var(--bg)}
 #admTop{display:none}#admTop.on{display:inline-flex!important}
@@ -1126,9 +1126,9 @@ const SHIFT_URL="https://kaisou-shift.pages.dev",VIDEOS=[];let INV_TO="",ADM_CUR
 function admWhoTxt(){return ADM.role==="owner"?"あなたは<b>シフト管理者</b>です（"+ADM.me+"）":"あなたは<b>管理者</b>です（"+ADM.me+"）"}
 async function admLoad(){try{const r=await fetch("api/access",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(j.role&&j.role!=="none"){ADM=j;$("admTop").classList.add("on")}return j}catch(e){return null}}
 function admRow(e,i,kind){const own=e===ADM.owner,me=e===ADM.me,isA=(ADM.admins||[]).includes(e);
- const tag=own?" <small>（シフト管理者）</small>":isA?" <small>（管理者）</small>":me?" <small>（自分）</small>":"";
- const btns=kind==="m"?((own||me)?"":`<button type="button" class="btn sub small" onclick="admInvite(${i})">📨</button><button type="button" class="btn sub small" onclick="admDelAsk(${i})">削除</button>`):(own?"":`<button type="button" class="btn sub small" onclick="admUnAdmin(${i})">外す</button>`);
- return `<div class="admRow"><span>${e}${tag}</span>${btns}</div>`}
+ const tag=own?"👑":isA?"🔑":"";
+ const btns=kind==="m"?((own||me)?"":`<button type="button" class="btn sub small" title="案内を送る" onclick="admInvite(${i})">📨</button><button type="button" class="btn sub small" onclick="admDelAsk(${i})">削除</button>`):(own?"":`<button type="button" class="btn sub small" onclick="admUnAdmin(${i})">外す</button>`);
+ return `<div class="admRow"><b class="no">${i+1}</b><span title="${e}">${e}</span><i>${tag}</i>${btns}</div>`}
 function admDraw(){if(!ADM)return;$("admWho").innerHTML=admWhoTxt();$("admList").innerHTML=(ADM.members||[]).map((e,i)=>admRow(e,i,"m")).join("")||"<div class='admD'>まだいません</div>";$("admOwner").hidden=ADM.role!=="owner";$("admAList").innerHTML=(ADM.admins||[]).map((e,i)=>admRow(e,i,"a")).join("")||"<div class='admD'>まだいません</div>"}
 async function admOpen(){$("admBg").style.display="flex";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}$("admMsg").textContent="";admDraw();admBasesDraw()}
 function admClose(){$("admBg").style.display="none"}
