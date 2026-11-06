@@ -1092,7 +1092,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <div id="admList" class="admList"></div></div>
 <div class="admCard" style="--c:#e07a1f"><div class="admT">📦 拠点のデータ</div><div class="admD">登録したデータが「デフォルト」になり、その拠点を選んだ人全員に自動で入ります</div>
 <div class="admIn"><select id="admPBase" onchange="admMode(ADM_MODE)"></select></div>
-<div class="seg"><button type="button" data-m="def" onclick="admMode('def')">デフォルトデータ</button><button type="button" data-m="mine" onclick="admMode('mine')">今のこの端末</button><button type="button" data-m="blank" onclick="admMode('blank')">空欄</button></div>
+<div class="seg"><button type="button" data-m="def" onclick="admMode('def')">デフォルトデータ</button><button type="button" data-m="mine" onclick="admMode('mine')">この端末のデータ</button><button type="button" data-m="blank" onclick="admMode('blank')">空欄</button></div>
 <textarea id="admPaste" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="ここにデータ（S3:…）を貼り付け"></textarea>
 <div id="admPInfo" class="admD" style="margin:2px 0 6px"></div>
 <button type="button" class="btn" style="width:100%;background:#e07a1f" onclick="admDistAsk()">💾 データを登録</button>
@@ -1149,11 +1149,11 @@ async function admShow(j,label){$("admPaste").value=(j&&j.data)||"";if(!j||!j.da
 let ADM_MODE="def";
 async function admMode(m){ADM_MODE=m;document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x.dataset.m===m));const b=$("admPBase").value;
  if(m==="def"){$("admPInfo").textContent="読み込み中…";let j=null;try{j=await api("?op=data&base="+encodeURIComponent(b))}catch(e){}ADM_CUR=j;return admShow(j,b+"のデフォルト")}
- if(m==="mine"){if(!members().length){$("admPaste").value="";$("admPInfo").textContent="この端末にデータがありません";return}$("admPaste").value=await packData();$("admPInfo").textContent=`今のこの端末：${(S.cfg&&S.cfg.base)||"拠点未設定"}・回送員${members().length}人`;return}
+ if(m==="mine"){if(!members().length){$("admPaste").value="";$("admPInfo").textContent="この端末にデータがありません";return}$("admPaste").value=await packData();$("admPInfo").textContent=`この端末のデータ：${(S.cfg&&S.cfg.base)||"拠点未設定"}・回送員${members().length}人`;return}
  $("admPaste").value="";$("admPInfo").textContent="ここにデータを貼り付けてください";$("admPaste").focus()}
 async function admLoadCur(){return admMode("def")}
 async function admLoadPrev(){const b=$("admPBase").value;let j=null;try{j=await api("?op=data&prev=1&base="+encodeURIComponent(b))}catch(e){}if(!j||!j.data)return pop("📭","1つ前のデフォルトはありません","");ADM_MODE="";document.querySelectorAll(".seg button").forEach(x=>x.classList.remove("on"));admShow(j,"1つ前のデフォルト（登録すると戻せます）")}
-async function admDistAsk(){const b=$("admPBase").value,t=$("admPaste").value.replace(/\s+/g,"");if(!t)return pop("📋","データがありません","貼り付けるか「今のこの端末」を押してください");const d=await admInfo(t);if(!d)return pop("⚠️","データが読めません","最後まで全部貼り付けてください");
+async function admDistAsk(){const b=$("admPBase").value,t=$("admPaste").value.replace(/\s+/g,"");if(!t)return pop("📋","データがありません","貼り付けるか「この端末のデータ」を押してください");const d=await admInfo(t);if(!d)return pop("⚠️","データが読めません","最後まで全部貼り付けてください");
  popAsk("💾",`${b}のデフォルトにしますか？`,`回送員${d.members.length}人のデータです。<br><b>${b}を選んでいる人全員</b>に、次に開いたとき自動でデータが入ります`,"デフォルトにする",async()=>{const j=await admPost({action:"saveData",base:b,data:t});if(!j)return;if(b===(S.cfg&&S.cfg.base))setPulled(Date.now()+5000);await admMode("def");pop("✅",`${b}のデフォルトに登録しました`,"登録した人に自動で入ります")},"#e07a1f")}
 async function admBase(action,name){name=String(name||"").trim();if(!name)return pop("📍","拠点名を入れてください","");const j=await admPost({action,base:name});if(!j)return;BASES=j.bases;$("admNewB").value="";admBasesDraw();pop("✅","拠点を追加しました",name)}
 function admBaseDel(i){const b=BASES[i];popAsk("🗑",`拠点「${b}」を削除しますか？`,"配っているデータも消えます","削除する",async()=>{const j=await admPost({action:"removeBase",base:b});if(j){BASES=j.bases;admBasesDraw();pop("✅","拠点を削除しました",b)}})}
