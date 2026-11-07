@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-06p</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-07a</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -320,7 +320,8 @@ document.addEventListener("DOMContentLoaded",thLabel);
 <section id="p1" hidden>
  <div class="stepintro"><b class="t">① 回送員・条件</b>回送員を登録して、優先して守る条件・長い休みを確かめます。下へ順番に <b>①-1 → ①-2 → ①-3</b>。終わったら一番下の「次へ」を押します。</div>
  <div class="card">
-  <h2>①-1 回送員の登録（社員番号の小さい順）</h2>
+  <h2>①-1 回送員の登録</h2>
+  <div class="sortbar">並び順：<select id="sortMode" onchange="setSortMode(this.value)"><option value="co">雇用区分 → 社員番号（標準）</option><option value="id">社員番号だけ</option></select><button type="button" class="btn sub small" onclick="coOrderPop()">雇用区分の順番</button></div>
   <div class="row"><button class="btn" onclick="addMember()">＋ 回送員を追加（1人ずつ）</button><button class="btn" style="background:#2f5fb3" onclick="openBulk()">＋ まとめて登録（一括）</button><span class="hint" id="mmsg"></span></div>
   <div id="bulkBox" class="ask" style="background:#eef3fb;border-color:#c9d8f0" hidden><b>まとめて登録（一括）</b>
    <p class="hint" style="margin:2px 0 6px">1行に1人「<b>社員番号 名前 所属</b>」（間は空白）で貼り付けて「取り込む」。例：<br>100001 山田 〇〇<br>100002 鈴木 〇〇<br>※取り込むと今の一覧と入れ替わります。個人の条件は取り込んだあと1人ずつ入れてください。</p>
@@ -541,11 +542,24 @@ function resetOver(){S.cfg.over={};store();drawCfg();$("cfgMsg").textContent="�
 function setCfg(k,v){S.cfg[k]=!!v;store();drawCfg();$("cfgMsg").textContent="保存しました"}
 
 /* ---------- 回送員 ---------- */
-function sortMembers(){S.members.sort((a,b)=>(a.id===""?1:0)-(b.id===""?1:0)||a.id.localeCompare(b.id))}
+const CO_DEF=["東西","グローバル","エクスプレス","ジャパン"];
+function coKey(c){return String(c||"").normalize("NFKC").replace(/\s/g,"")}
+function coList(){const seen=[];S.members.forEach(m=>{const k=coKey(m.co);if(k&&!seen.includes(k))seen.push(k)});const ord=(S.cfg.coOrder||[]).filter(k=>seen.includes(k));const rest=seen.filter(k=>!ord.includes(k)).sort((a,b)=>defRank(a)-defRank(b)||a.localeCompare(b,"ja"));return [...ord,...rest]}
+function defRank(k){const i=CO_DEF.findIndex(w=>k.includes(w));return i<0?99:i}
+function coRank(c){const k=coKey(c);const L=coList();const i=L.indexOf(k);return i<0?999:i}
+function memCmp(a,b){const ea=a.id===""?1:0,eb=b.id===""?1:0;if(ea!==eb)return ea-eb;if((S.cfg.sortMode||"co")==="co"){const r=coRank(a.co)-coRank(b.co);if(r)return r}return String(a.id).localeCompare(String(b.id),"ja",{numeric:true})}
+function sortFinals(){for(const k in S.months){const f=S.months[k]&&S.months[k].finalSheet;if(!f||!f.mem||!f.kinds)continue;const idx=f.mem.map((_,i)=>i).sort((i,j)=>memCmp(f.mem[i],f.mem[j]));f.mem=idx.map(i=>f.mem[i]);f.kinds=idx.map(i=>f.kinds[i])}}
+function sortMembers(){S.members.sort(memCmp);sortFinals()}
+function setSortMode(v){S.cfg.sortMode=v;sortMembers();store();drawMembers();try{drawFinals()}catch(e){}}
+function coOrderPop(){const L=coList();if(!L.length)return pop("ℹ️","回送員がまだいません","");window._CO=L.slice();coDraw()}
+function coDraw(){const L=window._CO;obShow(`<div class="ico">↕️</div><h2>雇用区分の順番</h2><p>上から順に並びます（同じ区分の中は社員番号の小さい順）</p>${L.map((k,i)=>`<div style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;margin:6px 0;text-align:left"><b style="width:1.5em">${i+1}</b><span style="flex:1">${k}</span><button class="btn sub small" ${i?"":"disabled"} onclick="coMv(${i},-1)">▲</button><button class="btn sub small" ${i<L.length-1?"":"disabled"} onclick="coMv(${i},1)">▼</button></div>`).join("")}<button class="btn big" onclick="coSave()">この順番にする</button><button class="btn big sub" onclick="coReset()">標準に戻す</button><button class="lnk" onclick="obHide()">やめる</button>`)}
+function coMv(i,d){const L=window._CO;[L[i],L[i+d]]=[L[i+d],L[i]];coDraw()}
+function coSave(){S.cfg.coOrder=window._CO.slice();S.cfg.sortMode="co";$("sortMode").value="co";sortMembers();store();drawMembers();try{drawFinals()}catch(e){}pop("✅","並び順を変えました","すべての表がこの順番になります")}
+function coReset(){delete S.cfg.coOrder;window._CO=coList();coDraw()}
 const sel=(i,k,v,opts)=>`<select class="msel" onchange="setMem(${i},'${k}',this.value===''?'':(isNaN(+this.value)||'${k}'==='weOff'?this.value:+this.value))">${opts.map(([o,t])=>`<option value="${o}" ${String(v)===String(o)?"selected":""}>${t}</option>`).join("")}</select>`;
 /* 土日祝の休み："1-3" や "2-4"（前の数字だけの形もそのまま使える） */
 function weRange(v){if(v===""||v==null)return null;const t=String(v).split("-").map(Number);return {lo:t[0],hi:t.length>1?t[1]:t[0]}}
-function drawMembers(){const t=$("memTable");
+function drawMembers(){if($("sortMode"))$("sortMode").value=S.cfg.sortMode||"co";const t=$("memTable");
  let h=`<tr><th>社員番号</th><th class="nmh">名前</th><th>所属</th><th>毎週どれか休み</th><th>連勤数</th><th>連休回数</th><th>連休の日</th><th>月末/月初</th><th>飛び石<br>なし</th><th>土日祝休</th><th></th></tr>`;
  S.members.forEach((m,i)=>{h+=`<tr><td class="id"><input type="text" inputmode="numeric" value="${esc(m.id)}" onchange="setMem(${i},'id',this.value)"></td><td class="nmc"><input type="text" value="${esc(m.name)}" onchange="setMem(${i},'name',this.value)"></td><td><input type="text" value="${esc(m.co)}" onchange="setMem(${i},'co',this.value)"></td>
   <td><div class="chips">${[...WD].map((w,q)=>`<button class="${m.offDows.includes(q)?"on":""}" onclick="togDow(${i},${q})" aria-label="${w}曜">${w}</button>`).join("")}</div></td>
@@ -1109,6 +1123,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <button type="button" class="btn sub" style="width:100%;margin-top:4px" onclick="admClose();obBase('blank')">🆕 白紙の表を作る</button>
 </div></div>
 <style>
+.sortbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0 8px}.sortbar select{font-size:15px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.sortbar .btn{flex:none!important;margin:0!important}
 .admBox{background:var(--card);color:var(--fg);border-radius:16px;max-width:540px;width:100%;padding:14px;box-shadow:0 10px 40px #0005}
 .admHead{display:flex;justify-content:space-between;align-items:center;gap:8px}.admHead b{font-size:19px}
 .admWho{font-size:13px;color:var(--mut);margin:6px 0 2px;line-height:1.5}.admMsg{font-size:13px;min-height:1.2em;margin:2px 0 6px;line-height:1.5}
