@@ -305,8 +305,9 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11f</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11g</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
+<div class="autobar"><button type="button" id="autoBtn" class="btn" onclick="autoToggle()">🤖 オートモード</button><span id="autoSt"></span></div>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
@@ -837,7 +838,7 @@ function make(){if(!members().length){$("status").textContent="先に回送員�
   SET.ym=$("ym").value;let note="できました（A案・B案・手動用）";
   if(PLANS.length>1&&upper(PLANS[1].off)>upper(PLANS[0].off)){PLANS.splice(1,1);note="できました（A案・手動用）。B案は大事な条件（週の休み・5連勤・最低人数）をA案より守れないので出していません"}
   PLANS.push(manualPlan());savePlans();$("status").textContent=note;PI=0;show(0);
-  clearInterval(tmr);mkPop("出来上がりました！","下のA案・B案・手動用のボタンで見比べてください。マスをタップすると直せます。",true);setTimeout(mkPopClose,2500)}
+  clearInterval(tmr);mkPop("出来上がりました！","下のA案・B案・手動用のボタンで見比べてください。マスをタップすると直せます。",true);setTimeout(()=>{mkPopClose();if(window._AFTERMAKE)window._AFTERMAKE()},2500)}
  catch(e){clearInterval(tmr);mkPopClose();$("status").textContent="作れませんでした。もう一度押してください"}},60)}
 /* 自動で作った表を保存（画面を変えても・開き直しても残る。「削除」で消える） */
 function savePlans(){if(!SET)return;const M=S.months[SET.ym];if(!M)return;const auto=PLANS.filter(p=>!p.manual);
@@ -998,10 +999,10 @@ function drawHope(){const box=(k,n,lab,col)=>`<div class="htx"><span class="hn">
   <div class="hopeIn"><div class="hopePrevT" style="margin-top:12px">下の①②③を書きかえると、上の印刷イメージがすぐ変わります（自動で保存）</div>
   ${box("top","①","上の赤い枠","#c0303a")}${box("left","②","下の左（黒い枠）","#000")}${box("right","③","下の右（赤い枠）","#c0303a")}
   <div class="row" style="margin:4px 0 0;flex-wrap:wrap;gap:6px"><button class="btn sub small" onclick="resetHopeTxt('top')">①だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('left')">②だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('right')">③だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt()">①②③をまとめて戻す</button></div><div class="hint" style="margin-top:2px">「戻す」＝デフォルトの文に戻します（「デフォルトに設定」で決めた文。設定していなければ最初の文）</div></div>`;drawHopePrev()}
-const HZ={top:[12,1,94,12],left:[0,84,52,100],right:[48,84,100,100]};
-function hzShow(k){if(window.innerWidth>700)return;let z=$("hzFix");if(!z){z=document.createElement("div");z.id="hzFix";document.body.appendChild(z)}const [x0,y0,x1,y1]=HZ[k];const sc=100/(x1-x0),r=595.28/841.89;
- z.style.display="block";const w=z.clientWidth-4;z.style.height=Math.round(w*sc*r*(y1-y0)/100+4)+"px";
- z.innerHTML=`<div style="width:${sc*100}%;margin-left:${-x0*sc}%;margin-top:${-y0*sc*r}%">${svgHope()}</div>`}
+const HZ={top:[30,2,93,10],left:[0,84,52,100],right:[48,84,100,100]};
+function hzCrop(k){const [x0,y0,x1,y1]=HZ[k];const W=841.89,H=595.28;const vb=`${(x0/100*W).toFixed(1)} ${(y0/100*H).toFixed(1)} ${((x1-x0)/100*W).toFixed(1)} ${((y1-y0)/100*H).toFixed(1)}`;
+ return svgHope().replace(/width="[^"]*" height="[^"]*" viewBox="[^"]*"/,`width="100%" viewBox="${vb}" preserveAspectRatio="xMidYMid meet"`)}
+function hzShow(k){if(window.innerWidth>700)return;let z=$("hzFix");if(!z){z=document.createElement("div");z.id="hzFix";document.body.appendChild(z)}z.style.display="block";z.style.height="";z.innerHTML=hzCrop(k)}
 function hzHide(){const z=$("hzFix");if(z){z.style.display="none";z.innerHTML=""}}
 function drawHopePrev(){const el=$("hopePrev");if(el)el.innerHTML=svgHope()}
 const HOPE_START={},HOPE_SNAP={};let HOPE_ASK=false;
@@ -1102,7 +1103,7 @@ function setPaper(k,v){S.cfg.paper={...paperCfg(),[k]:v};store();printPop()}
 function goPrint(){const P=paperCfg();let [w,h]=PAPER[P.size];if(P.orient==="portrait")[w,h]=[h,w];
  let st=$("printPageCss");if(!st){st=document.createElement("style");st.id="printPageCss";document.head.appendChild(st)}
  st.textContent=`@page{size:${w}pt ${h}pt;margin:0}@media print{body>*:not(#printBox){display:none!important}#printRoot{display:none!important}#printBox{display:flex!important;width:${w}pt;height:${h}pt;align-items:center;justify-content:center;overflow:hidden}#printBox img{max-width:${w}pt;max-height:${h}pt}}`;
- obHide();window.print()}
+ obHide();window.print();if(window._AFTER)setTimeout(()=>{const f=window._AFTER;window._AFTER=null;f()},600)}
 
 /* ---------- 起動 ---------- */
 sortMembers();ymList();if(S.openMonth&&[...$("ym").options].some(o=>o.value===S.openMonth))$("ym").value=S.openMonth;loadMonth();
@@ -1142,7 +1143,7 @@ async function checkNew(){const b=S.cfg&&S.cfg.base;if(!b)return;let j=null;try{
  if(!j||!j.data)return;if(!members().length){window._NEWJ=j;return obShow(`<div class="ico">📥</div><h2>${b}のデータを入れますか？</h2><p>この端末はまだ空っぽです</p><button class="btn big" onclick="obNew()">データを入れる</button><button class="lnk" onclick="obHide()">白紙のまま使う</button>`)}if(!j.updated||j.updated<=pulled())return;
  obShow(`<div class="ico">🔔</div><h2>${b}の新しいデータがあります</h2><p>入れ替えると、この端末の内容は<br>管理者のデータに変わります</p><button class="btn big" onclick="obNew()">入れ替える</button><button class="lnk" onclick="setPulled(${j.updated});obHide()">今回は入れ替えない</button>`);window._NEWJ=j}
 async function obNew(){const j=window._NEWJ;obShow(`<div class="ico">⏳</div><h2>入れ替え中…</h2>`);if(await pullData(j,S.cfg.base))obDone("新しいデータに<br>なりました");else obShow(`<div class="ico">⚠️</div><h2>うまく入りませんでした</h2><button class="btn big" onclick="obHide()">閉じる</button>`)}
-window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("http"))return;if(!members().length&&!(S.cfg&&S.cfg.base))obWelcome();else if(!(S.cfg&&S.cfg.base))obBase("set");else checkNew()});
+window.addEventListener("load",()=>{baseTag();autoDraw();setTimeout(()=>{if(autoOn()&&!window.OB_ON&&members().length)autoStart()},1800);if(!location.protocol.startsWith("http"))return;if(!members().length&&!(S.cfg&&S.cfg.base))obWelcome();else if(!(S.cfg&&S.cfg.base))obBase("set");else checkNew()});
 </script>
 <div id="admBg" style="position:fixed;inset:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#0008;z-index:200;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:12px"><div class="admBox">
 <div class="admHead"><b>🔑 管理者メニュー</b><button type="button" class="btn sub small" onclick="admClose()">閉じる</button></div>
@@ -1192,6 +1193,8 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 .admRow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.admRow .no{flex:none;width:1.6em;text-align:right;color:var(--mut);font-size:12px;font-weight:600}.admRow i{flex:none;font-style:normal;font-size:12px}.admRow small{color:var(--mut)}.admRow .btn{flex:none!important;margin:0!important;font-size:12px!important;padding:3px 8px!important}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0 0 6px}.seg button{flex:1;border:0;background:var(--bg);color:var(--fg);font-size:12px;white-space:nowrap;padding:8px 2px;cursor:pointer;font-weight:600}.seg button+button{border-left:1px solid var(--line)}.seg button.on{background:#e07a1f;color:#fff}.lnk2{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:12px;margin-top:6px;cursor:pointer}
 .cvbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:6px 0}.cvbtns .btn{margin:0!important;display:block!important;text-align:left;padding:10px 12px!important}.cvbtns .btn small{display:block;font-weight:400;font-size:12px;opacity:.9;margin-top:3px}.cvrow select{width:100%;font-size:16px;padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.fold5 summary{cursor:pointer;font-size:15px}
+#obCard .am{font-size:16px;line-height:1.6;margin:6px 0 14px}
+.autobar{display:flex;align-items:center;gap:10px;margin:6px 0}.autobar .btn{flex:1;margin:0!important;background:linear-gradient(90deg,#7a4fb3,#2f5fb3)}.sw{white-space:nowrap;font-size:14px}.hzp svg,.hzbox svg{display:block;width:100%;height:auto}.hzp{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;margin:4px 0}.hzbox{overflow:hidden;border:2px solid #e07a1f;border-radius:8px;background:#fff;margin:4px 0 8px}#obCard .daychips{max-height:46vh;overflow:auto;margin:6px 0}#obCard .daychips button.bzk{background:#eee;font-weight:700}
 .badge{display:inline-block;background:#c4302b;color:#fff;border-radius:999px;font-size:12px;padding:0 7px;margin-left:4px;vertical-align:middle}#admTop .dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#c4302b}#admTop{position:relative}
 .admInv{margin:6px 0;padding:8px;border:2px solid #2e9e5b;border-radius:10px;background:var(--bg)}
 .hbtns #admTop{display:none!important}.hbtns #admTop.on{display:inline-flex!important}
@@ -1238,6 +1241,36 @@ async function reqDone(id){await admPost({action:"reqDone",id});inboxLoad(true)}
 function reqDel(id){popAsk("🗑","要望を削除しますか？","","削除する",async()=>{await admPost({action:"reqDel",id});inboxLoad(true)})}
 async function reqFile(id,i){const a=await api("?op=reqs&full=1");const r=(a.items||[]).find(x=>x.id===id);if(!r)return;const f=r.files[i];const b=await (await fetch(`data:${f.type||"application/octet-stream"};base64,${f.data}`)).blob();const u=URL.createObjectURL(b);window.open(u,"_blank")||dl(b,f.name)}
 async function reqCopy(){const L=REQS.filter(r=>!r.done);if(!L.length)return pop("📭","未対応の要望はありません","");const t="【シフト表への要望】\n"+L.map((r,i)=>`${i+1}. ${fmtT(r.at)} ${r.from}\n${r.text||"（文なし）"}${r.files.length?"\n添付："+r.files.map(f=>f.name).join("、"):""}`).join("\n\n");try{await navigator.clipboard.writeText(t);pop("📋","要望をコピーしました","Claudeに貼り付けて「要望をまとめて」と送ってください。スクショは別に貼り付けてください")}catch(e){prompt("この文をコピーしてください",t)}}
+
+/* ---------- オートモード：ポップアップだけで希望休〜印刷まで ---------- */
+function autoOn(){try{return localStorage.getItem("autoMode")==="1"}catch(e){return false}}
+function autoDraw(){const on=autoOn();$("autoBtn").textContent=on?"🤖 オートモードで進める":"🤖 オートモード";$("autoSt").innerHTML=`<label class="sw"><input type="checkbox" ${on?"checked":""} onchange="autoSet(this.checked)"> ${on?"オン":"オフ"}</label>`}
+function autoSet(v){try{localStorage.setItem("autoMode",v?"1":"0")}catch(e){}autoDraw();if(v)autoStart()}
+function autoToggle(){if(!autoOn())return pop("🤖","オートモード","ポップアップの案内に答えていくだけで、希望休の表 → 休みの入力 → シフト作成 → 印刷 まで進められます。<br>途中でいつでも「ここからは手動で進める」に切り替えられます",`<button class="btn big" onclick="autoSet(true)">オンにして始める</button><button class="lnk" onclick="obHide()">やめる</button>`);autoStart()}
+const MAN=t=>`<button class="lnk" onclick="autoManual(${t})">ここからは手動で進める</button>`;
+function autoManual(t){obHide();goTab(t);pop("✋","手動に切り替えました","続きはこの画面で進めてください。<br>上の「🤖 オートモードで進める」を押すと、いつでもオートに戻れます")}
+function A(ico,t,m,btns,tab){obShow(`<div class="ico">${ico}</div><h2>${t}</h2>${m?`<div class="am">${m}</div>`:""}${btns}${MAN(tab)}`)}
+function autoStart(){if(!members().length)return A("👥","回送員がまだいません","先に「① 回送員・条件」で回送員を入れてください",`<button class="btn big" onclick="obHide();goTab(1)">① を開く</button>`,1);autoMonth()}
+function autoMonth(){const o=[...$("ym").options];A("📅","何月の表を作りますか？","",o.map(x=>`<button class="btn big ${x.value===$("ym").value?"":"sub"}" onclick="$('ym').value='${x.value}';loadMonth();autoHope()">${x.textContent}</button>`).join(""),4)}
+function autoHope(){goTab(4);A("📝","希望休の表の文を変えますか？","上の枠①・下の左②・下の右③ の文です",`<button class="btn big" onclick="autoHopePick()">変える</button><button class="btn big sub" onclick="autoHopePrint()">変えない</button>`,4)}
+function autoHopePick(){A("📝","どこを変えますか？",`<div class="hzp">${svgHope()}</div>`,`<button class="btn big sub" onclick="autoHopeEdit('top')">① 上の赤い枠</button><button class="btn big sub" onclick="autoHopeEdit('left')">② 下の左</button><button class="btn big sub" onclick="autoHopeEdit('right')">③ 下の右</button><button class="btn big" onclick="autoHopePrint()">終わり（印刷へ）</button>`,4)}
+function hzHtml(k){return `<div class="hzbox">${hzCrop(k)}</div>`}
+function autoHopeEdit(k){const n={top:"①",left:"②",right:"③"}[k];A("✏️",`${n} の文`,`<span id="azoom">${hzHtml(k)}</span><textarea id="aTx" rows="4" style="width:100%;box-sizing:border-box;font-size:16px;padding:8px;border:2px solid #e07a1f;border-radius:10px" oninput="setHopeTxt('${k}',this.value);$('azoom').innerHTML=hzHtml('${k}')">${esc(hopeTxt(k))}</textarea>`,`<button class="btn big" onclick="drawHope&&drawHope();autoHopePick()">これでOK</button><button class="btn big sub" onclick="resetHopeTxt('${k}');autoHopeEdit('${k}')">元の文に戻す</button>`,4)}
+function autoHopePrint(){try{drawHope()}catch(e){}A("🖨","希望休の表を印刷しますか？","印刷して、みんなに書いてもらいます",`<button class="btn big" onclick="window._AFTER=autoAfterHope;doPrint('hopeArea')">印刷する</button><button class="btn big sub" onclick="autoAfterHope()">印刷しないで次へ</button>`,4)}
+function autoAfterHope(){window._AFTER=null;A("📬","希望休の紙は集まりましたか？","集まったら、休みを入れていきます",`<button class="btn big" onclick="autoHol()">集まった（次へ）</button><button class="btn big sub" onclick="obHide()">まだ（あとで続ける）</button>`,4)}
+function dayChips(fn,cls){const M=cur(),{nd,dow}=ymParts();return `<div class="daychips">`+[...Array(nd)].map((_,k)=>{const d=k+1,w=dow(d);const c=cls(d);return `<button class="${c[0]}" onclick="${fn}(${d})"><span style="${w===0||M.shuku.includes(d)?"color:#c0303a":w===6?"color:#2f5fb3":""}">${d}${M.shuku.includes(d)?"祝":WD[w]}</span><br>${c[1]}</button>`}).join("")+`</div>`}
+function autoHol(){goTab(2);const M=cur();A("❶","全体休（全員の休み）はありますか？","日付を押すと「全」になります（もう一度で戻ります）。祝日と長い休みは入っています"+dayChips("autoHolTap",d=>holOf(M).includes(d)?["hl","全"]:["","・"]),`<button class="btn big" onclick="autoMark(0)">次へ：希望休</button>`,2)}
+function autoHolTap(d){const M=cur();const h=M.hol.indexOf(d);if(h>=0)M.hol.splice(h,1);else{M.hol.push(d);const s=M.shuku.indexOf(d)}store();try{drawInput();drawHolWeeks();drawBusy()}catch(e){}autoHol()}
+function autoMark(i){const mem=members();if(i>=mem.length)return autoBusy();const mb=mem[i];const M=cur();const mk=M.mark[mb.id]||{};const L={k:["bzk","休"],h:["bz","希"],y:["qt","有"]};
+ A("❷",`${esc(mb.name)} さんの休み（${i+1}/${mem.length}）`,"日付を押すたびに 休 → 希 → 有 → なし"+dayChips(`autoMarkTap.bind(null,${i})`,d=>holOf(M).includes(d)?["hl","全"]:L[mk[d]]||["","・"]),`<div style="display:flex;gap:6px">${i?`<button class="btn big sub" style="flex:1" onclick="autoMark(${i-1})">← 前の人</button>`:""}<button class="btn big" style="flex:2" onclick="autoMark(${i+1})">${i+1<mem.length?"次の人 →":"次へ：繁忙日"}</button></div>`,2)}
+function autoMarkTap(i,d){const mb=members()[i];togMark(mb.id,d);autoMark(i)}
+function autoBusy(){const M=cur();if(!M.busy)M.busy=[];if(!M.quiet)M.quiet=[];A("❸","繁忙日・閑散日を決めますか？","押すたびに 普通 → 繁 → 閑 → 普通（なければそのまま次へ）"+dayChips("autoBusyTap",d=>holOf(M).includes(d)?["hl","全"]:M.busy.includes(d)?["bz","繁"]:M.quiet.includes(d)?["qt","閑"]:["","・"]),`<button class="btn big" onclick="autoNeed()">次へ</button>`,2)}
+function autoBusyTap(d){if(holOf(cur()).includes(d))return;togBusy(d);autoBusy()}
+function autoNeed(){const M=cur();const ds=[...(M.busy||[]),...(M.quiet||[])];if(!ds.length)return autoMake();drawNeed();A("❹","その日の出勤人数","空欄なら条件どおりで作ります（目安）"+$("needDays").innerHTML.replace(/onchange="setNeed/g,'onchange="setNeed'),`<button class="btn big" onclick="autoMake()">次へ：シフトを作る</button>`,2)}
+function autoMake(){goTab(3);A("⚙️","シフト表を自動で作ります","A案・B案を作ります（30秒〜1分ほど）",`<button class="btn big" onclick="obHide();window._AFTERMAKE=autoPick;make()">作る</button>`,3)}
+function autoPick(){window._AFTERMAKE=null;if(!PLANS||!PLANS.length)return A("⚠️","作れませんでした","もう一度作るか、手動で進めてください",`<button class="btn big" onclick="autoMake()">もう一度</button>`,3);
+ A("🗂","どの案にしますか？","下の表で見比べられます。マスをタップすれば手直しもできます",PLANS.map((p,k)=>`<button class="btn big ${k===PI?"":"sub"}" onclick="show(${k});autoPick()">${p.label}${p.manual?"（自分で作る）":""}</button>`).join("")+`<button class="btn big" style="background:#1d7a3a" onclick="autoAdopt()">この案（${PLANS[PI].label}）を採用</button>`,3)}
+function autoAdopt(){const c=window.confirm;window.confirm=()=>true;try{decide()}finally{window.confirm=c}A("✅","正式なシフト表に採用しました","「過去のシフト表」に入りました",`<button class="btn big" onclick="doPrint('printArea')">印刷する</button><button class="btn big sub" onclick="obHide()">終わる</button>`,3)}
 let ADM=null;const ADM_VIDEO="https://youtu.be/VPTx0xcTiDg";
 const SHIFT_URL="https://kaisou-shift.pages.dev",VIDEOS=[["はじめかた","https://youtu.be/OlbNL82OshU"],["使い方","https://youtu.be/ooWpoM8IgBE"]];let INV_TO="",ADM_CUR=null;
 function admWhoTxt(){return ADM.role==="owner"?"あなたは<b>ソフト開発者</b>です（"+ADM.me+"）":"あなたは<b>管理者</b>です（"+ADM.me+"）"}
