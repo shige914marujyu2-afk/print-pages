@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11a</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11b</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -689,7 +689,7 @@ function watchMsg(id){const el=$(id);if(!el)return;new MutationObserver(()=>{con
 window.addEventListener("load",()=>{watchMsg("dmsg");watchMsg("finalMsg")});
 function mergePast(d){const ks=Object.keys(d.past).sort();const lab=ks.map(k=>k.split("-")[1]+"月").join("・");
  if(!confirm(`過去のシフト表（${lab}）を追加します。今の回送員や入力はそのまま残ります。よろしいですか？`))return false;
- for(const k of ks){const p=d.past[k];const [y,m]=k.split("-");if(!S.months[k])S.months[k]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mark:{},prev:{},wkTotal:{},final:null};
+ for(const k of ks){if(isLocked(k))continue;const p=d.past[k];const [y,m]=k.split("-");if(!S.months[k])S.months[k]={hol:[],shuku:(SHUKU[y]||[]).filter(t=>t.split("-")[0]===m).map(t=>+t.split("-")[1]),mark:{},prev:{},wkTotal:{},final:null};
   const M=S.months[k];const nd=p.kinds[0].length;const f={label:p.label||"紙の表から",at:new Date().toLocaleString("ja-JP"),nd,shuku:M.shuku.slice(),mem:p.mem,kinds:p.kinds};
   M.finalSheet=f;M.finalHol=[...Array(nd)].map((_,i)=>i+1).filter(d=>p.kinds.every(r=>r[d-1]==="co"));M.final={};
   p.mem.forEach((mb,i)=>{M.final[mb.id||("_"+mb.name)]=[];p.kinds[i].forEach((c,d0)=>{if(c&&c!=="y")M.final[mb.id||("_"+mb.name)].push(d0+1)})})}
@@ -698,7 +698,7 @@ function mergePast(d){const ks=Object.keys(d.past).sort();const lab=ks.map(k=>k.
 async function importData(){try{const d=await unpackData($("dataBox").value);
   if(d&&d.past){const lab=mergePast(d);if(lab){ymList();loadMonth();drawFinals();$("dmsg").textContent=`読み込み完了しました。過去のシフト表（${lab}）を追加しました`}return}
   if(!d||!Array.isArray(d.members))throw 0;if(!confirm("今の内容と入れ替えます。よろしいですか？"))return;
-  S=d;S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));S.cfg.tri=true;S.cfg.runFirst=false;if(S.cfg.over){delete S.cfg.over.maxRun;delete S.cfg.over.minPairs}
+  const OLD=S;S=d;if(!S.months)S.months={};keepLocked(OLD);S.cfg={...DEF_CFG,...(S.cfg||{})};if(!Array.isArray(S.cfg.periods))S.cfg.periods=JSON.parse(JSON.stringify(DEF_PERIODS));S.cfg.tri=true;S.cfg.runFirst=false;if(S.cfg.over){delete S.cfg.over.maxRun;delete S.cfg.over.minPairs}
   S.members=S.members.map(m=>({id:m.id||"",name:m.name||"",co:m.co||"",offDows:m.offDows||[],wdPair:!!m.wdPair,noIso:!!m.noIso,weOff:m.weOff??"",runMax:m.runMax!=null?m.runMax:(m.runLim===false?4:3),pairs:m.pairs!=null&&m.pairs!==""?+m.pairs:1,pairMode:m.pairMode!=null?m.pairMode:(m.wdPair?"wd":""),edge:m.edge||""}));sortMembers();store();
   ymList();if(d.openMonth&&[...$("ym").options].some(o=>o.value===d.openMonth))$("ym").value=d.openMonth;loadMonth();drawMembers();drawCfg();$("dmsg").textContent=`読み込み完了しました（回送員${members().length}人・休みの入力・過去のシフト表まで全部移りました）`}
  catch(e){$("dmsg").textContent=(e&&e.msg)||("読み込めませんでした。書き出した文字を、最初の「S3:」から最後まで全部貼り付けてください。（くわしく："+((e&&e.message)||e)+"）")}}
@@ -903,12 +903,15 @@ function decide(){if(!PLANS.length||!SET)return;const pl=PLANS[PI];const {off}=p
  popMsg(`${pl.label}を${y}年${m}月の正式なシフト表に採用しました。\n「過去のシフト表」に移動します。`);
  setTimeout(()=>{const c=$("pastCard");if(c){c.scrollIntoView({behavior:"smooth",block:"start"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),2500)}},300)}
 function fillPrev(N,P,pnd){if(!N.prev)N.prev={};for(const id in P.final){const offs=P.final[id];N.prev[id]=[...Array(7)].map((_,k)=>offs.includes(pnd-6+k)?"k":"")}}
+function adoptedAt(f){const t=Date.parse(String(f.at||"").replace(/\//g,"-").replace(" ","T"));return isNaN(t)?Date.parse(String(f.at||"").split(" ")[0].replace(/\//g,"/"))||0:t}
+function isLocked(k){const M=S.months[k];const f=M&&M.finalSheet;if(!f)return false;let t=adoptedAt(f);if(!t){const [y,m]=k.split("-").map(Number);t=new Date(y,m-1,1).getTime()}const d=new Date(t);d.setMonth(d.getMonth()+2);return Date.now()>=d.getTime()}
+function keepLocked(old){if(!old||!old.months)return;for(const k in old.months){const f=old.months[k]&&old.months[k].finalSheet;if(!f)continue;const keep=(()=>{const bak=S;S=old;const r=isLocked(k);S=bak;return r})();if(keep)S.months[k]=old.months[k]}}
 function finalKeys(){return Object.keys(S.months).filter(k=>S.months[k].finalSheet).sort((a,b)=>{const [ay,am]=a.split("-").map(Number),[by,bm]=b.split("-").map(Number);return by-ay||bm-am})}
 function drawFinals(){const el=$("finalList");if(!el)return;const ks=finalKeys();
- el.innerHTML=ks.length?`<div class="flist">`+ks.map(k=>{const f=S.months[k].finalSheet;const [y,m]=k.split("-");return `<div class="fitem"><div><b>${y}年${m}月</b><br><small>${esc(f.label)}・${esc(String(f.at).split(" ")[0])}${f.upd?"更新":""}</small></div><div class="fbtn"><button class="btn small" onclick="printFinal('${k}')">印刷</button><button class="btn sub small" onclick="editFinal('${k}')">直す</button></div></div>`}).join("")+`</div>`:`<p class="hint">まだありません。</p>`}
+ el.innerHTML=ks.length?`<div class="flist">`+ks.map(k=>{const f=S.months[k].finalSheet;const [y,m]=k.split("-");return `<div class="fitem"><div><b>${y}年${m}月</b><br><small>${esc(f.label)}・${esc(String(f.at).split(" ")[0])}${f.upd?"更新":""}</small></div><div class="fbtn"><button class="btn small" onclick="printFinal('${k}')">印刷</button>${isLocked(k)?`<span class="lock" title="採用から2か月たったので変更できません">🔒 保存済み</span>`:`<button class="btn sub small" onclick="editFinal('${k}')">直す</button>`}</div></div>`}).join("")+`</div>`:`<p class="hint">まだありません。</p>`}
 /* 過去のシフト表を後から直す（押したマスだけ書き換えるので画面は動かない） */
 let FE=null;
-function editFinal(k){const f=S.months[k].finalSheet;FE={k,kinds:f.kinds.map(r=>r.slice())};const [y,m]=k.split("-").map(Number);const dow=d=>new Date(y,m-1,d).getDay();
+function editFinal(k){if(isLocked(k))return pop("🔒","この表はロックされています","採用から2か月たった表は、書き換えやデータの入れ替えで変わらないように守っています。印刷はできます");const f=S.months[k].finalSheet;FE={k,kinds:f.kinds.map(r=>r.slice())};const [y,m]=k.split("-").map(Number);const dow=d=>new Date(y,m-1,d).getDay();
  const hc=d=>{const w=dow(d);return w===0||f.shuku.includes(d)?"var(--sun)":w===6?"var(--sat)":"inherit"};
  let h=`<div class="ask" style="background:#fff8e6;border-color:#f0d49a"><b style="font-size:17px">${y}年${m}月のシフト表を直す</b><span class="hint" style="margin:0">マスをタップ：「公」→「希」→「有」→ 空欄（「全」は変わりません）。直したら下の「<b>更新する</b>」を押してください。</span></div><div class="wrap"><table class="out fe" id="feTbl"><tr><th>社員番号</th><th>名前</th>`;
  for(let d=1;d<=f.nd;d++)h+=`<th style="color:${hc(d)}">${d}<br>${f.shuku.includes(d)?"祝":WD[dow(d)]}</th>`;
@@ -1123,6 +1126,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <button type="button" class="btn sub" style="width:100%;margin-top:4px" onclick="admClose();obBase('blank')">🆕 白紙の表を作る</button>
 </div></div>
 <style>
+.lock{font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap;align-self:center}
 .sortbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0 8px}.sortbar select{font-size:15px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.sortbar .btn{flex:none!important;margin:0!important}
 .admBox{background:var(--card);color:var(--fg);border-radius:16px;max-width:540px;width:100%;padding:14px;box-shadow:0 10px 40px #0005}
 .admHead{display:flex;justify-content:space-between;align-items:center;gap:8px}.admHead b{font-size:19px}
