@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11c</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11d</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -394,9 +394,9 @@ document.addEventListener("DOMContentLoaded",thLabel);
  <div class="stepintro"><b class="t">② 希望休の表</b>みんなに書いてもらう希望休の紙を印刷して配ります。下の「この表を印刷する」を押してください。</div>
  <div class="card">
   <p class="hint">上で選んだ月の、みんなに書いてもらう希望休の紙です。祝日は赤、全体休（③ 休みの入力や長い休みで入れた日）は灰色の「全」で出ます。</p>
-  <div class="row"><button class="btn" onclick="doPrint('hopeArea')">この表を印刷する</button><span class="hint" id="hopeMsg"></span></div>
+  <div id="hopeArea"></div>
+  <div class="row" style="margin-top:12px"><button class="btn" style="width:100%;font-size:18px;padding:12px" onclick="doPrint('hopeArea')">🖨 この表を印刷する</button><span class="hint" id="hopeMsg"></span></div>
  </div>
- <div class="card"><div id="hopeArea"></div></div>
  <button class="btn next" onclick="goTab(2)">次へ：③ 休みの入力 →</button>
 </section>
 
@@ -961,12 +961,17 @@ function hopeTxt(k){const t=S.hopeText||{};return t[k]==null?hopeDef(k):t[k]}
 function setHopeDef(k,n){const v=$("htx_"+k).value;if(!v.trim()){popMsg("文が空のままでは、デフォルトに設定できません");return}
  S.hopeDef=S.hopeDef||{};S.hopeDef[k]=v;store();popMsg(`${n}の今の文を「デフォルト」に設定しました。\n「戻す」を押すと、この文に戻ります。`)}
 if(S.hopeText&&!S.hopeV2){for(const k in S.hopeText)if(S.hopeText[k]==="")delete S.hopeText[k]}S.hopeV2=1;
-function drawHope(){const box=(k,n,lab,col)=>`<label class="htx"><span class="hn">${n}</span><span class="hl"><span>${lab}</span><button type="button" class="btn sub small hdef" onclick="event.preventDefault();setHopeDef('${k}','${n}')">デフォルトに設定</button></span>
-  <textarea rows="3" id="htx_${k}" style="color:${col}" placeholder="（空＝この枠は印刷されません）" onfocus="if(!$('popBg'))HOPE_SNAP['${k}']=hopeTxt('${k}')" onblur="hopeBlur('${k}',this)" oninput="setHopeTxt('${k}',this.value)">${esc(hopeTxt(k))}</textarea></label>`;
+function drawHope(){const box=(k,n,lab,col)=>`<div class="htx"><span class="hn">${n}</span><span class="hl"><span>${lab}</span><button type="button" class="btn sub small hdef" onclick="event.preventDefault();setHopeDef('${k}','${n}')">デフォルトに設定</button></span>
+  <textarea rows="3" id="htx_${k}" style="color:${col}" placeholder="（空＝この枠は印刷されません）" onfocus="if(!$('popBg'))HOPE_SNAP['${k}']=hopeTxt('${k}');hzShow('${k}')" onblur="hopeBlur('${k}',this);hzHide('${k}')" oninput="setHopeTxt('${k}',this.value);hzShow('${k}')">${esc(hopeTxt(k))}</textarea></div>`;
  $("hopeArea").innerHTML=`<div class="hopePrevT">印刷イメージ（A4横・このまま印刷されます）</div><div class="hopePrev" id="hopePrev"></div>
   <div class="hopeIn"><div class="hopePrevT" style="margin-top:12px">下の①②③を書きかえると、上の印刷イメージがすぐ変わります（自動で保存）</div>
   ${box("top","①","上の赤い枠","#c0303a")}${box("left","②","下の左（黒い枠）","#000")}${box("right","③","下の右（赤い枠）","#c0303a")}
   <div class="row" style="margin:4px 0 0;flex-wrap:wrap;gap:6px"><button class="btn sub small" onclick="resetHopeTxt('top')">①だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('left')">②だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt('right')">③だけ戻す</button><button class="btn sub small" onclick="resetHopeTxt()">①②③をまとめて戻す</button></div><div class="hint" style="margin-top:2px">「戻す」＝デフォルトの文に戻します（「デフォルトに設定」で決めた文。設定していなければ最初の文）</div></div>`;drawHopePrev()}
+const HZ={top:[12,1,94,12],left:[0,84,52,100],right:[48,84,100,100]};
+function hzShow(k){if(window.innerWidth>700)return;let z=$("hzFix");if(!z){z=document.createElement("div");z.id="hzFix";document.body.appendChild(z)}const [x0,y0,x1,y1]=HZ[k];const sc=100/(x1-x0),r=595.28/841.89;
+ z.style.display="block";const w=z.clientWidth-4;z.style.height=Math.round(w*sc*r*(y1-y0)/100+4)+"px";
+ z.innerHTML=`<div style="width:${sc*100}%;margin-left:${-x0*sc}%;margin-top:${-y0*sc*r}%">${svgHope()}</div>`}
+function hzHide(){const z=$("hzFix");if(z){z.style.display="none";z.innerHTML=""}}
 function drawHopePrev(){const el=$("hopePrev");if(el)el.innerHTML=svgHope()}
 const HOPE_START={},HOPE_SNAP={};let HOPE_ASK=false;
 /* 入力中は空にしても何も聞かない。空のまま欄から離れたときだけ確認する */
@@ -1137,6 +1142,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 </div></div>
 <style>
 .lock{font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap;align-self:center}
+#hzFix{display:none;position:fixed;left:6px;right:6px;top:6px;z-index:150;border:2px solid #e07a1f;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 4px 16px #0004;pointer-events:none}#hzFix svg{display:block;width:100%;height:auto}
 .sortbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0 8px}.sortbar select{font-size:15px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.sortbar .btn{flex:none!important;margin:0!important}
 .admBox{background:var(--card);color:var(--fg);border-radius:16px;max-width:540px;width:100%;padding:14px;box-shadow:0 10px 40px #0005}
 .admHead{display:flex;justify-content:space-between;align-items:center;gap:8px}.admHead b{font-size:19px}
