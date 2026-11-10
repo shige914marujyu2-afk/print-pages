@@ -109,20 +109,19 @@ export async function onRequest({ request, env }) {
       if (action === "addMember") {
         if (!members.includes(e)) members = emailsOf(await putEmails(env, mpol, [...members, e]));
       } else if (action === "removeMember") {
-        if (e === owner) return J({ error: "持ち主は消せません" }, 400);
+        if (e === owner) return J({ error: "ソフト開発者は消せません" }, 400);
         if (e === me) return J({ error: "自分は消せません" }, 400);
-        if (admins.includes(e) && role !== "owner") return J({ error: "追加できる人は、持ち主しか消せません" }, 403);
         members = emailsOf(await putEmails(env, mpol, members.filter(x => x !== e)));
         if (admins.includes(e)) await putEmails(env, apol, admins.filter(x => x !== e));
       } else if (action === "addAdmin" || action === "removeAdmin") {
-        if (role !== "owner") return J({ error: "追加できる人を変えられるのは持ち主だけです" }, 403);
         const ap = await adminPolicy(env, true);
         const cur = emailsOf(ap);
         if (action === "addAdmin") {
           await putEmails(env, ap, [...cur, e]);
           if (!members.includes(e)) members = emailsOf(await putEmails(env, mpol, [...members, e]));
         } else {
-          if (e === owner) return J({ error: "持ち主は外せません" }, 400);
+          if (e === owner) return J({ error: "ソフト開発者は外せません" }, 400);
+          if (e === me) return J({ error: "自分は外せません（ほかの管理者に頼んでください）" }, 400);
           await putEmails(env, ap, cur.filter(x => x !== e));
         }
       } else return J({ error: "不明な操作" }, 400);

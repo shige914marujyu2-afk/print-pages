@@ -305,13 +305,13 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-07a</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11a</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
  <button id="t2" onclick="goTab(2)"><span class="n">③</span><span class="l">休みの<br>入力</span></button>
- <button id="t3" onclick="goTab(3)"><span class="n">④</span><span class="l">作成<br>印刷</span></button>
+ <button id="t3" onclick="goTab(3)"><span class="n">④</span><span class="l">シフト作成<br>印刷</span></button>
  <button id="t5" onclick="goTab(5)"><span class="n">⑤</span><span class="l">データ<br>移動</span></button>
 </div>
 <div class="monthbar" id="monthbar"><span class="mbl" id="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
@@ -356,13 +356,13 @@ document.addEventListener("DOMContentLoaded",thLabel);
   <p class="hint">・<b>日付をタップ</b>：「祝」（祝日）→「全」（全体休＝全員の休み）→ 元に戻る。祝日と、会社の条件で入れた長い休みは最初から入っています。<br>・<b>マスをタップ</b>するたびに「休」→「希」（希望休）→「有」（有休）→ 空白、と変わります。「休」は希望ではないが休みに決まっている日に使います。<br>・左の灰色7列は<b>前月の最後の1週間</b>。同じように休んだ日を入れます（月またぎの連勤チェック用。空のままの人はチェックしません）。前月をこのツールで「決定」していれば自動で入ります。</p>
  </div>
  <div class="card"><div class="wrap"><table class="grid" id="inGrid"></table></div></div>
- <button class="btn next" onclick="goTab(3)">次へ：④ 作成・印刷 →</button>
+ <button class="btn next" onclick="goTab(3)">次へ：④ シフト作成／印刷 →</button>
  <div class="row"><button class="btn sub" onclick="clearMonth()">この月の入力を消す</button><span class="hint" id="p2msg"></span></div>
 </section>
 
 <!-- ③ 作成・印刷 -->
 <section id="p3" hidden>
- <div class="stepintro"><b class="t">④ 作成・印刷</b>「自動でシフト表を作る」を押すと表ができます。A案・B案・手動用から選び、必要ならマスをタップして直し、「正式なシフト表に採用」→「この表を印刷する」。</div>
+ <div class="stepintro"><b class="t">④ シフト作成／印刷</b>「自動でシフト表を作る」を押すと表ができます。A案・B案・手動用から選び、必要ならマスをタップして直し、「正式なシフト表に採用」→「この表を印刷する」。</div>
  <div class="card">
   <button class="btn next mkbtn" style="margin-top:4px" onclick="make()"><span class="pulse">▶</span>自動でシフト表を作る</button>
   <p style="margin:2px 0 12px;font-size:14px;line-height:1.5">押すと<b>自動でA案とB案</b>が作られます（30秒〜1分ほど）。条件によっては<b>A案だけ</b>の場合があります。</p>
@@ -412,7 +412,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
     <div><b>② スマホ</b>：LINEやメールで<b>自分あて</b>に貼り付けて送る</div><div class="ar">▼</div>
     <div><b>③ パソコン</b>：届いた文字をコピー → ツールの ⑤ を開く →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div>
     <div class="mvnote">✅ ここで、<b>スマホと同じ内容がパソコンにも入ります</b></div><div class="ar">▼</div>
-    <div><b>④ パソコン</b>：「<b>④ 作成・印刷</b>」で表を作って印刷</div>
+    <div><b>④ パソコン</b>：「<b>④ シフト作成／印刷</b>」で表を作って印刷</div>
    </div>
   </div>
   <div class="card">
@@ -423,7 +423,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
     <div><b>② パソコン</b>：LINE（パソコン版）やメールで<b>自分あて</b>（または次の担当の人）に貼り付けて送る</div><div class="ar">▼</div>
     <div><b>③ スマホ</b>：届いた文字を長押し →「コピー」→ ツールの ⑤ を開く →「<b>欄を空にする</b>」→ 貼り付けて「<b>読み込む</b>」</div><div class="ar">▼</div>
     <div class="mvnote">✅ ここで、<b>パソコンと同じ内容がスマホにも入ります</b></div><div class="ar">▼</div>
-    <div><b>④ スマホ</b>：「<b>④ 作成・印刷</b>」の下の「過去のシフト表」で見る・直す</div>
+    <div><b>④ スマホ</b>：「<b>④ シフト作成／印刷</b>」の下の「過去のシフト表」で見る・直す</div>
    </div>
   </div>
  </div>
@@ -799,7 +799,7 @@ function make(){if(!members().length){$("status").textContent="先に回送員�
  saveMonth();$("status").textContent="計算中…";$("printArea").innerHTML="";$("checks").innerHTML="";$("planBtns").innerHTML="";$("pbar").hidden=true;
  const t0=Date.now();mkPop("作成中…","希望休・有休・全体休を確かめています",false);
  const tmr=setInterval(()=>{const b=$("mkPop");if(b)b.querySelector(".tm").textContent=`経過 ${Math.round((Date.now()-t0)/1000)}秒（30秒〜1分ほどかかります）`},1000);
- const TIP={"ルールを守れる組み合わせ":["ルールを守れる組み合わせを探しています","週2日の休み・最低人数・連勤を確かめています"],"A案":["A案を作っています","飛び石の休みを作らず、休みをまとめた案です"],"B案":["B案を作っています","できあがったA案・B案は、マスをタップして休みを直したり足したりできます"]};
+ const TIP={"ルールを守れる組み合わせ":["ルールを守れる組み合わせを探しています","週2日の休み・最低人数・連勤を確かめています"],"A案":["A案を作っています","「優先して守る条件」を上から順番に守れるよう、組み合わせを考えています"],"B案":["B案を作っています","なるべく回送員ひとりひとりの条件（連勤・連休・曜日など）に沿う組み合わせで作っています"]};
  setTimeout(async()=>{try{SET=setup();let hs=null;try{hs=await loadHighs()}catch(e){}
   const r=await ShiftSolver.solvePlans(SET,lb=>{const k=Object.keys(TIP).find(x=>lb.startsWith(x))||lb;const t=TIP[k]||[lb+"を作っています",null];mkPop(t[0],t[1],false);$("status").textContent=t[0]+"…"},hs);
   PLANS=r.plans;SET.notes=r.notes;SET.W=r.W;SET.MF=r.MF;SET.MT=r.MT;SET.monthT=r.monthT;
@@ -1117,7 +1117,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <button type="button" class="lnk2" onclick="admLoadPrev()">1つ前のデフォルトを表示</button></div>
 <div class="admCard" style="--c:#2e9e5b"><div class="admT">📍 拠点</div><div id="admBases" class="admList"></div>
 <div class="admIn"><input id="admNewB" placeholder="新しい拠点名" maxlength="20"><button type="button" class="btn small" onclick="admBase('addBase',$('admNewB').value)">追加</button></div></div>
-<div id="admOwner" hidden class="admCard" style="--c:#7a4fb3"><div class="admT">🔑 管理者を追加</div><div class="admD">管理者も「登録利用者」と拠点のデータを変えられます（追加・削除はソフト開発者だけ）</div>
+<div id="admOwner" hidden class="admCard" style="--c:#7a4fb3"><div class="admT">🔑 管理者を追加</div><div class="admD">管理者も「登録利用者」と拠点のデータを変えられます（管理者どうしで追加・外すができます）</div>
 <div class="admIn"><input id="admNewA" type="email" inputmode="email" autocapitalize="off" autocorrect="off" placeholder="管理者にするメール"><button type="button" class="btn small" onclick="admDo('addAdmin',$('admNewA').value)">管理者を追加</button></div>
 <div id="admAList" class="admList"></div></div>
 <button type="button" class="btn sub" style="width:100%;margin-top:4px" onclick="admClose();obBase('blank')">🆕 白紙の表を作る</button>
@@ -1145,9 +1145,9 @@ function admWhoTxt(){return ADM.role==="owner"?"あなたは<b>ソフト開発�
 async function admLoad(){try{const r=await fetch("api/access",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(j.role&&j.role!=="none"){ADM=j;$("admTop").classList.add("on")}return j}catch(e){return null}}
 function admRow(e,i,kind){const own=e===ADM.owner,me=e===ADM.me,isA=(ADM.admins||[]).includes(e);
  const tag=own?"👑":isA?"🔑":"";
- const btns=kind==="m"?((own||me)?"":`<button type="button" class="btn sub small" title="案内を送る" onclick="admInvite(${i})">📨</button><button type="button" class="btn sub small" onclick="admDelAsk(${i})">削除</button>`):(own?"":`<button type="button" class="btn sub small" onclick="admUnAdmin(${i})">外す</button>`);
+ const btns=kind==="m"?((own||me)?"":`<button type="button" class="btn sub small" title="案内を送る" onclick="admInvite(${i})">📨</button><button type="button" class="btn sub small" onclick="admDelAsk(${i})">削除</button>`):((own||me)?"":`<button type="button" class="btn sub small" onclick="admUnAdmin(${i})">外す</button>`);
  return `<div class="admRow"><b class="no">${i+1}</b><span title="${e}">${e}</span><i>${tag}</i>${btns}</div>`}
-function admDraw(){if(!ADM)return;if(ADM_VIDEO){$("admVid").href=ADM_VIDEO;$("admVidBox").style.display="flex"}$("admWho").innerHTML=admWhoTxt();$("admList").innerHTML=(ADM.members||[]).map((e,i)=>admRow(e,i,"m")).join("")||"<div class='admD'>まだいません</div>";$("admOwner").hidden=ADM.role!=="owner";$("admAList").innerHTML=(ADM.admins||[]).map((e,i)=>admRow(e,i,"a")).join("")||"<div class='admD'>まだいません</div>"}
+function admDraw(){if(!ADM)return;if(ADM_VIDEO){$("admVid").href=ADM_VIDEO;$("admVidBox").style.display="flex"}$("admWho").innerHTML=admWhoTxt();$("admList").innerHTML=(ADM.members||[]).map((e,i)=>admRow(e,i,"m")).join("")||"<div class='admD'>まだいません</div>";$("admOwner").hidden=false;$("admAList").innerHTML=(ADM.admins||[]).map((e,i)=>admRow(e,i,"a")).join("")||"<div class='admD'>まだいません</div>"}
 async function admOpen(){$("admBg").style.display="flex";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}if(!j.role||j.role==="none"){admClose();$("admTop").classList.remove("on");return pop("🔒","管理者ではありません","このメニューは管理者だけが使えます")}$("admMsg").textContent="";admDraw();admBasesDraw()}
 function admClose(){$("admBg").style.display="none"}
 function pop(ico,t,m,btns){obShow(`<div class="ico">${ico}</div><h2>${t}</h2>${m?`<p>${m}</p>`:""}${btns||`<button class="btn big" onclick="obHide()">OK</button>`}`)}
@@ -1155,7 +1155,7 @@ function popAsk(ico,t,m,ok,fn,color){window._ASK=fn;pop(ico,t,m,`<button class="
 async function admPost(body){try{const j=await api("",body);return j}catch(e){pop("⚠️","できませんでした",e.message);return null}}
 async function admAdd(){const e=$("admNew").value.trim();if(!e)return pop("✉️","メールアドレスを入れてください","");const j=await admPost({action:"addMember",email:e});if(!j)return;ADM=j;admDraw();$("admNew").value="";INV_TO=e.toLowerCase();pop("✅","追加しました",`${INV_TO}<br>この人はログインして開けるようになりました`,`<button class="btn big" onclick="obHide();admShowInv()">案内を送る</button><button class="btn big sub" onclick="obHide()">閉じる</button>`)}
 function admDelAsk(i){const e=ADM.members[i];popAsk("🗑",`${e} を削除しますか？`,"この人はシフト表を開けなくなります<br>（あとで追加し直せます）","削除する",async()=>{const j=await admPost({action:"removeMember",email:e});if(j){ADM=j;admDraw();pop("✅","削除しました",e)}})}
-function admUnAdmin(i){const e=ADM.admins[i];popAsk("🔑",`${e} を管理者から外しますか？`,"シフト表を見ることはできます","外す",async()=>{const j=await admPost({action:"removeAdmin",email:e});if(j){ADM=j;admDraw();pop("✅","管理者から外しました",e)}})}
+function admUnAdmin(i){const e=ADM.admins[i];popAsk("⚠️",`${e} を管理者から外しますか？`,"外された人は管理者メニューが使えなくなります（シフト表は使えます）。<br><b>管理者どうしで外し合うと、管理できる人がいなくなる</b>ことがあります。外す前に本人と話してください。<br><small>ソフト開発者👑は外せません</small>","外す",async()=>{const j=await admPost({action:"removeAdmin",email:e});if(j){ADM=j;admDraw();pop("✅","管理者から外しました",e)}})}
 async function admDo(action,email){email=String(email||"").trim();if(!email)return pop("✉️","メールアドレスを入れてください","");const j=await admPost({action,email});if(!j)return;ADM=j;admDraw();$("admNewA").value="";pop("✅","管理者を追加しました",email+"<br>この人も管理者メニューが使えます")}
 function admInvTxt(){return `シフト表に登録しました。\n下のリンクを開いて使ってください。\n${SHIFT_URL}\n\n開くと案内が出るので、そのとおりに進めてください。\n（メールアドレス：${INV_TO}）`+(VIDEOS.length?"\n\n【説明動画】\n"+VIDEOS.map(v=>v[0]+"\n"+v[1]).join("\n"):"")+"\n\n※ホーム画面に追加したアイコンは消さないでください"}
 function admInvite(i){INV_TO=ADM.members[i];admShowInv()}
@@ -1176,7 +1176,7 @@ async function admLoadHere(){const b=$("admPBase").value,t=$("admPaste").value.r
 async function admLoadCur(){return admMode("def")}
 async function admLoadPrev(){const b=$("admPBase").value;let j=null;try{j=await api("?op=data&prev=1&base="+encodeURIComponent(b))}catch(e){}if(!j||!j.data)return pop("📭","1つ前のデフォルトはありません","");ADM_MODE="";document.querySelectorAll(".seg button").forEach(x=>x.classList.remove("on"));admShow(j,"1つ前のデフォルト（登録すると戻せます）")}
 async function admDistAsk(){const b=$("admPBase").value,t=$("admPaste").value.replace(/\s+/g,"");if(!t)return pop("📋","データがありません","貼り付けるか「この端末のデータ」を押してください");const d=await admInfo(t);if(!d)return pop("⚠️","データが読めません","最後まで全部貼り付けてください");
- popAsk("💾",`${b}のデフォルトにしますか？`,`回送員${d.members.length}人のデータです。<br><b>${b}を選んでいる人全員</b>に、次に開いたとき自動でデータが入ります`,"デフォルトにする",async()=>{const j=await admPost({action:"saveData",base:b,data:t});if(!j)return;let here="";if(b===(S.cfg&&S.cfg.base)){const mine=members().length?await packData():"";if(mine!==t){await pullData({data:t,updated:Date.now()+5000},b);drawAllSafe();here="<br>この端末にも入れました"}else setPulled(Date.now()+5000)}await admMode("def");pop("✅",`${b}のデフォルトに登録しました`,"登録した人に自動で入ります"+here)},"#e07a1f")}
+ popAsk("💾",`${b}のデフォルトにしますか？`,`回送員${d.members.length}人のデータです。<br><b>${b}を選んでいる人全員</b>に、次に開いたとき自動でデータが入ります`,"デフォルトにする",async()=>{const j=await admPost({action:"saveData",base:b,data:t});if(!j)return;let here="";if(b===(S.cfg&&S.cfg.base)){const mine=members().length?await packData():"";if(mine!==t){await pullData({data:t,updated:Date.now()+5000},b);drawAllSafe();here="<br>この端末にも入れました"}else setPulled(Date.now()+5000)}await admMode("def");pop("✅",`${b}のデフォルトに登録しました`,"この端末以外の全員の端末に、次に開いたとき「新しいデータがあります」と案内が出ます。<br>「入れ替える」を押すと、<b>この端末と同じ内容</b>になります"+here)},"#e07a1f")}
 async function admBase(action,name){name=String(name||"").trim();if(!name)return pop("📍","拠点名を入れてください","");const j=await admPost({action,base:name});if(!j)return;BASES=j.bases;$("admNewB").value="";admBasesDraw();pop("✅","拠点を追加しました",name)}
 function admBaseDel(i){const b=BASES[i];popAsk("🗑",`拠点「${b}」を削除しますか？`,"配っているデータも消えます","削除する",async()=>{const j=await admPost({action:"removeBase",base:b});if(j){BASES=j.bases;admBasesDraw();pop("✅","拠点を削除しました",b)}})}
 if(location.protocol.startsWith("http"))admLoad();
