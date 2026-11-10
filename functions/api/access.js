@@ -71,12 +71,48 @@ export async function onRequest({ request, env }) {
       const v = await env.SHIFT_KV.get((url.searchParams.get("prev") ? "prev:" : "data:") + b, "json");
       return J(v || { data: null });
     }
+    // ログインした人なら誰でも：データを管理者に送る・要望を送る
+    if (request.method === "POST" && env.SHIFT_KV) {
+      const body0 = await request.clone().json().catch(() => ({}));
+      if (body0.action === "sendData") {
+        const d = String(body0.data || "");
+        if (!/^S3:/i.test(d) || d.length > 2000000) return J({ error: "データの形が正しくありません" }, 400);
+        const id = Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+        await env.SHIFT_KV.put("inbox:" + id, JSON.stringify({ id, from: me, base: String(body0.base || "").slice(0, 20), n: +body0.n || 0, data: d, at: Date.now() }));
+        return J({ ok: true });
+      }
+      if (body0.action === "request") {
+        const text = String(body0.text || "").slice(0, 10000);
+        const files = (Array.isArray(body0.files) ? body0.files : []).slice(0, 10).map(f => ({ name: String(f.name || "file").slice(0, 100), type: String(f.type || ""), data: String(f.data || "") }));
+        const size = files.reduce((a, f) => a + f.data.length, 0);
+        if (!text.trim() && !files.length) return J({ error: "要望の文か、ファイルを入れてください" }, 400);
+        if (size > 15000000) return J({ error: "ファイルが大きすぎます（合計10MBくらいまで）" }, 400);
+        const id = Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+        await env.SHIFT_KV.put("req:" + id, JSON.stringify({ id, from: me, text, files, at: Date.now(), done: false }));
+        return J({ ok: true });
+      }
+    }
     if (!env.CF_API_TOKEN || !env.OWNER_EMAIL) return J({ me, role: "none", setup: false });
     const owner = low(env.OWNER_EMAIL);
     const apol = await adminPolicy(env, false);
     const admins = apol ? emailsOf(apol) : [];
     const role = me === owner ? "owner" : admins.includes(me) ? "admin" : "none";
     if (role === "none") return J({ me, role, setup: true });
+    const url2 = new URL(request.url), op2 = url2.searchParams.get("op");
+    if (request.method === "GET" && env.SHIFT_KV && (op2 === "inbox" || op2 === "reqs")) {
+      const pre = op2 === "inbox" ? "inbox:" : "req:";
+      const ls = await env.SHIFT_KV.list({ prefix: pre });
+      const out = [];
+      for (const k of ls.keys) { const v = await env.SHIFT_KV.get(k.name, "json"); if (!v) continue;
+        if (pre === "inbox:") out.push({ id: v.id, from: v.from, base: v.base, n: v.n, at: v.at, data: url2.searchParams.get("full") ? v.data : undefined });
+        else out.push({ id: v.id, from: v.from, text: v.text, at: v.at, done: !!v.done, files: (v.files || []).map(f => ({ name: f.name, type: f.type, data: url2.searchParams.get("full") ? f.data : undefined })) }); }
+      out.sort((a, b) => b.at - a.at);
+      return J({ items: out });
+    }
+    if (request.method === "GET" && env.SHIFT_KV && op2 === "inboxItem") {
+      const v = await env.SHIFT_KV.get("inbox:" + url2.searchParams.get("id"), "json"); return J(v || { error: "見つかりません" }, v ? 200 : 404);
+    }
+
 
     const mpol = await cf(env, "/" + MEMBER_POLICY);
     let members = emailsOf(mpol);
@@ -84,6 +120,12 @@ export async function onRequest({ request, env }) {
     if (request.method === "POST") {
       const body = await request.json();
       const { action, email } = body;
+      if (["inboxDel", "reqDel", "reqDone"].includes(action)) {
+        const key = (action === "inboxDel" ? "inbox:" : "req:") + String(body.id || "");
+        if (action === "reqDone") { const v = await env.SHIFT_KV.get(key, "json"); if (v) { v.done = !v.done; await env.SHIFT_KV.put(key, JSON.stringify(v)); } }
+        else await env.SHIFT_KV.delete(key);
+        return J({ ok: true });
+      }
       if (["saveData", "addBase", "removeBase"].includes(action)) {
         if (!env.SHIFT_KV) return J({ error: "データの保存場所がまだ設定されていません" }, 500);
         const name = String(body.base || "").trim().slice(0, 20);

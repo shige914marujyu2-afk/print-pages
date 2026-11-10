@@ -305,14 +305,14 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11e</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11f</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
  <button id="t4" onclick="goTab(4)"><span class="n">②</span><span class="l">希望休<br>の表</span></button>
  <button id="t2" onclick="goTab(2)"><span class="n">③</span><span class="l">休みの<br>入力</span></button>
  <button id="t3" onclick="goTab(3)"><span class="n">④</span><span class="l">シフト作成<br>印刷</span></button>
- <button id="t5" onclick="goTab(5)"><span class="n">⑤</span><span class="l">データ<br>移動</span></button>
+ <button id="t5" onclick="goTab(5)"><span class="n">⑤</span><span class="l">便利な<br>機能</span></button>
 </div>
 <div class="monthbar" id="monthbar"><span class="mbl" id="mbl">シフト表を作る月：</span><select id="ym" onchange="loadMonth()"></select></div>
 
@@ -390,7 +390,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
   <div id="finalEdit" hidden></div>
  </div>
  <button class="btn sub next" onclick="goTab(1)">おつかれさまでした。次の月は ① から（← 最初に戻る）</button>
- <button class="btn sub next" style="margin-top:0" onclick="goTab(5)">iPhoneの入力をパソコンへ移すときは ⑤ データ移動 →</button>
+ <button class="btn sub next" style="margin-top:0" onclick="goTab(5)">直したデータを管理者に送る・ファイルにするときは ⑤ 便利な機能 →</button>
 </section>
 
 <!-- ④ 希望休の表 -->
@@ -404,10 +404,13 @@ document.addEventListener("DOMContentLoaded",thLabel);
  <button class="btn next" onclick="goTab(2)">次へ：③ 休みの入力 →</button>
 </section>
 
-<!-- ⑤ データ移動 -->
+<!-- ⑤ 便利な機能 -->
 <section id="p5" hidden>
- <div class="stepintro"><b class="t">⑤ データ移動（スマホ ⇄ パソコン）</b>入力したデータを、まるごと別のスマホやパソコンへ引っ越しできます。<b>どちら向きでも</b>同じやり方です。入力し直しは一切いりません。</div>
- <div class="mv5">
+ <div class="stepintro"><b class="t">⑤ 便利な機能</b>データを管理者に送る・印刷物をファイルにする・要望を送る、ができます。</div>
+ <details class="card fold5"><summary><b>🔑 管理者の方へ</b>（タップで開く）</summary>
+  <p class="hint" style="margin:6px 0">管理者は、下の「データを管理者に送る」は使わなくて大丈夫です。<br>右上の🔑<b>管理者メニュー</b> →「📦 拠点のデータ」→「この端末のデータ」→「<b>データを登録</b>」をすると、その拠点の全員の端末に「新しいデータがあります」と出て、入れ替えるとこの端末と同じ内容になります。</p>
+  <details style="margin-top:6px"><summary>今までの「書き出す・読み込む」（手作業での引っ越し）</summary>
+<div class="mv5">
   <div class="card">
    <h2>📱 → 💻　スマホからパソコンへ</h2>
    <p><b>こんな時</b>：休憩中や家でiPhoneに希望休を入れた。会社のパソコンの大きな画面で確かめて、プリンターで印刷したい。</p>
@@ -440,6 +443,25 @@ document.addEventListener("DOMContentLoaded",thLabel);
    <div class="row"><button class="btn" onclick="exportData()">① 書き出す</button><button class="btn" style="background:#2f5fb3" onclick="copyData()">② コピー</button><button class="btn sub" onclick="importData()">読み込む</button><button class="btn sub" onclick="$('dataBox').value='';$('dmsg').textContent=''">欄を空にする</button><button class="btn sub" onclick="saveDataFile()">ファイルに保存</button><label class="btn sub" style="cursor:pointer">ファイルから読み込む<input type="file" accept=".txt,text/plain" hidden onchange="loadDataFile(this)"></label><span class="hint" id="dmsg"></span></div>
   </div>
  </div>
+  </details>
+ </details>
+ <div class="card"><h2>📤 データを管理者に送る</h2>
+  <p class="hint" style="margin:4px 0">この端末で直した内容（回送員・条件・休みの入力・作った表など）を、管理者に送ります。管理者が確かめて、みんなのデータに入れてくれます。</p>
+  <button class="btn" style="width:100%" onclick="sendAsk()">📤 この端末のデータを管理者に送る</button></div>
+ <div class="card"><h2>📄 印刷物をファイルにする</h2>
+  <p class="hint" style="margin:4px 0">表を選んで、ファイルの形を選びます。</p>
+  <div class="cvrow"><select id="cvWhat"></select></div>
+  <div class="cvbtns">
+   <button class="btn" onclick="convert('pdf')">PDF<small>そのまま印刷・保存向き。見た目がくずれません</small></button>
+   <button class="btn" style="background:#1d7a3a" onclick="convert('xls')">Excel<small>あとで数字や文字を直したい・集計したいとき</small></button>
+   <button class="btn" style="background:#2f5fb3" onclick="convert('jpg')">JPG（画像）<small>LINEなどで手軽に送れる。拡大すると少しぼやけます</small></button>
+   <button class="btn sub" onclick="convert('csv')">CSV<small>ほかのソフトに取り込むとき（文字だけ）</small></button>
+  </div><span class="hint" id="cvMsg"></span></div>
+ <div class="card"><h2>💬 要望を送る（ソフト開発者へ）</h2>
+  <p class="hint" style="margin:4px 0">「ここが使いにくい」「こうしてほしい」を、文章・スクショ・ファイルで送れます。</p>
+  <textarea id="rqText" rows="4" placeholder="要望を書いてください（どの画面の、どこを、どうしてほしいか）" style="width:100%;box-sizing:border-box;font-size:16px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)"></textarea>
+  <div class="row" style="margin:6px 0"><label class="btn sub small" style="cursor:pointer">📎 スクショ・ファイルを付ける<input id="rqFile" type="file" multiple accept="image/*,.pdf,.txt,.csv,.xlsx,.xls" hidden onchange="rqFiles()"></label><span class="hint" id="rqInfo"></span></div>
+  <button class="btn" style="width:100%" onclick="rqAsk()">💬 要望を送る</button></div>
  <button class="btn sub next" onclick="goTab(1)">← 最初（①）に戻る</button>
 </section>
 
@@ -482,7 +504,7 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 /* ---------- タブ ---------- */
-function goTab(n){tab(n);window.scrollTo(0,0);setTimeout(stickNames,80)}
+function goTab(n){tab(n);if(n===5)setTimeout(drawCv,0);window.scrollTo(0,0);setTimeout(stickNames,80)}
 function tab(n){const mb=$("monthbar");mb.hidden=!(n===3||n===4);if($("p2mon")){const [yy,mm]=$("ym").value.split("-");$("p2mon").textContent=`${yy}年${mm}月`}if(n===3)setTimeout(drawFinals,0);for(const i of [1,2,3,4,5]){$("p"+i).hidden=i!==n;$("t"+i).classList.toggle("on",i===n)}
  $("mbl").textContent=n===4?"希望休を作る月を選択：":"シフト表を作る月：";if(n===1){drawCfg();drawMembers()}if(n===2)drawInput();if(n===4)drawHope();
  try{localStorage.setItem("shiftTab",n)}catch(e){}}
@@ -1142,6 +1164,8 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <button type="button" class="btn" style="width:100%;background:#e07a1f" onclick="admDistAsk()">💾 データを登録</button>
 <button type="button" class="btn sub" style="width:100%;margin-top:6px" onclick="admLoadHere()">⬇ 枠のデータをこの端末に入れる</button>
 <button type="button" class="lnk2" onclick="admLoadPrev()">1つ前のデフォルトを表示</button></div>
+<div class="admCard" style="--c:#c4302b"><div class="admT">📢 届いたデータ <span id="inboxN" class="badge" hidden></span></div><div class="admD">登録利用者が「⑤ データを管理者に送る」で送ったデータです</div><div id="inboxList" class="admList"></div></div>
+<div id="reqCard" class="admCard" style="--c:#555"><div class="admT">💬 要望 <span id="reqN" class="badge" hidden></span></div><div class="admD">⑤から届いた要望です。「まとめてコピー」してClaudeに貼り付けると、まとめてくれます</div><div class="row" style="margin:6px 0"><button type="button" class="btn sub small" onclick="reqCopy()">📋 要望をまとめてコピー</button></div><div id="reqList" class="admList"></div></div>
 <div class="admCard" style="--c:#2e9e5b"><div class="admT">📍 拠点</div><div id="admBases" class="admList"></div>
 <div class="admIn"><input id="admNewB" placeholder="新しい拠点名" maxlength="20"><button type="button" class="btn small" onclick="admBase('addBase',$('admNewB').value)">追加</button></div></div>
 <div id="admOwner" hidden class="admCard" style="--c:#7a4fb3"><div class="admT">🔑 管理者を追加</div><div class="admD">管理者も「登録利用者」と拠点のデータを変えられます（管理者どうしで追加・外すができます）</div>
@@ -1167,20 +1191,63 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 .admList{margin-top:4px}.admRow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:400;line-height:1.4}
 .admRow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.admRow .no{flex:none;width:1.6em;text-align:right;color:var(--mut);font-size:12px;font-weight:600}.admRow i{flex:none;font-style:normal;font-size:12px}.admRow small{color:var(--mut)}.admRow .btn{flex:none!important;margin:0!important;font-size:12px!important;padding:3px 8px!important}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0 0 6px}.seg button{flex:1;border:0;background:var(--bg);color:var(--fg);font-size:12px;white-space:nowrap;padding:8px 2px;cursor:pointer;font-weight:600}.seg button+button{border-left:1px solid var(--line)}.seg button.on{background:#e07a1f;color:#fff}.lnk2{background:none;border:0;color:var(--mut);text-decoration:underline;font-size:12px;margin-top:6px;cursor:pointer}
+.cvbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:6px 0}.cvbtns .btn{margin:0!important;display:block!important;text-align:left;padding:10px 12px!important}.cvbtns .btn small{display:block;font-weight:400;font-size:12px;opacity:.9;margin-top:3px}.cvrow select{width:100%;font-size:16px;padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.fold5 summary{cursor:pointer;font-size:15px}
+.badge{display:inline-block;background:#c4302b;color:#fff;border-radius:999px;font-size:12px;padding:0 7px;margin-left:4px;vertical-align:middle}#admTop .dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#c4302b}#admTop{position:relative}
 .admInv{margin:6px 0;padding:8px;border:2px solid #2e9e5b;border-radius:10px;background:var(--bg)}
 .hbtns #admTop{display:none!important}.hbtns #admTop.on{display:inline-flex!important}
 </style>
 <script>
+
+/* ---------- ⑤ 便利な機能 ---------- */
+function sendAsk(){if(!location.protocol.startsWith("http"))return pop("⚠️","ここでは送れません","");if(!members().length)return pop("📭","この端末にデータがありません","");
+ popAsk("📤","作ったデータを管理者に送りますか？",`${(S.cfg&&S.cfg.base)||""} 回送員${members().length}人のデータです。<br>送っても、この端末の内容はそのまま残ります`,"送る",async()=>{try{await api("",{action:"sendData",data:await packData(),base:(S.cfg&&S.cfg.base)||"",n:members().length});pop("✅","管理者に送りました","修正・変更したデータは管理者に届きました。管理者が確かめて、みんなのデータに入れてくれます")}catch(e){pop("⚠️","送れませんでした",e.message)}},"#2f5fb3")}
+function cvList(){const o=[];const ym=$("ym")&&$("ym").value;if(ym)o.push(["hope","希望休の表（"+ym.replace("-","年")+"月）"]);if(typeof PLANS!=="undefined"&&PLANS&&PLANS[PI]&&SET)o.push(["shift","作成中のシフト表（"+PLANS[PI].label+"）"]);for(const k of finalKeys())o.push(["final:"+k,"過去のシフト表 "+k.replace("-","年")+"月"]);return o}
+function drawCv(){const el=$("cvWhat");if(!el)return;const L=cvList();el.innerHTML=L.map(([v,t])=>`<option value="${v}">${t}</option>`).join("")||"<option>表がまだありません</option>"}
+function cvSvg(v){return v==="hope"?svgHope():v==="shift"?svgShift():svgFinal(v.slice(6))}
+function cvData(v){const o=svgSheet;let got=null;svgSheet=x=>{got=x;return o(x)};try{cvSvg(v)}finally{svgSheet=o}return got}
+function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000);setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
+async function shareOrDl(blob,name){const f=new File([blob],name,{type:blob.type});if(IOS&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){}}dl(blob,name)}
+async function convert(kind){const v=$("cvWhat").value;if(!v||!cvList().length)return pop("📭","表がまだありません","");const nm=($("cvWhat").selectedOptions[0].textContent).replace(/[（）\s]/g,"_");$("cvMsg").textContent="作っています…";
+ try{if(kind==="pdf"){const u=await makePdf(cvSvg(v));const b=await (await fetch(u)).blob();await shareOrDl(b,nm+".pdf")}
+ else if(kind==="jpg"){const d=await svgImage(cvSvg(v));const b=await (await fetch(d)).blob();await shareOrDl(b,nm+".jpg")}
+ else{const o=cvData(v);const dw=i=>typeof o.dow==="function"?o.dow(i+1):(o.dow||[])[i];const L={co:"全",y:"有",h:"希"};const head=["社員番号","所属","名前",...[...Array(o.nd)].map((_,i)=>(i+1)+"("+WD[dw(i)]+")")];
+  const rows=o.rows.map(r=>[r.id,r.co,r.nm,...r.cells.map(c=>c?(L[c]||"公"):"")]);
+  if(kind==="csv"){const t="\ufeff"+[head,...rows].map(r=>r.map(x=>`"${String(x??"").replace(/"/g,'""')}"`).join(",")).join("\r\n");await shareOrDl(new Blob([t],{type:"text/csv"}),nm+".csv")}
+  else{const h=`<html><head><meta charset="utf-8"></head><body><table border="1"><tr><th colspan="${head.length}">${esc(o.title||"")}</th></tr>${[head,...rows].map((r,i)=>"<tr>"+r.map(x=>(i?"<td>":"<th>")+esc(String(x??""))+(i?"</td>":"</th>")).join("")+"</tr>").join("")}</table></body></html>`;await shareOrDl(new Blob(["\ufeff"+h],{type:"application/vnd.ms-excel"}),nm+".xls")}}
+ $("cvMsg").textContent="できました（保存先を選んでください）"}catch(e){$("cvMsg").textContent="作れませんでした："+(e.message||e)}}
+let RQF=[];
+function rqFiles(){const fs=[...$("rqFile").files];RQF=[];let tot=0;Promise.all(fs.map(f=>new Promise(res=>{const r=new FileReader();r.onload=()=>{tot+=f.size;RQF.push({name:f.name,type:f.type,data:String(r.result).split(",")[1]});res()};r.readAsDataURL(f)}))).then(()=>{$("rqInfo").textContent=RQF.length?`${RQF.length}個（${(tot/1048576).toFixed(1)}MB）`:"";if(tot>10e6)pop("⚠️","ファイルが大きすぎます","合計10MBくらいまでにしてください")})}
+function rqAsk(){const t=$("rqText").value.trim();if(!t&&!RQF.length)return pop("✏️","要望を書いてください","");
+ popAsk("💬","ソフト開発者に要望を送りますか？",(t?esc(t.slice(0,80))+(t.length>80?"…":""):"")+(RQF.length?`<br>📎 ${RQF.length}個のファイル`:""),"送る",async()=>{try{await api("",{action:"request",text:t,files:RQF});$("rqText").value="";$("rqFile").value="";RQF=[];$("rqInfo").textContent="";pop("✅","要望を送りました","ソフト開発者に届きました。ありがとうございます")}catch(e){pop("⚠️","送れませんでした",e.message)}},"#2f5fb3")}
+
+let INBOX=[],REQS=[];
+async function inboxLoad(silent){try{const a=await api("?op=inbox");INBOX=a.items||[]}catch(e){INBOX=[]}try{const b=await api("?op=reqs");REQS=b.items||[]}catch(e){REQS=[]}
+ const nr=REQS.filter(r=>!r.done).length;const dot=INBOX.length||nr;let d=$("admTop").querySelector(".dot");if(dot&&!d){d=document.createElement("i");d.className="dot";$("admTop").appendChild(d)}if(!dot&&d)d.remove();
+ if($("inboxList"))inboxDraw();
+ if(!silent&&INBOX.length){let seen=0;try{seen=+localStorage.getItem("inboxSeen")||0}catch(e){}const nw=INBOX.filter(x=>x.at>seen);if(nw.length&&(window.OB_ON||$("admBg").style.display==="flex")){setTimeout(()=>inboxLoad(false),1500);return}if(nw.length){try{localStorage.setItem("inboxSeen",String(INBOX[0].at))}catch(e){}const x=nw[0];
+  pop("📢","データが届いています",`<b>${esc(x.from)}</b> さんから<br>${esc(x.base||"")} 回送員${x.n}人のデータ（${fmtT(x.at)}）${nw.length>1?`<br>ほかに${nw.length-1}件`:""}`,`<button class="btn big" onclick="obHide();inboxAdopt('${x.id}')">デフォルトに登録する</button><button class="btn big sub" onclick="obHide();admOpen()">あとで（一覧で見る）</button>`)}}}
+function inboxDraw(){$("inboxN").hidden=!INBOX.length;$("inboxN").textContent=INBOX.length;
+ $("inboxList").innerHTML=INBOX.map(x=>`<div class="admRow" style="flex-wrap:wrap"><span style="white-space:normal">${fmtT(x.at)}　${esc(x.from)}<br><small>${esc(x.base||"拠点なし")}・回送員${x.n}人</small></span><button type="button" class="btn small" onclick="inboxAdopt('${x.id}')">デフォルトに登録</button><button type="button" class="btn sub small" onclick="inboxHere('${x.id}')">この端末に入れる</button><button type="button" class="btn sub small" onclick="inboxDel('${x.id}')">削除</button></div>`).join("")||"<div class='admD'>届いたデータはありません</div>";
+ const nr=REQS.filter(r=>!r.done).length;$("reqN").hidden=!nr;$("reqN").textContent=nr;$("reqCard").hidden=!ADM||ADM.role!=="owner"&&!REQS.length;
+ $("reqList").innerHTML=REQS.map(r=>`<div class="admRow" style="flex-wrap:wrap;${r.done?"opacity:.55":""}"><span style="white-space:pre-wrap">${fmtT(r.at)}　${esc(r.from)}<br>${esc(r.text||"")}${r.files.length?`<br><small>📎 ${r.files.map((f,i)=>`<a href="#" onclick="reqFile('${r.id}',${i});return false">${esc(f.name)}</a>`).join("、")}</small>`:""}</span><button type="button" class="btn sub small" onclick="reqDone('${r.id}')">${r.done?"未対応に戻す":"対応済み"}</button><button type="button" class="btn sub small" onclick="reqDel('${r.id}')">削除</button></div>`).join("")||"<div class='admD'>要望はありません</div>"}
+async function inboxItem(id){return api("?op=inboxItem&id="+encodeURIComponent(id))}
+function inboxAdopt(id){const x=INBOX.find(v=>v.id===id);if(!x)return;popAsk("💾",`${x.base||"拠点"}のデフォルトに登録しますか？`,`${esc(x.from)} さんのデータ（回送員${x.n}人）です。<br>登録すると、その拠点の全員の端末に「新しいデータがあります」と出ます`,"デフォルトに登録する",async()=>{const it=await inboxItem(id);const b=x.base||(S.cfg&&S.cfg.base)||BASES[0];const j=await admPost({action:"saveData",base:b,data:it.data});if(!j)return;await admPost({action:"inboxDel",id});await inboxLoad(true);pop("✅",`${b}のデフォルトに登録しました`,"ほかの端末には、次に開いたとき「新しいデータがあります」と出ます。<br>入れ替えると、このデータと同じ内容になります")},"#e07a1f")}
+function inboxHere(id){popAsk("⬇","この端末に入れますか？","この端末の今の内容と入れ替わります（デフォルトは変わりません）","入れる",async()=>{const it=await inboxItem(id);await pullData({data:it.data,updated:pulled()},(S.cfg&&S.cfg.base)||it.base);drawAllSafe();pop("✅","この端末に入れました","")})}
+function inboxDel(id){popAsk("🗑","届いたデータを削除しますか？","元には戻せません","削除する",async()=>{await admPost({action:"inboxDel",id});inboxLoad(true)})}
+async function reqDone(id){await admPost({action:"reqDone",id});inboxLoad(true)}
+function reqDel(id){popAsk("🗑","要望を削除しますか？","","削除する",async()=>{await admPost({action:"reqDel",id});inboxLoad(true)})}
+async function reqFile(id,i){const a=await api("?op=reqs&full=1");const r=(a.items||[]).find(x=>x.id===id);if(!r)return;const f=r.files[i];const b=await (await fetch(`data:${f.type||"application/octet-stream"};base64,${f.data}`)).blob();const u=URL.createObjectURL(b);window.open(u,"_blank")||dl(b,f.name)}
+async function reqCopy(){const L=REQS.filter(r=>!r.done);if(!L.length)return pop("📭","未対応の要望はありません","");const t="【シフト表への要望】\n"+L.map((r,i)=>`${i+1}. ${fmtT(r.at)} ${r.from}\n${r.text||"（文なし）"}${r.files.length?"\n添付："+r.files.map(f=>f.name).join("、"):""}`).join("\n\n");try{await navigator.clipboard.writeText(t);pop("📋","要望をコピーしました","Claudeに貼り付けて「要望をまとめて」と送ってください。スクショは別に貼り付けてください")}catch(e){prompt("この文をコピーしてください",t)}}
 let ADM=null;const ADM_VIDEO="https://youtu.be/VPTx0xcTiDg";
 const SHIFT_URL="https://kaisou-shift.pages.dev",VIDEOS=[["はじめかた","https://youtu.be/OlbNL82OshU"],["使い方","https://youtu.be/ooWpoM8IgBE"]];let INV_TO="",ADM_CUR=null;
 function admWhoTxt(){return ADM.role==="owner"?"あなたは<b>ソフト開発者</b>です（"+ADM.me+"）":"あなたは<b>管理者</b>です（"+ADM.me+"）"}
-async function admLoad(){try{const r=await fetch("api/access",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(j.role&&j.role!=="none"){ADM=j;$("admTop").classList.add("on")}return j}catch(e){return null}}
+async function admLoad(){try{const r=await fetch("api/access",{credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(j.role&&j.role!=="none"){ADM=j;$("admTop").classList.add("on");if(!window._IB){window._IB=1;inboxLoad(false)}}return j}catch(e){return null}}
 function admRow(e,i,kind){const own=e===ADM.owner,me=e===ADM.me,isA=(ADM.admins||[]).includes(e);
  const tag=own?"👑":isA?"🔑":"";
  const btns=kind==="m"?((own||me)?"":`<button type="button" class="btn sub small" title="案内を送る" onclick="admInvite(${i})">📨</button><button type="button" class="btn sub small" onclick="admDelAsk(${i})">削除</button>`):((own||me)?"":`<button type="button" class="btn sub small" onclick="admUnAdmin(${i})">外す</button>`);
  return `<div class="admRow"><b class="no">${i+1}</b><span title="${e}">${e}</span><i>${tag}</i>${btns}</div>`}
 function admDraw(){if(!ADM)return;if(ADM_VIDEO){$("admVid").href=ADM_VIDEO;$("admVidBox").style.display="flex"}$("admWho").innerHTML=admWhoTxt();$("admList").innerHTML=(ADM.members||[]).map((e,i)=>admRow(e,i,"m")).join("")||"<div class='admD'>まだいません</div>";$("admOwner").hidden=false;$("admAList").innerHTML=(ADM.admins||[]).map((e,i)=>admRow(e,i,"a")).join("")||"<div class='admD'>まだいません</div>"}
-async function admOpen(){$("admBg").style.display="flex";document.documentElement.style.overflow="hidden";document.body.style.overflow="hidden";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}if(!j.role||j.role==="none"){admClose();$("admTop").classList.remove("on");return pop("🔒","管理者ではありません","このメニューは管理者だけが使えます")}$("admMsg").textContent="";admDraw();admBasesDraw()}
+async function admOpen(){$("admBg").style.display="flex";document.documentElement.style.overflow="hidden";document.body.style.overflow="hidden";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}if(!j.role||j.role==="none"){admClose();$("admTop").classList.remove("on");return pop("🔒","管理者ではありません","このメニューは管理者だけが使えます")}$("admMsg").textContent="";admDraw();admBasesDraw();inboxLoad(true)}
 function admClose(){$("admBg").style.display="none";document.documentElement.style.overflow="";document.body.style.overflow=""}
 function pop(ico,t,m,btns){obShow(`<div class="ico">${ico}</div><h2>${t}</h2>${m?`<p>${m}</p>`:""}${btns||`<button class="btn big" onclick="obHide()">OK</button>`}`)}
 function popAsk(ico,t,m,ok,fn,color){window._ASK=fn;pop(ico,t,m,`<button class="btn big" style="background:${color||"#b5323a"}" onclick="obHide();window._ASK()">${ok}</button><button class="btn big sub" onclick="obHide()">やめる</button>`)}
