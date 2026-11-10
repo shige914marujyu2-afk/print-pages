@@ -121,7 +121,7 @@ th.shuku{color:var(--sun);background:#fde8eb}
 html.ios{}
 @media print{
  body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
- body>*:not(#printRoot){display:none!important}
+ body>*:not(#printRoot):not(#printBox){display:none!important}
  #printRoot{display:block!important}
  .sheet{padding:0}
  .out{width:100%}.out th,.out td{height:24px;font-size:11px}
@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11b</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11c</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -1051,12 +1051,22 @@ async function makePdf(svg){const W=841.89,H=595.28,sc=4.1;
  const pdf=new jspdf.jsPDF({orientation:"landscape",unit:"pt",format:"a4",compress:true});
  pdf.addImage(c.toDataURL("image/jpeg",0.93),"JPEG",0,0,W,H);if(!IOS)pdf.autoPrint();return URL.createObjectURL(pdf.output("blob"))}
 async function doPrint(id){return doPrintSvg(()=>id==="hopeArea"?svgHope():svgShift(),id==="hopeArea"?$("hopeMsg"):$("status"))}
-async function doPrintSvg(fn,msg){const win=window.open("","_blank");
- if(msg)msg.textContent="印刷用のPDFを作っています…";
- try{const url=await makePdf(fn());
-  if(win&&!win.closed){win.location.href=url;if(msg)msg.textContent=IOS?"開いたPDFの共有ボタン →「プリント」で印刷してください":"開いたPDFから印刷してください"}
-  else{if(msg)msg.innerHTML=`<a href="${url}" target="_blank" rel="noopener">印刷用のPDFを開く</a>（ここを押して開き、印刷してください）`}}
- catch(e){if(win)win.close();if(msg)msg.textContent="PDFを作れませんでした。ページを開き直して、もう一度押してください。"}}
+const PAPER={B5:[728.5,515.9],A4:[841.89,595.28],B4:[1031.8,728.5]};
+function paperCfg(){const p=S.cfg.paper||{};return {size:PAPER[p.size]?p.size:"A4",orient:p.orient==="portrait"?"portrait":"landscape"}}
+async function svgImage(svg){const W=841.89,H=595.28,sc=4.1;const img=new Image();img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);await img.decode();
+ const c=document.createElement("canvas");c.width=Math.round(W*sc);c.height=Math.round(H*sc);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);return c.toDataURL("image/jpeg",0.93)}
+let PRINT_IMG=null;
+async function doPrintSvg(fn,msg){PRINT_IMG=null;printPop();try{PRINT_IMG=await svgImage(fn());let bx=$("printBox");if(!bx){bx=document.createElement("div");bx.id="printBox";bx.style.display="none";document.body.appendChild(bx)}bx.innerHTML=`<img src="${PRINT_IMG}" alt="">`;await bx.querySelector("img").decode().catch(()=>{})}catch(e){PRINT_IMG="err"}printPop()}
+function printPop(){const P=paperCfg();const ready=PRINT_IMG&&PRINT_IMG!=="err";
+ const b=(k,v,t)=>`<button class="btn small ${P[k]===v?"":"sub"}" style="flex:1" onclick="setPaper('${k}','${v}')">${t}</button>`;
+ obShow(`<div class="ico">🖨</div><h2>用紙を選んで印刷</h2><div style="display:flex;gap:6px;margin:8px 0">${b("size","B5","B5")}${b("size","A4","A4")}${b("size","B4","B4")}</div><div style="display:flex;gap:6px;margin:0 0 8px">${b("orient","landscape","横")}${b("orient","portrait","縦")}</div>
+ <p style="font-size:13px">選んだ用紙に合わせて印刷します。プリンターの画面では「プリント」を押すだけです<br><small>（用紙の選択は次回も覚えています）</small></p>
+ ${PRINT_IMG==="err"?`<p>作れませんでした。開き直してもう一度押してください</p>`:`<button class="btn big" ${ready?"":"disabled"} onclick="goPrint()">${ready?"印刷する":"準備中…"}</button>`}<button class="lnk" onclick="obHide()">やめる</button>`)}
+function setPaper(k,v){S.cfg.paper={...paperCfg(),[k]:v};store();printPop()}
+function goPrint(){const P=paperCfg();let [w,h]=PAPER[P.size];if(P.orient==="portrait")[w,h]=[h,w];
+ let st=$("printPageCss");if(!st){st=document.createElement("style");st.id="printPageCss";document.head.appendChild(st)}
+ st.textContent=`@page{size:${w}pt ${h}pt;margin:0}@media print{body>*:not(#printBox){display:none!important}#printRoot{display:none!important}#printBox{display:flex!important;width:${w}pt;height:${h}pt;align-items:center;justify-content:center;overflow:hidden}#printBox img{max-width:${w}pt;max-height:${h}pt}}`;
+ obHide();window.print()}
 
 /* ---------- 起動 ---------- */
 sortMembers();ymList();if(S.openMonth&&[...$("ym").options].some(o=>o.value===S.openMonth))$("ym").value=S.openMonth;loadMonth();
@@ -1075,7 +1085,7 @@ let BASES=["八王子","東村山","瑞穂"];let OB_BASE="";
 const LSP="shiftPulled";function pulled(){try{return +localStorage.getItem(LSP)||0}catch(e){return 0}}function setPulled(t){try{localStorage.setItem(LSP,String(t||0))}catch(e){}}
 async function api(q,body){const r=await fetch("api/access"+(q||""),body?{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify(body)}:{credentials:"same-origin",cache:"no-store"});const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||r.status);return j}
 async function loadBases(){try{const j=await api("?op=bases");if(Array.isArray(j.bases)&&j.bases.length)BASES=j.bases}catch(e){}return BASES}
-function obShow(h){window.OB_ON=true;$("obCard").innerHTML=h;$("ob").style.display="flex";$("ob").scrollTop=0}
+function obShow(h){window.OB_ON=true;$("ob").style.overscrollBehavior="contain";$("obCard").innerHTML=h;$("ob").style.display="flex";$("ob").scrollTop=0}
 function obHide(){window.OB_ON=false;$("ob").style.display="none"}
 function baseTag(){const b=S.cfg&&S.cfg.base,t=$("baseTag");if(t){t.hidden=!b;t.textContent=b||""}}
 function obWelcome(){obShow(`<div class="ico">✅</div><h2>ログインできました</h2><p>シフト表を使えるようにします</p><button class="btn big" onclick="obBase()">はじめる</button>`)}
@@ -1098,7 +1108,7 @@ async function checkNew(){const b=S.cfg&&S.cfg.base;if(!b)return;let j=null;try{
 async function obNew(){const j=window._NEWJ;obShow(`<div class="ico">⏳</div><h2>入れ替え中…</h2>`);if(await pullData(j,S.cfg.base))obDone("新しいデータに<br>なりました");else obShow(`<div class="ico">⚠️</div><h2>うまく入りませんでした</h2><button class="btn big" onclick="obHide()">閉じる</button>`)}
 window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("http"))return;if(!members().length&&!(S.cfg&&S.cfg.base))obWelcome();else if(!(S.cfg&&S.cfg.base))obBase("set");else checkNew()});
 </script>
-<div id="admBg" style="position:fixed;inset:0;background:#0008;z-index:200;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:12px"><div class="admBox">
+<div id="admBg" style="position:fixed;inset:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#0008;z-index:200;display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:12px"><div class="admBox">
 <div class="admHead"><b>🔑 管理者メニュー</b><button type="button" class="btn sub small" onclick="admClose()">閉じる</button></div>
 <div id="admWho" class="admWho"></div>
 <div id="admMsg" class="admMsg"></div>
@@ -1135,6 +1145,7 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 .admT{font-weight:700;font-size:16px;line-height:1.5}.admD{font-size:12px;color:var(--mut);line-height:1.5;margin-top:2px}
 .admIn{display:flex;gap:6px;margin:8px 0}.admIn input,.admIn select{flex:1;min-width:0;font-size:16px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
 .admIn .btn{flex:none!important;margin:0!important}
+@media(max-width:600px){.admBox textarea{height:110px!important}}
 .admBox textarea{width:100%;box-sizing:border-box;height:170px!important;min-height:0!important;font-size:12px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
 .admList{margin-top:4px}.admRow{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:400;line-height:1.4}
 .admRow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.admRow .no{flex:none;width:1.6em;text-align:right;color:var(--mut);font-size:12px;font-weight:600}.admRow i{flex:none;font-style:normal;font-size:12px}.admRow small{color:var(--mut)}.admRow .btn{flex:none!important;margin:0!important;font-size:12px!important;padding:3px 8px!important}
@@ -1152,8 +1163,8 @@ function admRow(e,i,kind){const own=e===ADM.owner,me=e===ADM.me,isA=(ADM.admins|
  const btns=kind==="m"?((own||me)?"":`<button type="button" class="btn sub small" title="案内を送る" onclick="admInvite(${i})">📨</button><button type="button" class="btn sub small" onclick="admDelAsk(${i})">削除</button>`):((own||me)?"":`<button type="button" class="btn sub small" onclick="admUnAdmin(${i})">外す</button>`);
  return `<div class="admRow"><b class="no">${i+1}</b><span title="${e}">${e}</span><i>${tag}</i>${btns}</div>`}
 function admDraw(){if(!ADM)return;if(ADM_VIDEO){$("admVid").href=ADM_VIDEO;$("admVidBox").style.display="flex"}$("admWho").innerHTML=admWhoTxt();$("admList").innerHTML=(ADM.members||[]).map((e,i)=>admRow(e,i,"m")).join("")||"<div class='admD'>まだいません</div>";$("admOwner").hidden=false;$("admAList").innerHTML=(ADM.admins||[]).map((e,i)=>admRow(e,i,"a")).join("")||"<div class='admD'>まだいません</div>"}
-async function admOpen(){$("admBg").style.display="flex";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}if(!j.role||j.role==="none"){admClose();$("admTop").classList.remove("on");return pop("🔒","管理者ではありません","このメニューは管理者だけが使えます")}$("admMsg").textContent="";admDraw();admBasesDraw()}
-function admClose(){$("admBg").style.display="none"}
+async function admOpen(){$("admBg").style.display="flex";document.documentElement.style.overflow="hidden";document.body.style.overflow="hidden";$("admMsg").textContent="読み込み中…";const j=await admLoad();if(!j||j.error){$("admMsg").textContent="読み込めませんでした："+((j&&j.error)||"通信エラー");return}if(!j.role||j.role==="none"){admClose();$("admTop").classList.remove("on");return pop("🔒","管理者ではありません","このメニューは管理者だけが使えます")}$("admMsg").textContent="";admDraw();admBasesDraw()}
+function admClose(){$("admBg").style.display="none";document.documentElement.style.overflow="";document.body.style.overflow=""}
 function pop(ico,t,m,btns){obShow(`<div class="ico">${ico}</div><h2>${t}</h2>${m?`<p>${m}</p>`:""}${btns||`<button class="btn big" onclick="obHide()">OK</button>`}`)}
 function popAsk(ico,t,m,ok,fn,color){window._ASK=fn;pop(ico,t,m,`<button class="btn big" style="background:${color||"#b5323a"}" onclick="obHide();window._ASK()">${ok}</button><button class="btn big sub" onclick="obHide()">やめる</button>`)}
 async function admPost(body){try{const j=await api("",body);return j}catch(e){pop("⚠️","できませんでした",e.message);return null}}
