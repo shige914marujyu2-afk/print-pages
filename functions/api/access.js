@@ -58,6 +58,15 @@ async function adminPolicy(env, create) {
 const DEF_BASES = ["八王子", "東村山", "瑞穂"];
 async function getBases(env) { const v = env.SHIFT_KV && await env.SHIFT_KV.get("bases"); return v ? JSON.parse(v) : DEF_BASES; }
 
+export async function roleOf(request, env) {
+  const me = await whoAmI(request);
+  if (!me) return { me: null, role: "none" };
+  if (!env.CF_API_TOKEN || !env.OWNER_EMAIL) return { me, role: "none" };
+  if (me === low(env.OWNER_EMAIL)) return { me, role: "owner" };
+  const apol = await adminPolicy(env, false);
+  return { me, role: apol && emailsOf(apol).includes(me) ? "admin" : "none" };
+}
+
 export async function onRequest({ request, env }) {
   try {
     const me = await whoAmI(request);
