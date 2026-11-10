@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11d</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-11e</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>はスマホからパソコンへデータを移すとき）。</div><div class="row" style="margin:6px 0 0"><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/OlbNL82OshU" target="_blank" rel="noopener">📺 はじめかた動画</a><a class="btn" style="text-decoration:none;background:#c4302b" href="https://youtu.be/ooWpoM8IgBE" target="_blank" rel="noopener">📺 使い方動画</a><a class="btn" href="manual/?v=23" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=23" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="tabs">
  <button id="t1" onclick="goTab(1)"><span class="n">①</span><span class="l">回送員<br>条件</span></button>
@@ -347,15 +347,19 @@ document.addEventListener("DOMContentLoaded",thLabel);
 
 <!-- ② 休みの入力 -->
 <section id="p2" hidden>
- <div class="stepintro"><b class="t">③ 休みの入力（<span id="p2mon"></span>）</b><small style="color:#777">月は ② で選んだ月です。</small><br>集めた希望休の紙を見ながら、マスをタップして休みを入れます。全体休が入った週の日数と、繁忙日・閑散日もここで決めます。</div>
- <div class="card">
-  <div id="holWeeks"></div>
-  <div class="ask" style="background:#eef3fb;border-color:#c9d8f0"><b style="font-size:17px">繁忙日・閑散日（日付で指定）</b>
-   <div style="font-size:14px;line-height:1.55;margin:4px 0">日付を押すたびに 普通 →「<b style="color:#b8323d">繁</b>」繁忙日（11〜12人に増やす）→「<b style="color:#2f5fb3">閑</b>」閑散日（10人より少なくてもよい）→ 普通。<br><b>入れるメリット</b>：忙しい日に人を多く、ひまな日に少なく配置でき、現場に合った表になります。<br><b>入れないと</b>：全部の日が「普通の日」（10〜11人）として作られます。</div>
-   <div id="busyDays" class="daychips"></div><div id="busyBal" class="hint" style="margin:0"></div></div>
-  <p class="hint">・<b>日付をタップ</b>：「祝」（祝日）→「全」（全体休＝全員の休み）→ 元に戻る。祝日と、会社の条件で入れた長い休みは最初から入っています。<br>・<b>マスをタップ</b>するたびに「休」→「希」（希望休）→「有」（有休）→ 空白、と変わります。「休」は希望ではないが休みに決まっている日に使います。<br>・左の灰色7列は<b>前月の最後の1週間</b>。同じように休んだ日を入れます（月またぎの連勤チェック用。空のままの人はチェックしません）。前月をこのツールで「決定」していれば自動で入ります。</p>
- </div>
+ <div class="stepintro"><b class="t">③ 休みの入力（<span id="p2mon"></span>）</b><small style="color:#777">月は ② で選んだ月です。</small><br>上から順に ❶ 全体休 → ❷ 希望休 → ❸ 繁忙日・閑散日 → ❹ その日の人数 を入れます。</div>
  <div class="card"><div class="wrap"><table class="grid" id="inGrid"></table></div></div>
+ <div class="card step3"><h2>❶ 全体休（全員の休み）</h2><div class="ill"><div class="mini"><span>1<br>火</span><span>2<br>水</span><span class="on">3<br>全</span><span>4<br>金</span><span>5<br>土</span></div><div class="fing">👆 日付をタップ</div></div>
+  <p class="hint" style="margin:4px 0">表の一番上の<b>日付・曜日</b>をタップ：「祝」→「<b>全</b>」（全体休）→ 元に戻る。祝日と、①で入れた長い休みは最初から入っています。</p>
+  <div id="holWeeks"></div></div>
+ <div class="card step3"><h2>❷ 希望休・有休</h2><div class="ill"><div class="mini"><span class="nm">神保</span><span></span><span class="on">希</span><span></span><span></span></div><div class="fing">👆 マスをタップ</div></div>
+  <p class="hint" style="margin:4px 0">集めた紙を見ながら<b>名前の行のマス</b>をタップ：「休」→「<b>希</b>」（希望休）→「<b>有</b>」（有休）→ 空白。<br>左の灰色7列は<b>前月の最後の1週間</b>（月またぎの連勤チェック用）。</p></div>
+ <div class="card step3"><h2>❸ 繁忙日・閑散日</h2><div class="ill"><div class="mini chips"><span>1火<br>・</span><span class="bz">2水<br>繁</span><span class="qt">3木<br>閑</span><span>4金<br>・</span></div><div class="fing">👆 押すたびに 普通→繁→閑</div></div>
+  <p class="hint" style="margin:4px 0">日付を押すたびに 普通 →「<b style="color:#b8323d">繁</b>」繁忙日 →「<b style="color:#2f5fb3">閑</b>」閑散日 → 普通。</p>
+  <div id="busyDays" class="daychips"></div><div id="busyBal" class="hint" style="margin:0"></div></div>
+ <div class="card step3"><h2>❹ 指定した日の出勤人数</h2>
+  <p class="hint" style="margin:4px 0">❸で繁・閑にした日は、出勤してほしい人数を入れられます（空欄なら①-2の条件どおり）。<br><small>※目安です。みんなの休みの日数は変わらないので、ほかの日とのやりくりで届かないこともあります。繁忙日を増やしたいときは、閑散日も増やすと届きやすくなります。</small></p>
+  <div id="needDays"></div></div>
  <button class="btn next" onclick="goTab(3)">次へ：④ シフト作成／印刷 →</button>
  <div class="row"><button class="btn sub" onclick="clearMonth()">この月の入力を消す</button><span class="hint" id="p2msg"></span></div>
 </section>
@@ -443,7 +447,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="fflate.js?v=1"></script>
-<script src="solver.js?v=20261105d"></script>
+<script src="solver.js?v=20261111a"></script>
 <script>
 /* 新しい版があるか確かめる（入力データはブラウザに残るので、更新しても消えない） */
 let VER_NEW="";
@@ -594,7 +598,7 @@ const enc=a=>a.map(c=>KC[c||""]||".").join(""),dec=t=>[...t].map(c=>KD[c]??"");
 function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,m.co,(m.offDows||[]).join(""),m.noIso?1:0,m.weOff,m.runMax,m.pairs,m.pairMode,m.edge]),mo:{},om:S0.openMonth,ht:S0.hopeText,hd:S0.hopeDef};
  ["tri","runFirst","maxRun","minPairs"].forEach(k=>delete o.cfg[k]);
  for(const k in S0.months){const M=S0.months[k];const x={};
-  if(M.hol&&M.hol.length)x.h=M.hol;x.s=M.shuku;if(M.busy&&M.busy.length)x.b=M.busy;if(M.quiet&&M.quiet.length)x.q=M.quiet;
+  if(M.hol&&M.hol.length)x.h=M.hol;x.s=M.shuku;if(M.busy&&M.busy.length)x.b=M.busy;if(M.quiet&&M.quiet.length)x.q=M.quiet;if(M.need&&Object.keys(M.need).length)x.n=M.need;
   if(M.wkTotal&&Object.keys(M.wkTotal).length)x.w=M.wkTotal;if(M.mark&&Object.keys(M.mark).length)x.k=M.mark;
   if(M.prev){const p={};for(const id in M.prev)if(M.prev[id].some(Boolean))p[id]=enc(M.prev[id]);if(Object.keys(p).length)x.p=p}
   if(M.manual){const mm={};for(const id in M.manual){const r=M.manual[id];let n=0;for(const d in r)n=Math.max(n,+d);mm[id]=[...Array(n)].map((_,i)=>r[i+1]==null?"-":KC[r[i+1]]||".").join("")}x.u=mm}
@@ -602,7 +606,7 @@ function slim(S0){const o={v:3,cfg:{...S0.cfg},m:S0.members.map(m=>[m.id,m.name,
   if(M.finalSheet){const f=M.finalSheet;x.f=[f.label,f.at,f.upd?1:0,f.mem.map(m=>[m.id,m.co,m.name]),f.kinds.map(enc)]}
   o.mo[k]=x}return o}
 function fat(o){const S1={members:o.m.map(a=>({id:a[0],name:a[1],co:a[2],offDows:[...String(a[3]||"")].map(Number),wdPair:a[8]==="wd",noIso:!!a[4],weOff:a[5]??"",runMax:a[6]??3,pairs:a[7]??1,pairMode:a[8]||"",edge:a[9]||""})),cfg:o.cfg,months:{},openMonth:o.om,hopeText:o.ht,hopeDef:o.hd,hopeV2:1};
- for(const k in o.mo){const x=o.mo[k];const M={hol:x.h||[],shuku:x.s||[],busy:x.b||[],quiet:x.q||[],wkTotal:x.w||{},mark:x.k||{},prev:{},final:null};
+ for(const k in o.mo){const x=o.mo[k];const M={hol:x.h||[],shuku:x.s||[],busy:x.b||[],quiet:x.q||[],need:x.n||{},wkTotal:x.w||{},mark:x.k||{},prev:{},final:null};
   for(const id in x.p||{})M.prev[id]=dec(x.p[id]);
   if(x.u){M.manual={};for(const id in x.u){const r={};[...x.u[id]].forEach((c,i)=>{if(c!=="-")r[i+1]=KD[c]??""});M.manual[id]=r}}
   if(x.a)M.auto=x.a;
@@ -732,7 +736,7 @@ function drawHolWeeks(){const L=holWeekList();const el=$("holWeeks");if(!L.lengt
  el.innerHTML=`<div class="ask"><b>全体休が入った週があります。この週の休みを何日にしますか？（全体休を含めた日数）</b>`+
   L.map(w=>`<label>${w.a}日〜${w.b}日の週（全体休${w.hc}日）：休み <input type="number" min="${w.hc}" max="7" value="${w.val}" onchange="setWk(${w.a},this.value)"> 日 <span class="hint">＝全体休＋${w.val-w.hc}日</span></label>`).join("")+`</div>`}
 /* 繁忙日・閑散日 */
-function drawBusy(){const M=cur(),{nd,dow}=ymParts();if(!M.busy)M.busy=[];if(!M.quiet)M.quiet=[];const H=holOf(M);
+function drawBusy(){setTimeout(drawNeed,0);const M=cur(),{nd,dow}=ymParts();if(!M.busy)M.busy=[];if(!M.quiet)M.quiet=[];const H=holOf(M);
  $("busyDays").innerHTML=[...Array(nd)].map((_,k)=>{const d=k+1,w=dow(d);const c=H.includes(d)?"hl":M.busy.includes(d)?"bz":M.quiet.includes(d)?"qt":"";
   const col=w===0||M.shuku.includes(d)?"color:#c0303a":w===6?"color:#2f5fb3":"";
   return `<button class="${c}" onclick="togBusy(${d})" ${c==="hl"?"disabled":""}><span style="${c?"":col}">${d}${M.shuku.includes(d)?"祝":WD[w]}</span><br>${c==="bz"?"繁":c==="qt"?"閑":c==="hl"?"全":"・"}</button>`}).join("");
@@ -743,7 +747,11 @@ function drawBusy(){const M=cur(),{nd,dow}=ymParts();if(!M.busy)M.busy=[];if(!M.
  const need=nb*c.beTarget+nn*c.min+nq*Math.max(1,c.min-2),base=nb*c.min+nn*c.min+nq*Math.max(1,c.min-2);
  const msg=`この月の延べ出勤 <b>${supply}人日</b>（1日平均 ${(supply/work).toFixed(1)}人）／必要：最低 ${base}人日・繁忙日を${c.beTarget}人にすると ${need}人日`;
  $("busyBal").innerHTML=msg+(supply<base?`<br><b style="color:#b8323d">人が足りません。閑散日をあと${Math.ceil((base-supply)/2)}日くらい増やすと、最低${c.min}人を守りやすくなります。</b>`:supply<need?`<br><b style="color:#b26a00">繁忙日を全部${c.beTarget}人にするには、閑散日をあと${Math.ceil((need-supply)/2)}日くらい増やしてください。</b>`:`<br><b style="color:#1d7a3a">釣り合っています。</b>`)}
-function togBusy(d){const M=cur();const b=M.busy.indexOf(d),q=M.quiet.indexOf(d);if(b>=0){M.busy.splice(b,1);M.quiet.push(d)}else if(q>=0)M.quiet.splice(q,1);else M.busy.push(d);store();drawBusy();drawInput()}
+function drawNeed(){const el=$("needDays");if(!el)return;const M=cur();const H=holOf(M);M.need=M.need||{};const {dow}=ymParts();const c=effCfg();
+ const ds=[...new Set([...(M.busy||[]),...(M.quiet||[])])].filter(d=>!H.includes(d)).sort((a,b)=>a-b);
+ el.innerHTML=ds.length?`<div class="needs">${ds.map(d=>{const b=(M.busy||[]).includes(d);return `<label class="need ${b?"bz":"qt"}"><b>${d}日(${WD[dow(d)]})</b><span>${b?"繁":"閑"}</span><input type="number" inputmode="numeric" min="1" max="${members().length||30}" placeholder="${b?c.beTarget:Math.max(1,c.min-2)}" value="${M.need[d]||""}" onchange="setNeed(${d},this.value)">人</label>`}).join("")}</div>`:`<p class="hint">まだ繁忙日・閑散日がありません。❸で日付を押してください。</p>`}
+function setNeed(d,v){const M=cur();M.need=M.need||{};const n=Math.round(+v||0);if(n>0)M.need[d]=n;else delete M.need[d];store()}
+function togBusy(d){const M=cur();const b=M.busy.indexOf(d),q=M.quiet.indexOf(d);if(b>=0){M.busy.splice(b,1);M.quiet.push(d)}else if(q>=0)M.quiet.splice(q,1);else M.busy.push(d);if(M.need&&b<0&&q>=0)delete M.need[d];store();drawBusy();drawNeed();drawInput()}
 function setWk(a,v){cur().wkTotal[a]=Math.max(0,Math.min(7,+v||0));store();drawHolWeeks()}
 function clearMonth(){if(!confirm("この月の入力（全体休・希望休・有休・前月末）を消しますか？"))return;delete S.months[$("ym").value];store();loadMonth()}
 function autoPrev(){const {y,m}=ymParts();const pd=new Date(y,m-2,1);const P=S.months[pd.getFullYear()+"-"+(pd.getMonth()+1)];const M=cur();
@@ -789,7 +797,8 @@ function setup(){const M=cur(),{nd,dow}=ymParts();const mem=members();const N=me
  for(let i=0;i<N;i++){const mk=M.mark[mem[i].id]||{};fixed[i]=[];for(let d=1;d<=nd;d++)fixed[i][d]=hol.has(d)?"co":mk[d]||null;
   const pv=(M.prev[mem[i].id]||Array(7).fill("")).map(Boolean);const known=pv.some(Boolean);let r=0;if(known)for(let k=6;k>=0&&!pv[k];k--)r++;
   prevRun[i]=r;prevOff[i]=pv;prevKnown[i]=known}
- return {N,nd,dow,hol,shuku,busy,quiet,fixed,prevRun,prevOff,prevKnown,wkTotal:Object.fromEntries(holWeekList().map(w=>[w.a,w.val])),cfg:effCfg(),
+ const need={};for(const d in (M.need||{}))if(!hol.has(+d)&&(busy.has(+d)||quiet.has(+d))&&+M.need[d]>0)need[+d]=+M.need[d];
+ return {N,nd,dow,hol,shuku,busy,quiet,need,fixed,prevRun,prevOff,prevKnown,wkTotal:Object.fromEntries(holWeekList().map(w=>[w.a,w.val])),cfg:effCfg(),
   offDows:mem.map(m=>m.offDows),wdPair:mem.map(m=>m.pairMode==="wd"),wePair:mem.map(m=>m.pairMode==="we"),maxRunA:mem.map(m=>m.runMax===""||m.runMax==null?4:+m.runMax),minPairsA:mem.map(m=>m.pairs===""||m.pairs==null?1:+m.pairs),wantSets:mem.map((m,i)=>{const e=m.edge;if(!e)return [];const L=[];const prevLastOff=prevKnown[i]&&prevOff[i][6];if((e==="start")||(e==="either"&&!prevLastOff))L.push([1]);if(e==="end")L.push([nd]);return L}),noIso:mem.map(m=>!!m.noIso),weOff:mem.map(m=>weRange(m.weOff)),names:mem.map(m=>m.name),
   pastPairs:mem.map(m=>(ps[m.id]||{}).pairs||0),pastTri:mem.map(m=>(ps[m.id]||{}).tri||0),mem}}
 function mkPop(st,tip,done){let bg=$("mkPop");if(!bg){bg=document.createElement("div");bg.id="mkPop";bg.innerHTML=`<div class="pop"><div class="spin"></div><div class="st"></div><div class="tip"></div><div class="tm"></div></div>`;document.body.appendChild(bg)}
@@ -1143,6 +1152,8 @@ window.addEventListener("load",()=>{baseTag();if(!location.protocol.startsWith("
 <style>
 .lock{font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap;align-self:center}
 #hzFix{display:none;position:fixed;left:6px;right:6px;top:6px;z-index:150;border:2px solid #e07a1f;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 4px 16px #0004;pointer-events:none}#hzFix svg{display:block;width:100%;height:auto}
+.ill{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0}.mini{display:inline-flex;border:2px solid #9aa3b5;border-radius:6px;overflow:hidden;background:#fff}.mini span{display:inline-block;min-width:34px;padding:3px 4px;text-align:center;font-size:12px;line-height:1.3;border-left:1px solid #d5d9e2;color:#333}.mini span:first-child{border-left:0}.mini .nm{min-width:44px;font-weight:700}.mini .on{background:#ffe08a;outline:3px solid #e07a1f;outline-offset:-3px;font-weight:700}.mini .bz{background:#fde2e4;color:#b8323d;font-weight:700}.mini .qt{background:#e2ebfb;color:#2f5fb3;font-weight:700}.fing{font-size:14px;font-weight:700;color:#e07a1f}
+.needs{display:flex;flex-wrap:wrap;gap:6px}.need{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:5px 8px;font-size:14px}.need.bz{border-left:5px solid #b8323d}.need.qt{border-left:5px solid #2f5fb3}.need input{width:58px;font-size:16px;padding:4px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
 .sortbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:4px 0 8px}.sortbar select{font-size:15px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}.sortbar .btn{flex:none!important;margin:0!important}
 .admBox{background:var(--card);color:var(--fg);border-radius:16px;max-width:540px;width:100%;padding:14px;box-shadow:0 10px 40px #0005}
 .admHead{display:flex;justify-content:space-between;align-items:center;gap:8px}.admHead b{font-size:19px}

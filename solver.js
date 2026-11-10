@@ -16,6 +16,7 @@ function weeksOf(P){const w=[];let s=1;while(s<=P.nd){let e=s;while(e<P.nd&&P.do
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 /* 日ごとの出勤人数：繁忙日＝最低〜12人（できれば11人以上）、閑散日＝最低より少なくてもよい、普通の日＝最低〜11人 */
 function dayRange(P,d){const c=P.cfg;if(P.hol.has(d))return null;const b=P.busy.has(d),q=P.quiet&&P.quiet.has(d);
+ const nd0=P.need&&P.need[d];if(nd0){const n=Math.max(1,Math.min(P.N,nd0));if(q)return {lo:n,hi:Math.max(n,c.min),target:null,busy:false,quiet:true};return {lo:Math.min(n,c.min),hi:Math.max(n,c.min),target:n,busy:true}}
  if(q)return {lo:Math.max(1,c.min-2),hi:c.min,target:null,busy:false,quiet:true};
  return {lo:c.min,hi:b?c.beMax:c.wdMax,target:b?c.beTarget:null,busy:b}}
 const isWDf=P=>d=>{const q=P.dow(d);return q>=1&&q<=5&&!P.hol.has(d)&&!P.shuku.has(d)};
