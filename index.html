@@ -318,7 +318,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 <div class="ttl">マネタイズ班</div>
 <div class="sp"></div>
 <span class="hbtns"><button class="lock-btn" type="button" onclick="mzRefresh()" title="最新か確認">🔄</button><button class="lock-btn" type="button" id="themeBtn" onclick="toggleTheme()">🌙</button><button class="lock-btn" type="button" id="admTop" hidden onclick="admOpen()" title="管理者メニュー">🔑</button></span>
-</div><span class="ver">版 <span id="verNow">2026-11-11a</span></span>
+</div><span class="ver">版 <span id="verNow">2026-11-11b</span></span>
 <nav class="tabbar" aria-label="画面切替">
 <button type="button" data-tab="hq" class="on">本部</button>
 <button type="button" data-tab="account">アカウント</button>
@@ -497,6 +497,24 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 
 <div id="toast" role="status"></div>
 
+<style>
+.wkcard h2 .hint{font-weight:500}
+details.wk{border:1px solid var(--line);border-radius:12px;margin:8px 0;background:var(--surface)}
+details.wk>summary{cursor:pointer;padding:12px;display:flex;flex-direction:column;gap:2px;list-style:none}
+details.wk>summary::-webkit-details-marker{display:none}
+details.wk>summary b{font-size:15.5px}details.wk>summary .hint{font-size:12.5px;color:var(--ink-3)}
+details.wk[open]>summary{border-bottom:1px solid var(--line)}
+.wkb{padding:12px}
+.wkbtns{flex-wrap:wrap;gap:6px}.wkbtns .btn{text-decoration:none}
+.wkout{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:10px;background:var(--surface-2)}
+.wkoh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.wkout pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:13.5px;margin:6px 0 0;line-height:1.6}
+.wkchk{display:flex;gap:8px;align-items:center;margin-top:6px;font-size:14px}
+.wktbl{width:100%;border-collapse:collapse;font-size:13.5px}.wktbl th,.wktbl td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}.wktbl td.num{text-align:right}
+.wkgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.wkgrid div{background:var(--surface-2);border-radius:10px;padding:8px;text-align:center}.wkgrid b{display:block;font-size:16px}.wkgrid span{font-size:11.5px;color:var(--ink-3)}
+.wkbar{display:grid;grid-template-columns:44px 1fr auto;gap:6px;align-items:center;font-size:12.5px;margin:3px 0}.wkbar i{display:block;height:10px;border-radius:5px;background:var(--accent);min-width:2px}.wkbar b{font-weight:500;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+<script src="work.js?v=20261111b"></script>
 <script>
 (function(){
   "use strict";
@@ -561,7 +579,8 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
       id: uid(), name: name, theme: "",
       roomUrl: "", igUrl: "",
       flow: { post:false, story:false, highlight:false, profile:false },
-      themeHistory: [], products: [], records: []
+      themeHistory: [], products: [], records: [], cands: [],
+      target: "", rank: "", rankNext: "", rankDate: "", insight: "", insightNote: ""
     };
   }
   function normalize(d){
@@ -578,6 +597,8 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
       if(!Array.isArray(a.themeHistory)) a.themeHistory = [];
       if(!Array.isArray(a.products)) a.products = [];
       if(!Array.isArray(a.records)) a.records = [];
+      if(!Array.isArray(a.cands)) a.cands = [];
+      ["target","rank","rankNext","rankDate","insight","insightNote"].forEach(function(k){ if(typeof a[k] !== "string") a[k] = ""; });
     });
     return d;
   }
@@ -830,6 +851,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
         '<button type="submit" class="btn">商品を追加</button></form>' +
       '</div>' +
 
+      '<div id="workRoot"></div>' +
       '<div class="card"><h2>記録 <span class="hint">売上と反応の記録</span></h2>' +
         '<div class="sum-line"><span>このアカウントの売上合計</span><b>' + yen(accTotal(a)) + '</b></div>' +
         '<div class="sum-line"><span>今月（' + monthLabel(ym) + '）</span><b>' + yen(accMonth(a, ym)) + '</b></div>' +
@@ -843,6 +865,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
           '<div class="field grow"><label for="rDate">日付</label><input type="date" id="rDate" value="' + todayStr() + '" /></div>' +
           '<div class="field grow"><label for="rClicks">クリック数</label><input type="number" id="rClicks" min="0" step="1" placeholder="0" /></div>' +
           '<div class="field grow"><label for="rSales">売上（円）</label><input type="number" id="rSales" min="0" step="1" placeholder="0" /></div></div>' +
+        '<div class="field"><label for="rPid">どの商品の記録？（任意）</label><select id="rPid"><option value="">（商品を選ばない）</option>' + a.products.map(function(p){ return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join("") + '</select></div>' +
         '<div class="field"><label for="rAction">やったこと</label><input type="text" id="rAction" placeholder="例）リールで◯◯を紹介、ストーリーズにリンク" /></div>' +
         '<button type="submit" class="btn">記録を追加</button></form>' +
       '</div>';
@@ -931,6 +954,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
       a.records.push({
         id: uid(), date: date,
         action: $("rAction").value.trim(),
+        pid: ($("rPid") && $("rPid").value) || "",
         clicks: Number($("rClicks").value) || 0,
         sales: Number($("rSales").value) || 0
       });
@@ -946,7 +970,10 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
         });
       });
     });
+    if(window.MZ_WORK) window.MZ_WORK(a, $("workRoot"));
   }
+  window.MZ_H = { esc:esc, uid:uid, yen:yen, todayStr:todayStr, toast:toast, confirm:showConfirm,
+    save:function(){ save(); renderAccount(); }, saveOnly:function(){ save(); } };
 
   /* ---------- 便利な機能 ---------- */
   $("exportBtn").addEventListener("click", function(){
