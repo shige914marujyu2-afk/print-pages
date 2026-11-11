@@ -318,7 +318,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 <div class="ttl">マネタイズ班</div>
 <div class="sp"></div>
 <span class="hbtns"><button class="lock-btn" type="button" onclick="mzRefresh()" title="最新か確認">🔄</button><button class="lock-btn" type="button" id="themeBtn" onclick="toggleTheme()">🌙</button><button class="lock-btn" type="button" id="admTop" hidden onclick="admOpen()" title="管理者メニュー">🔑</button></span>
-</div><span class="ver">版 <span id="verNow">2026-11-11b</span></span>
+</div><span class="ver">版 <span id="verNow">2026-11-11c</span></span>
 <nav class="tabbar" aria-label="画面切替">
 <button type="button" data-tab="hq" class="on">本部</button>
 <button type="button" data-tab="account">アカウント</button>
@@ -330,6 +330,11 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 <!-- ===== 本部 ===== -->
 <section class="tabpage on" id="page-hq">
 <div class="totals" id="hqTotals"></div>
+
+<div class="card">
+<h2>目標の数字 <span class="hint">設計図・本人が決定（2026-11-10）</span></h2>
+<div id="hqGoals"></div>
+</div>
 
 <div class="card">
 <h2>アカウント一覧 <span class="hint">1アカウント＝1チーム（シート）</span></h2>
@@ -423,7 +428,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 <div class="field">
 <label for="importText">読み込み文字列</label>
 <textarea class="area" id="importText" placeholder="書き出した文字列をここに貼り付けてください"></textarea>
-<p class="note">読み込むと、今のデータは文字列の内容に<strong>そっくり入れ替わります</strong>。合言葉も文字列に含まれます。</p>
+<p class="note">読み込むと、今のデータは文字列の内容に<strong>そっくり入れ替わります</strong>。みんなのデータも入れ替わるので、使う前に「書き出し」で今のデータを控えてください。</p>
 </div>
 <button type="button" class="btn" id="importBtn">読み込む（入れ替え）</button>
 </div>
@@ -467,18 +472,17 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 <div class="card">
 <h2>AIとの分担と、今後の進め方</h2>
 <p class="desc mb0">
-このアプリは、AIに修正を頼んで書き換えていく前提で作った<strong>見本（サンプル）</strong>です。進め方は、
-①まずMuseができる範囲で見本を作り、全体の流れを目で見て確認する → ②本人と一緒に見本を直して良くしていく →
-③Claude／Claude Codeなど別のAIも加わる → ④デザイン・マーケティング・プログラムなど、誰が何を担当するかは
-<strong>本人が決める</strong> → ⑤本番を作る、という順番です。役割分担はまだ決まっていません。
-修正したら、公開先（GitHubなど）にバックアップしてから配る、というシフト表アプリと同じ流れで進めます。
+このアプリは<strong>本番</strong>です（2026-11-11〜）。直し方の流れは、
+①本人がアプリを触って、直したい所・足したい所を見つける → ②本人とMuseで話し、Museがまとめを伝言板に書く →
+③Claude Codeがまとめを読んでコードを書き換える（大きな変更は本人に確認してから）→ ④GitHubに保存して公開し、Museに結果を報告、という順番です。
+ログイン・パスワード・APIトークンの入力は、AIではなく本人が行います。
 </p>
 </div>
 
 <div class="card">
-<h2>データの全消去</h2>
-<p class="desc">この端末に保存された全データ（アカウント・商品・記録・合言葉）を消します。消す前に、必要なら上の「書き出し」で文字列を控えてください。</p>
-<button type="button" class="btn danger-ghost" id="wipeBtn">全データを消去する</button>
+<h2>この端末の控えを消して読み直す</h2>
+<p class="desc">この端末に残っている控えを消して、ネット側の最新を読み込み直します。表示がおかしい時に使います。みんなのデータ（ネット側）は消えません。</p>
+<button type="button" class="btn danger-ghost" id="wipeBtn">控えを消して読み直す</button>
 </div>
 </section>
 </main>
@@ -691,9 +695,27 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
       if(d.getDate() % 5 === 0){ upcoming.push((d.getMonth()+1) + "月" + d.getDate() + "日"); }
       d.setDate(d.getDate() + 1); guard++;
     }
+    renderGoals(month, ym);
     $("saleDays").textContent = upcoming.length ? "次は " + upcoming.join("・") : "—";
     var rm = $("reviewMemo");
     if(document.activeElement !== rm){ rm.value = data.review || ""; }
+  }
+  var GOALS = [ { ym:"2027-02", label:"段階目標1：3か月後", amount:1000 }, { ym:"2027-05", label:"段階目標2：半年後", amount:5000 } ];
+  function renderGoals(month, ym){
+    var html = GOALS.map(function(g){
+      var y = g.ym.slice(0,4), m = Number(g.ym.slice(5,7));
+      return '<div class="sum-line"><span>' + g.label + '（' + y + '年' + m + '月）</span><b>月' + yen(g.amount) + '</b></div>';
+    }).join("");
+    var next = null;
+    for(var i=0;i<GOALS.length;i++){ if(ym <= GOALS[i].ym){ next = GOALS[i]; break; } }
+    if(next){
+      var pct = Math.min(100, Math.round(month / next.amount * 100));
+      html += '<p class="small mt">今月（' + monthLabel(ym) + '）の売上 <b class="num">' + yen(month) + '</b> ／ 次の目標 月' + yen(next.amount) + '（達成度 ' + pct + '％）</p>' +
+        '<div style="height:8px;border-radius:99px;background:var(--line,#ddd);overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--accent,#c0392b)"></div></div>';
+    }else{
+      html += '<p class="small mt">決めた目標の期限を過ぎました。次の目標は本人が決めます。</p>';
+    }
+    $("hqGoals").innerHTML = html;
   }
   $("addAccountForm").addEventListener("submit", function(ev){
     ev.preventDefault();
