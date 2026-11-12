@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>AI共用保管庫の地図</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#1d2430;font-family:"Hiragino Sans","BIZ UDPGothic",sans-serif;font-size:16px;line-height:1.7}
+.wrap{max-width:820px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:2px solid #1d2430;padding-bottom:8px;margin-bottom:12px}
+h1{font-size:22px;margin:0}.meta{color:#5b6573;font-size:13px}
+.printbtn{background:#1f5fbf;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+h2{font-size:18px;margin:20px 0 6px;padding-left:8px;border-left:4px solid #1f5fbf}
+.tbl{overflow-x:auto}td,th{word-break:break-word}table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{border:1px solid #d9dee5;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f6f8fb}
+td.n{text-align:right;white-space:nowrap}.best{background:#e3f4e6;font-weight:700}
+ul{margin:4px 0;padding-left:1.2em}.warn{color:#b3261e;font-weight:700}
+@page{size:A4;margin:36mm 32mm}
+@media print{.printbar{display:none!important}body{font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap{padding:0;max-width:none}.tbl{overflow:visible!important}table{min-width:0!important;width:100%;table-layout:fixed;font-size:9.5px;page-break-inside:auto}tr{break-inside:avoid}th,td{padding:2px 3px;word-break:break-all}td.n{white-space:normal}th:first-child,td:first-child{width:26%}h1{font-size:16px}h2{font-size:13px;break-after:avoid}}
+</style></head><body><div class="wrap">
+<header><div><h1>AI共用保管庫の地図</h1><div class="meta">2026年11月12日時点・「どこに何があるか」だけの一覧表</div></div>
+<div class="printbar"><button class="printbtn" onclick="window.print()">この表を印刷する</button></div></header>
+
+<p>この保管庫の「どこに何があるか」だけを書いた地図です。ルールの中身は、ルール.md と 決め事/基本ルール.md を見てください。</p>
+
+<h2>この保管庫は2か所にあります</h2>
+<ul>
+<li>Mac側：Obsidianの保管庫（iCloud）の中</li>
+<li>GitHub側：リポジトリ daini-no-nou の中の「AI共用保管庫」フォルダ</li>
+<li>原則は両方に同じものが入ることですが、片方だけ新しいことがあります。状態を確かめるときは、両方を見てください</li>
+<li>例外：実物資料の実物ファイル（写真・動画）は、Mac側にだけあります。GitHub側の実物資料には目次だけがあります</li>
+</ul>
+
+<h2>フォルダとファイル</h2>
+<div class="tbl"><table>
+<tr><th>置き場所</th><th>中身</th><th>いつ使うか</th></tr>
+<tr><td>伝言板/</td><td>AI同士の伝言（宛先ごとのファイル）</td><td>作業の前に、自分の宛先を読む。詳しくは 伝言板/目次.md</td></tr>
+<tr><td>引き継ぎ/</td><td>まとまった引き継ぎ文書</td><td>作業の前提を確かめるとき。詳しくは 引き継ぎ/目次.md</td></tr>
+<tr><td>決め事/</td><td>基本ルール.md（決まったルール）</td><td>ルールを確かめるとき</td></tr>
+<tr><td>経緯/</td><td>決めたことの経緯の記録</td><td>なぜそう決めたかを確かめるとき</td></tr>
+<tr><td>好みとニュアンス/</td><td>本人の好みと言い回し（現在は空）</td><td>必要になったらここへ</td></tr>
+<tr><td>実物資料/</td><td>本物の仕事資料の控え</td><td>扱いは 実物資料/取扱い.md と 実物資料/目次.md を先に読む</td></tr>
+<tr><td>CLAUDE.md</td><td>Claude向けの案内</td><td>Claudeが最初に読む</td></tr>
+<tr><td>ルール.md</td><td>この保管庫のルール</td><td>保管庫の使い方を確かめるとき</td></tr>
+<tr><td>地図.md</td><td>この表のもとになったファイル</td><td>場所を探すとき</td></tr>
+</table></div>
+
+<h2>新しいものの置き場所</h2>
+<ul>
+<li>伝言は、伝言板の宛先ファイルの一番上へ（日付と送り手を書く。消さない）</li>
+<li>まとまった文書は、引き継ぎへ（ファイル名は「日付_名前.md」）</li>
+<li>決まったルールは、決め事へ。その経緯は、経緯へ</li>
+<li>実物は、実物資料の日付フォルダへ</li>
+</ul>
+
+<h2>健康診断</h2>
+<ul>
+<li>毎週月曜の朝、Museが両側を比べて、伝言板の食い違い・目次とのズレ・重複を点検して報告します。点検と報告だけで、削除・移動・書き換えはしません</li>
+</ul>
+
+<h2>絶対ルール</h2>
+<ul>
+<li class="warn">この保管庫のものは削除しない（削除が必要なときは本人に相談する）</li>
+<li>実物の個人が特定できる情報は、表に出さない・報告にも書かない</li>
+</ul>
+
+</div></body></html>
