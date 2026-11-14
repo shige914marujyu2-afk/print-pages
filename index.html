@@ -318,7 +318,7 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 <div class="ttl">マネタイズ班</div>
 <div class="sp"></div>
 <span class="hbtns"><button class="lock-btn" type="button" onclick="mzRefresh()" title="最新か確認">🔄</button><button class="lock-btn" type="button" id="themeBtn" onclick="toggleTheme()">🌙</button><button class="lock-btn" type="button" id="admTop" hidden onclick="admOpen()" title="管理者メニュー">🔑</button></span>
-</div><span class="ver">版 <span id="verNow">2026-11-13a</span></span>
+</div><span class="ver">版 <span id="verNow">2026-11-14a</span></span>
 <nav class="tabbar" aria-label="画面切替">
 <button type="button" data-tab="hq" class="on">本部</button>
 <button type="button" data-tab="account">アカウント</button>
@@ -337,19 +337,34 @@ opacity:0;pointer-events:none;transition:opacity.25s,transform.25s;z-index:80;ma
 </div>
 
 <div class="card">
-<h2>アカウント一覧 <span class="hint">1アカウント＝1チーム（シート）</span></h2>
+<h2>アカウント一覧 <span class="hint">人 → 楽天ROOM → SNSアカウント（1アカウント＝1シート）</span></h2>
 <div id="hqAccounts"></div>
 <hr class="divider" />
 <form id="addAccountForm">
+<p style="font-weight:700;margin:0 0 10px;">新しいアカウントを追加</p>
+<div class="row-flex">
+<div class="field grow"><label for="newAccountOwner">だれの？</label><select id="newAccountOwner"></select></div>
+<div class="field grow"><label for="newAccountPlat">SNSの種類</label><select id="newAccountPlat"></select></div>
+</div>
 <div class="row-flex">
 <div class="field grow mb0">
-<label for="newAccountName">新しいアカウントを追加</label>
+<label for="newAccountName">アカウント名</label>
 <input type="text" id="newAccountName" placeholder="アカウント名（例：◯◯の暮らし）" />
 </div>
 <button type="submit" class="btn">シートを追加</button>
 </div>
-<p class="small mt">アカウントが増えたら、ここでシートを足すだけです。本部は1つのまま、全体を見ます。</p>
+<p class="small mt">SNSが増えたら、ここでシートを足すだけです。同じ人のシートは、同じ楽天ROOMのリンクを使います。テーマは後から決められます。</p>
 </form>
+</div>
+
+<div class="card">
+<h2>人と楽天ROOM <span class="hint">楽天ROOMは、人ごとに1つ</span></h2>
+<p class="desc">ここに入れた楽天ROOMのリンクが、その人のすべてのシートに入ります。欄を用意してあるだけで、使うかどうかは本人しだいです。</p>
+<div id="hqOwners"></div>
+<hr class="divider" />
+<form id="addOwnerForm"><div class="row-flex">
+<div class="field grow mb0"><label for="newOwnerName">人を追加</label><input type="text" id="newOwnerName" placeholder="例）家族の名前・呼び名" /></div>
+<button type="submit" class="btn sub">追加</button></div></form>
 </div>
 
 <div class="card">
@@ -518,7 +533,7 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
 .wkgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.wkgrid div{background:var(--surface-2);border-radius:10px;padding:8px;text-align:center}.wkgrid b{display:block;font-size:16px}.wkgrid span{font-size:11.5px;color:var(--ink-3)}
 .wkbar{display:grid;grid-template-columns:44px 1fr auto;gap:6px;align-items:center;font-size:12.5px;margin:3px 0}.wkbar i{display:block;height:10px;border-radius:5px;background:var(--accent);min-width:2px}.wkbar b{font-weight:500;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
-<script src="work.js?v=20261113a"></script>
+<script src="work.js?v=20261114a"></script>
 <script>
 (function(){
   "use strict";
@@ -577,10 +592,23 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
   });
 
   /* ---------- データ ---------- */
-  function blankData(){ return { pass:"", review:"", accounts:[] }; }
+  var PLATFORMS = ["Instagram","YouTube","TikTok","Threads","X","楽天ROOMのみ（SNSなし）","その他"];
+  var ROOM_ONLY = "楽天ROOMのみ（SNSなし）";
+  var THEMES = ["料理・レシピ","健康・ダイエット","収納・インテリア","キッチン用品","家電・ガジェット","車・カー用品","仕事の道具","日用品・暮らし","美容・ファッション","子育て","ペット","アウトドア・旅行"];
+  var OWNER_KEYS = ["roomUrl","rank","rankNext","rankDate"];   // 人（楽天ROOM）ごとに持つもの
+  function defaultOwners(){ return [ { id:"me", name:"本人", roomUrl:"", rank:"", rankNext:"", rankDate:"" }, { id:"wife", name:"妻", roomUrl:"", rank:"", rankNext:"", rankDate:"" } ]; }
+  function syncOwnerFields(){ data.accounts.forEach(function(x){ var o = getOwner(x.ownerId); OWNER_KEYS.forEach(function(k){ x[k] = o[k]; }); }); }
+  function blankData(){ return { pass:"", review:"", accounts:[], owners:defaultOwners() }; }
+  function getOwner(id){
+    for(var i=0;i<data.owners.length;i++){ if(data.owners[i].id === id) return data.owners[i]; }
+    return data.owners[0];
+  }
+  function platOf(a){ return PLATFORMS.indexOf(a.platform) >= 0 ? a.platform : "Instagram"; }
+  function accLabel(a){ return getOwner(a.ownerId).name + "｜" + (platOf(a) === ROOM_ONLY ? "ROOMのみ" : platOf(a)); }
   function newAccount(name){
     return {
       id: uid(), name: name, theme: "",
+      ownerId: "me", platform: "Instagram",
       roomUrl: "", igUrl: "",
       flow: { post:false, story:false, highlight:false, profile:false },
       themeHistory: [], products: [], records: [], cands: [],
@@ -592,7 +620,14 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
     if(typeof d.pass !== "string") d.pass = "";
     if(typeof d.review !== "string") d.review = "";
     if(!Array.isArray(d.accounts)) d.accounts = [];
+    if(!Array.isArray(d.owners) || !d.owners.length) d.owners = defaultOwners();
+    d.owners.forEach(function(o){ if(typeof o.id !== "string" || !o.id) o.id = uid(); if(typeof o.name !== "string" || !o.name) o.name = "（名前なし）"; OWNER_KEYS.forEach(function(k){ if(typeof o[k] !== "string") o[k] = ""; }); });
+    var ownerById = {}; d.owners.forEach(function(o){ ownerById[o.id] = o; });
     d.accounts.forEach(function(a){
+      if(typeof a.ownerId !== "string" || !ownerById[a.ownerId]) a.ownerId = d.owners[0].id;
+      if(typeof a.platform !== "string" || !a.platform) a.platform = "Instagram";
+      if(typeof a.roomUrl === "string" && a.roomUrl && !ownerById[a.ownerId].roomUrl) ownerById[a.ownerId].roomUrl = a.roomUrl;
+      if(typeof a.rank === "string" && a.rank && !ownerById[a.ownerId].rank){ var ow0 = ownerById[a.ownerId]; ow0.rank = a.rank; ow0.rankNext = typeof a.rankNext === "string" ? a.rankNext : ""; ow0.rankDate = typeof a.rankDate === "string" ? a.rankDate : ""; }
       if(typeof a.theme !== "string") a.theme = "";
       if(typeof a.roomUrl !== "string") a.roomUrl = "";
       if(typeof a.igUrl !== "string") a.igUrl = "";
@@ -604,6 +639,7 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
       if(!Array.isArray(a.cands)) a.cands = [];
       ["target","rank","rankNext","rankDate","insight","insightNote"].forEach(function(k){ if(typeof a[k] !== "string") a[k] = ""; });
     });
+    d.accounts.forEach(function(a){ var o = ownerById[a.ownerId]; OWNER_KEYS.forEach(function(k){ a[k] = o[k]; }); });
     return d;
   }
   function load(){
@@ -667,16 +703,21 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
       box.innerHTML = '<div class="empty"><strong>まだアカウントがありません</strong>' +
         '下のフォームから、最初のアカウントのシートを追加してください。テーマは後から決められます。</div>';
     }else{
-      box.innerHTML = data.accounts.map(function(a){
+      box.innerHTML = data.owners.map(function(o){
+        var list = data.accounts.filter(function(a){ return a.ownerId === o.id; });
+        if(!list.length) return "";
+        return '<p style="font-weight:900;margin:12px 0 2px;">' + esc(o.name) + ' <span class="small">楽天ROOM：' + (o.roomUrl ? '<a href="' + esc(o.roomUrl) + '" target="_blank" rel="noopener">開く</a>' : '未入力') + '</span></p>' +
+        list.map(function(a){
         var fc = flowCount(a);
         var dots = "";
         for(var i=0;i<4;i++){ dots += '<i class="' + (i < fc ? "done" : "") + '"></i>'; }
         return '<div class="acc-row">' +
-          '<div class="info"><div class="nm">' + esc(a.name) + '<span class="flow-dots" title="導線チェック ' + fc + '/4">' + dots + '</span></div>' +
+          '<div class="info"><div class="nm">' + esc(a.name) + ' <span class="badge">' + esc(platOf(a) === ROOM_ONLY ? "ROOMのみ" : platOf(a)) + '</span><span class="flow-dots" title="導線チェック ' + fc + '/4">' + dots + '</span></div>' +
           '<div class="th">テーマ：' + (a.theme ? esc(a.theme) : '未設定') + '</div></div>' +
           '<div class="fig"><div class="s num">' + yen(accTotal(a)) + '</div><div class="m">今月 ' + yen(accMonth(a, ym)) + '</div></div>' +
           '<button type="button" class="btn small" data-open-acc="' + a.id + '">開く</button>' +
         '</div>';
+        }).join("");
       }).join("");
       box.querySelectorAll("[data-open-acc]").forEach(function(b){
         b.addEventListener("click", function(){
@@ -684,6 +725,33 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
           curTab = "account";
           renderAll();
           window.scrollTo({ top:0 });
+        });
+      });
+    }
+    // 人と楽天ROOM・追加フォームの選択肢
+    var selO = $("newAccountOwner"), selP = $("newAccountPlat");
+    var keepO = selO.value, keepP = selP.value;
+    selO.innerHTML = data.owners.map(function(o){ return '<option value="' + esc(o.id) + '">' + esc(o.name) + '</option>'; }).join("");
+    selP.innerHTML = PLATFORMS.map(function(x){ return '<option>' + esc(x) + '</option>'; }).join("");
+    if(keepO && data.owners.some(function(o){ return o.id === keepO; })) selO.value = keepO;
+    if(keepP) selP.value = keepP;
+    var ob = $("hqOwners");
+    if(!ob.contains(document.activeElement)){
+      ob.innerHTML = data.owners.map(function(o){
+        var n = data.accounts.filter(function(a){ return a.ownerId === o.id; }).length;
+        return '<div class="item-row"><div class="t">' + esc(o.name) + ' <span class="small">シート ' + n + ' 件 ／ ROOMのランク：' + (o.rank ? esc(o.rank) + (o.rankDate ? '（' + esc(o.rankDate) + ' 確認）' : '') : '未入力') + '</span></div>' +
+          '<div class="row-flex mt"><div class="field grow mb0"><label>楽天ROOMのリンク</label>' +
+          '<input type="url" data-owner-room="' + esc(o.id) + '" placeholder="https://room.rakuten.co.jp/…" value="' + esc(o.roomUrl) + '" /></div>' +
+          '<button type="button" class="btn sub small" data-owner-save="' + esc(o.id) + '">保存</button></div></div>';
+      }).join("");
+      ob.querySelectorAll("[data-owner-save]").forEach(function(b){
+        b.addEventListener("click", function(){
+          var id = b.getAttribute("data-owner-save"), o = getOwner(id);
+          var inp = ob.querySelector('[data-owner-room="' + id + '"]');
+          o.roomUrl = inp.value.trim();
+          syncOwnerFields();
+          save(); document.activeElement.blur(); renderAll();
+          toast(o.name + "の楽天ROOMのリンクを保存しました");
         });
       });
     }
@@ -722,7 +790,10 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
     var name = $("newAccountName").value.trim();
     if(!name){ toast("アカウント名を入れてください"); return; }
     var a = newAccount(name);
+    a.ownerId = getOwner($("newAccountOwner").value).id;
+    a.platform = $("newAccountPlat").value || "Instagram";
     data.accounts.push(a);
+    syncOwnerFields();
     curAccountId = a.id;
     $("newAccountName").value = "";
     save();
@@ -730,6 +801,16 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
     renderAll();
     window.scrollTo({ top:0 });
     toast("アカウントのシートを追加しました");
+  });
+  $("addOwnerForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var nm = $("newOwnerName").value.trim();
+    if(!nm){ toast("名前を入れてください"); return; }
+    if(data.owners.some(function(o){ return o.name === nm; })){ toast("同じ名前の人がいます"); return; }
+    data.owners.push({ id: uid(), name: nm, roomUrl: "" });
+    $("newOwnerName").value = "";
+    save(); renderAll();
+    toast("人を追加しました");
   });
   $("saveReviewBtn").addEventListener("click", function(){
     data.review = $("reviewMemo").value;
@@ -744,6 +825,17 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
     { key:"highlight", label:"③ ハイライトに保存",      sub:"リンク付きストーリーズをハイライトに残す" },
     { key:"profile",   label:"④ プロフィールにROOMリンク", sub:"プロフィールに楽天ROOMのリンクを置く" }
   ];
+  var FLOW_BY = {
+    "YouTube": [["① 動画で紹介","ショート・動画で商品を紹介する"],["② 概要欄にリンク","紹介リンクを概要欄に貼る"],["③ 固定コメントに残す","リンクつきのコメントを固定する"],["④ チャンネル概要にROOMリンク","チャンネルの概要に楽天ROOMのリンクを置く"]],
+    "TikTok": [["① 動画で紹介","動画で商品を紹介する"],["② 説明文で案内","「プロフィールから見られます」と書く"],["③ ピン留めに残す","紹介の動画をピン留めする"],["④ プロフィールにROOMリンク","プロフィールに楽天ROOMのリンクを置く"]],
+    "Threads": [["① 投稿で紹介","投稿で商品を紹介する"],["② 投稿にリンク","紹介リンクを投稿に貼る"],["③ 固定の投稿に残す","リンクつきの投稿を固定する"],["④ プロフィールにROOMリンク","プロフィールに楽天ROOMのリンクを置く"]],
+    "楽天ROOMのみ（SNSなし）": [["① ROOMに投稿","商品を「コレ！」して紹介文を入れる"],["② ハッシュタグを入れる","探されている言葉を、商品に合うものだけ"],["③ コレクションに入れる","何のまとまりか分かる名前のコレクションへ"],["④ プロフィール文を整える","何を紹介しているROOMかが分かる言葉を入れる"]]
+  };
+  FLOW_BY["X"] = FLOW_BY["Threads"]; FLOW_BY["その他"] = FLOW_BY["Threads"];
+  function flowItems(a){
+    var f = FLOW_BY[platOf(a)]; if(!f) return FLOW_ITEMS;
+    return FLOW_ITEMS.map(function(it, i){ return { key:it.key, label:f[i][0], sub:f[i][1] }; });
+  }
   var PRODUCT_STATUS = ["未投稿","投稿済み","売れた","再紹介する"];
 
   function statusBadge(st){
@@ -766,10 +858,11 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
     var ym = thisMonth();
 
     var chips = data.accounts.map(function(x){
-      return '<button type="button" data-chip="' + x.id + '" class="' + (x.id === curAccountId ? "on" : "") + '">' + esc(x.name) + '</button>';
+      return '<button type="button" data-chip="' + x.id + '" class="' + (x.id === curAccountId ? "on" : "") + '">' + esc(x.name) + '<small style="font-weight:500;opacity:.8"> ' + esc(accLabel(x)) + '</small></button>';
     }).join("");
 
-    var flowHtml = FLOW_ITEMS.map(function(it){
+    var plat = platOf(a), owner = getOwner(a.ownerId);
+    var flowHtml = flowItems(a).map(function(it){
       var on = !!a.flow[it.key];
       return '<button type="button" class="flow-item' + (on ? " done" : "") + '" data-flow="' + it.key + '" aria-pressed="' + on + '">' +
         '<span class="box">' + (on ? "✓" : "") + '</span>' +
@@ -833,12 +926,16 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
         '<input type="text" id="accName" value="' + esc(a.name) + '" /></div>' +
         '<div class="field"><label>収益の柱</label>' +
         '<p class="desc mb0">楽天ROOM ＋ アフィリエイト（全アカウント共通の柱です）</p></div>' +
-        '<div class="field"><label for="roomUrl">楽天ROOMのリンク</label>' +
-        '<input type="url" id="roomUrl" placeholder="https://room.rakuten.co.jp/…" value="' + esc(a.roomUrl) + '" />' +
-        (a.roomUrl ? '<p class="note"><a href="' + esc(a.roomUrl) + '" target="_blank" rel="noopener">楽天ROOMを開く</a></p>' : '') + '</div>' +
-        '<div class="field"><label for="igUrl">Instagramのリンク</label>' +
-        '<input type="url" id="igUrl" placeholder="https://www.instagram.com/…" value="' + esc(a.igUrl) + '" />' +
-        (a.igUrl ? '<p class="note"><a href="' + esc(a.igUrl) + '" target="_blank" rel="noopener">Instagramを開く</a></p>' : '') + '</div>' +
+        '<div class="row-flex">' +
+          '<div class="field grow"><label for="accOwner">だれの？</label><select id="accOwner">' + data.owners.map(function(o){ return '<option value="' + esc(o.id) + '"' + (o.id === owner.id ? " selected" : "") + '>' + esc(o.name) + '</option>'; }).join("") + '</select></div>' +
+          '<div class="field grow"><label for="accPlat">SNSの種類</label><select id="accPlat">' + PLATFORMS.map(function(x){ return '<option' + (x === plat ? " selected" : "") + '>' + esc(x) + '</option>'; }).join("") + '</select></div></div>' +
+        '<div class="field"><label for="roomUrl">' + esc(owner.name) + 'の楽天ROOMのリンク</label>' +
+        '<input type="url" id="roomUrl" placeholder="https://room.rakuten.co.jp/…" value="' + esc(owner.roomUrl) + '" />' +
+        '<p class="note">楽天ROOMは人ごとに1つです。ここを変えると、' + esc(owner.name) + 'のほかのシートにも同じリンクが入ります。' + (owner.roomUrl ? ' <a href="' + esc(owner.roomUrl) + '" target="_blank" rel="noopener">楽天ROOMを開く</a>' : '') + '</p></div>' +
+        (plat === ROOM_ONLY ? '<p class="note">このシートは「楽天ROOMのみ」です。SNSのリンクは要りません。作業場の「🔎 ROOMで見つけてもらう」を中心に進めます。</p>' :
+        '<div class="field"><label for="igUrl">' + esc(plat) + 'のリンク</label>' +
+        '<input type="url" id="igUrl" placeholder="https://…" value="' + esc(a.igUrl) + '" />' +
+        (a.igUrl ? '<p class="note"><a href="' + esc(a.igUrl) + '" target="_blank" rel="noopener">' + esc(plat) + 'を開く</a></p>' : '') + '</div>') +
         '<button type="button" class="btn sub" id="saveBasicBtn">基本情報を保存</button> ' +
         '<button type="button" class="btn danger-ghost small" id="delAccountBtn">このアカウントを削除</button>' +
       '</div>' +
@@ -846,14 +943,16 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
       '<div class="card"><h2>テーマ <span class="hint">変更すると履歴に残ります</span></h2>' +
         '<p class="desc">現在：<strong>' + (a.theme ? esc(a.theme) : "未設定") + '</strong></p>' +
         '<form id="themeForm"><div class="row-flex">' +
-        '<div class="field grow mb0"><label for="newTheme">新しいテーマ</label>' +
-        '<input type="text" id="newTheme" placeholder="例）料理レシピ → 健康ダイエット" /></div>' +
+        '<div class="field grow mb0"><label for="themeSel">テーマを選ぶ</label>' +
+        '<select id="themeSel"><option value="">（選んでください）</option>' + THEMES.map(function(t){ return '<option>' + esc(t) + '</option>'; }).join("") + '<option value="__custom">自分で書く</option></select></div>' +
+        '<div class="field grow mb0" id="newThemeWrap" hidden><label for="newTheme">自分で書く</label>' +
+        '<input type="text" id="newTheme" placeholder="例）中年夫婦のゆる健康ごはん" /></div>' +
         '<button type="submit" class="btn">テーマを変更</button></div></form>' +
         '<hr class="divider" /><p style="font-weight:700;margin:0 0 4px;">変更履歴</p>' + historyHtml +
       '</div>' +
 
       '<div class="card"><h2>導線チェック <span class="hint">' + fc + ' / 4 完了</span></h2>' +
-        '<p class="desc">全アカウント共通の固定の型です。タップで「済み／まだ」を切り替えます。</p>' +
+        '<p class="desc">' + esc(plat === ROOM_ONLY ? "楽天ROOMのみ" : plat) + 'の型です（SNSの種類で中身が変わります）。タップで「済み／まだ」を切り替えます。' + (plat === "Instagram" ? '' : '<br><span class="small">※Instagram以外の型は目安です。リンクを貼れる条件は各SNSの決まりを確かめてください。</span>') + '</p>' +
         flowHtml +
       '</div>' +
 
@@ -904,8 +1003,13 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
       var nm = $("accName").value.trim();
       if(!nm){ toast("アカウント名を入れてください"); return; }
       a.name = nm;
-      a.roomUrl = $("roomUrl").value.trim();
-      a.igUrl = $("igUrl").value.trim();
+      a.ownerId = getOwner($("accOwner").value).id;
+      a.platform = $("accPlat").value || "Instagram";
+      var ow = getOwner(a.ownerId), ru = $("roomUrl").value.trim();
+      if(ow.id === owner.id) ow.roomUrl = ru;          // 持ち主を変えた時は、移る先の人のリンクを上書きしない
+      else if(!ow.roomUrl && ru) ow.roomUrl = ru;
+      syncOwnerFields();
+      if($("igUrl")) a.igUrl = $("igUrl").value.trim();
       save(); renderAll();
       toast("基本情報を保存しました");
     });
@@ -917,10 +1021,12 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
         toast("アカウントを削除しました");
       });
     });
+    $("themeSel").addEventListener("change", function(){ var c = this.value === "__custom"; $("newThemeWrap").hidden = !c; if(c) $("newTheme").focus(); });
     $("themeForm").addEventListener("submit", function(ev){
       ev.preventDefault();
-      var nt = $("newTheme").value.trim();
-      if(!nt){ toast("新しいテーマを入れてください"); return; }
+      var sv = $("themeSel").value;
+      var nt = sv === "__custom" ? $("newTheme").value.trim() : sv;
+      if(!nt){ toast(sv === "__custom" ? "テーマを書いてください" : "テーマを選んでください"); return; }
       if(nt === a.theme){ toast("今のテーマと同じです"); return; }
       a.themeHistory.push({ date: todayStr(), from: a.theme || "", to: nt });
       a.theme = nt;
@@ -994,7 +1100,7 @@ details.wk[open]>summary{border-bottom:1px solid var(--line)}
     });
     if(window.MZ_WORK) window.MZ_WORK(a, $("workRoot"));
   }
-  window.MZ_H = { esc:esc, uid:uid, yen:yen, todayStr:todayStr, toast:toast, confirm:showConfirm,
+  window.MZ_H = { setRank:function(a, r, d, n){ var o = getOwner(a.ownerId); o.rank = r; o.rankDate = d; o.rankNext = n; syncOwnerFields(); }, platOf:platOf, ownerName:function(a){ return getOwner(a.ownerId).name; }, roomOnly:ROOM_ONLY, esc:esc, uid:uid, yen:yen, todayStr:todayStr, toast:toast, confirm:showConfirm,
     save:function(){ save(); renderAccount(); }, saveOnly:function(){ save(); } };
 
   /* ---------- 便利な機能 ---------- */

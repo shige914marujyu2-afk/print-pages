@@ -97,12 +97,13 @@
       "・1枚目：困っている人（" + who + "）と吹き出し「" + tr + "」\n" +
       "・2枚目：" + p.name + "の絵と、使いどころの矢印\n" +
       "・3枚目：" + af + "の笑顔の場面＋「プロフィールのROOMへ」";
-    var ask = "次の商品を、楽天ROOMとInstagramで紹介します。下書きを作ってください。\n" +
-      "・アカウント：" + a.name + "（テーマ：" + (a.theme || "未設定") + "／誰に・何を：" + (a.target || "未設定") + "）\n" +
+    var PL = H().platOf(a), RO = PL === H().roomOnly;
+    var ask = "次の商品を、" + (RO ? "楽天ROOMだけ（SNSなし）" : "楽天ROOMと" + PL) + "で紹介します。下書きを作ってください。\n" +
+      "・アカウント：" + a.name + "（" + H().ownerName(a) + "／" + PL + "／テーマ：" + (a.theme || "未設定") + "／誰に・何を：" + (a.target || "未設定") + "）\n" +
       "・商品：" + p.name + (p.price ? "（" + p.price + "円）" : "") + (p.link ? "\n・リンク：" + p.link : "") + "\n" +
       "・誰が：" + (d.who || "未入力") + "／何に困って：" + (d.trouble || "未入力") + "／これでどうなる：" + (d.after || "未入力") + "\n" +
       "・ハッシュタグの候補：" + (tags || "未入力") + "\n\n" +
-      "ほしいもの：①楽天ROOM用の短い紹介文 ②Instagram用の投稿文（ハッシュタグは探す人が使う言葉で） ③リール（15〜30秒）の台本と画面の流れ ④イラスト（3枚）のラフ案。投稿は自分でします。";
+      "ほしいもの：①楽天ROOM用の短い紹介文 ②" + (RO ? "ROOMのプロフィールに入れる一文" : PL + "用の" + (PL === "YouTube" ? "概要欄の文" : "投稿文")) + "（ハッシュタグは探す人が使う言葉で） ③リール（15〜30秒）の台本と画面の流れ ④イラスト（3枚）のラフ案。投稿は自分でします。";
     return { room:room, ig:ig, reel:reel, illust:illust, ask:ask };
   }
   function calLink(p, date){
@@ -183,7 +184,7 @@
         '<div class="field"><label>これでどうなる</label><input type="text" id="wkDa" value="' + e(d.after) + '" placeholder="例）10分で1品できる" /></div>' +
         '<div class="field"><label>ハッシュタグの言葉（スペース区切り）</label><input type="text" id="wkDh" value="' + e(d.tags) + '" placeholder="例）時短ごはん 作り置き 楽天ROOM" /></div>' +
         '<button type="button" class="btn" id="wkDsave">下書きを作る（保存）</button>' +
-        [["楽天ROOM用（短め）","room"],["Instagram用（長め）","ig"],["リールの台本ラフ","reel"],["イラストのラフ案","illust"]].map(function(x){
+        [["楽天ROOM用（短め）","room"],[(H().platOf(a) === H().roomOnly ? "SNS用" : H().platOf(a) + "用") + "（長め）","ig"],["短い動画の台本ラフ","reel"],["イラストのラフ案","illust"]].map(function(x){
           return '<div class="wkout"><div class="wkoh"><b>' + x[0] + '</b><button type="button" class="btn sub small" data-wk-copy="' + x[1] + '">コピー</button></div><pre>' + e(T[x[1]]) + '</pre></div>';
         }).join("") +
         '<div class="wkout"><div class="wkoh"><b>🤖 AI（Muse・Claude）に頼む文</b><button type="button" class="btn small" data-wk-copy="ask">コピー</button></div><p class="note">コピーしてMuseやClaudeに貼ると、もっと良い下書き・本番のリール作りを頼めます。投稿はご自身で行います。</p></div>';
@@ -219,7 +220,7 @@
     var rows = a.products.map(function(p){ var t = perP[p.id] || { c:0, s:0, n:0 }; return { p:p, t:t }; }).sort(function(x,y){ return y.t.s - x.t.s || y.t.c - x.t.c; });
     var s5 = '<p class="desc">下の「記録」で商品を選んで入れると、商品ごとに合計されます。</p>' +
       (rows.length ? '<table class="wktbl"><tr><th>商品</th><th>クリック</th><th>売上</th></tr>' + rows.map(function(r){ return '<tr><td>' + e(r.p.name) + '</td><td class="num">' + r.t.c + '</td><td class="num">' + H().yen(r.t.s) + '</td></tr>'; }).join("") + '</table>' : '') +
-      '<hr class="divider" /><p style="font-weight:700;margin:0 0 8px">楽天ROOMのランク</p>' +
+      '<hr class="divider" /><p style="font-weight:700;margin:0 0 2px">' + e(H().ownerName(a)) + 'の楽天ROOMのランク</p><p class="note" style="margin:0 0 8px">ランクは人（楽天ROOM）ごとに1つです。ここで保存すると、' + e(H().ownerName(a)) + 'のほかのシートにも同じランクが入ります。</p>' +
       '<div class="row-flex"><div class="field grow"><label>今のランク</label><input type="text" id="wkRank" value="' + e(a.rank) + '" placeholder="例）C"></div>' +
       '<div class="field grow"><label>確認した日</label><input type="date" id="wkRankD" value="' + e(a.rankDate) + '"></div></div>' +
       '<div class="field"><label>次のランクの条件メモ（毎月変わります）</label><textarea class="area" id="wkRankN" placeholder="例）オリジナル写真の投稿 ○件、売上 ○件 など">' + e(a.rankNext) + '</textarea></div>' +
@@ -342,7 +343,7 @@
       var p = a.products.filter(function(x){ return x.id === c.getAttribute("data-wk-zd"); })[0]; if(!p) return;
       p.zeroDate = c.value; OPEN[a.id].s4 = true; H().save();
     }); });
-    $("wkRankSave").addEventListener("click", function(){ a.rank = $("wkRank").value.trim(); a.rankDate = $("wkRankD").value; a.rankNext = $("wkRankN").value.trim(); OPEN[a.id].s5 = true; H().save(); H().toast("ランクを保存しました"); });
+    $("wkRankSave").addEventListener("click", function(){ H().setRank(a, $("wkRank").value.trim(), $("wkRankD").value, $("wkRankN").value.trim()); OPEN[a.id].s5 = true; H().save(); H().toast("ランクを保存しました"); });
     $("wkInsAsk").addEventListener("click", function(){ copy(INSIGHT_ASK, "頼み方をコピーしました。Museに貼ってください"); });
     $("wkInsSave").addEventListener("click", function(){
       a.insight = $("wkIns").value; var n = parseInsight(a.insight).length; OPEN[a.id].s6 = true; H().save();
