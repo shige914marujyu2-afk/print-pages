@@ -56,7 +56,7 @@ async function adminPolicy(env, create) {
 }
 
 // 使用承諾書の版（文面を変えたら、この値を変える。変えると全員がもう一度同意する）
-const CONSENT_VER = "2026-11-22a";
+const CONSENT_VER = "2026-11-22b";
 async function consentOf(env, me) { return env.SHIFT_KV ? await env.SHIFT_KV.get("consent:" + me, "json") : null; }
 async function consentOk(env, me) { const c = await consentOf(env, me); return !!c && c.ver === CONSENT_VER; }
 const NOCONSENT = () => J({ error: "使用承諾書への同意が必要です", consent: true }, 403);

@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 </head>
 <body>
 <div id="verBar" hidden style="background:#fff4d6;border:2px solid #e0a000;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-weight:700">🔔 バージョンアップあり（<span id="verNew"></span>）　<button class="btn small" onclick="verUpdate()">更新する</button><div style="font-weight:400;font-size:13px;margin-top:4px">押すと新しい版に入れ替わります。入力したメンバーや休みはそのまま残ります。</div></div>
-<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-22a</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
+<div class="tophead"><div class="sticker" aria-label="いすゞ首都圏"><span class="r"></span><span class="b">いすゞ首都圏</span></div><div id="baseTag" class="baseName" hidden></div><h1>シフト自動作成ツール<small>版 <span id="verNow">2026-11-22b</span></small><span class="hbtns"><button type="button" class="btn sub small vchk" onclick="verManual()" title="最新か確認" aria-label="最新か確認">🔄<span>最新</span></button><button type="button" class="btn sub small thbtn" id="thBtn" onclick="toggleTheme()" title="ダーク／ライト切り替え" aria-label="ダーク／ライト切り替え">🌙<span>ダーク</span></button><button type="button" class="btn sub small" id="admTop" onclick="admOpen()" title="管理者メニュー">🔑<span>管理者メニュー</span></button></span></h1></div>
 <details class="guide" id="guideD"><summary class="gtitle gsum">📖 はじめての方へ<span class="fold" role="button" aria-label="開く／閉じる"></span></summary><div class="gtext">使い方の説明（A4で1枚）と動画を見ながら、この画面を<b>上から順番に</b>設定してください。タブも <b>① → ② → ③ → ④</b> の順に進めます（<b>⑤</b>は便利な機能）。</div><div class="row" style="margin:6px 0 0"><button type="button" class="btn" style="background:#c4302b" onclick="playVid('media/hajimekata.mp4','はじめかた')">▶ はじめかた動画</button><button type="button" class="btn" style="background:#c4302b" onclick="playVid('media/tsukaikata.mp4','使い方')">▶ 使い方動画</button><a class="btn" href="manual/?v=24" style="text-decoration:none">使い方の説明を見る</a><a class="btn sub" href="manual/shift-manual.pdf?v=24" target="_blank" rel="noopener" style="text-decoration:none">🖨 使い方の印刷はこちら</a></div></details><script>(function(){const d=document.getElementById("guideD");let o=null;try{o=localStorage.getItem("guideOpen")}catch(e){}d.open=o===null?true:o==="1";d.querySelector("summary").addEventListener("click",e=>{if(!e.target.closest(".fold"))e.preventDefault()});d.addEventListener("toggle",()=>{try{localStorage.setItem("guideOpen",d.open?"1":"0")}catch(e){}})})()</script>
 <div class="autobar"><button type="button" id="autoBtn" class="btn" onclick="autoToggle()">🤖 オートモード</button><span id="autoSt"></span></div>
 <div class="tabs">
@@ -495,23 +495,26 @@ function verPop(){if(document.getElementById("verPopBg"))return;const bg=documen
 function verUpdate(){try{store()}catch(e){}location.replace(location.pathname+"?v="+encodeURIComponent(VER_NEW||Date.now())+location.hash)}
 
 /* 使用承諾書：初めて開いた人（または承諾書の版が変わったとき）に出す。同意しないと使えない */
-const CONSENT_TEXT=`<p><b>【仮の文面】</b>正式な文面は、あとで入れ替わります。</p>
-<p>1. このソフトは、登録された人だけが使えます。ログイン情報（メールと確認の番号）は他の人に教えないでください。</p>
-<p>2. 入力する人の名前・社員番号・休みなどの情報は、この端末と、管理者が登録した保管場所にだけ保存されます。目的外には使いません。</p>
-<p>3. 管理者に送るデータ・要望は、管理者とソフト開発者が見ます。</p>
-<p>4. 表の内容は、業務のために使い、許可なく外に出したり、SNSなどに載せたりしないでください。</p>
-<p>5. 通信は暗号化されています。設定や登録者は、AIで定期的に点検します。</p>
-<p>6. このソフトの表は、あくまで作成の補助です。最終の確認は、自分で行ってください。</p>`;
-let CONSENT_VER="2026-11-22a";
+const CONSENT_TEXT=`<p>このシフト表には、仲間の名前や休みの希望など、大切な情報が入っています。使う前に、次の約束に同意してください。</p>
+<p>1. 登録したメールの本人だけが使います。ほかの人に、リンクや画面を渡しません。</p>
+<p>2. 中の情報（名前・社員番号・休みの希望など）は、仕事のシフトづくり以外に使いません。</p>
+<p>3. 画面の写真やスクリーンショットを、SNSやネットに出しません。</p>
+<p>4. お客様の情報や、シフトに必要のない個人情報は、入力しません。</p>
+<p>5. 使わなくなったときは、管理者に伝えます。</p>
+<p>6. 情報が外に出たかもしれないときや、おかしな動きに気づいたときは、すぐ管理者に伝えます。</p>
+<p style="font-size:13px;color:#444"><b>記録について</b><br>同意した人の「メール・日時・版」だけを記録します。それ以外の個人情報は、集めません。</p>`;
+let CONSENT_VER="2026-11-22b";
 function consentShow(retryNote){if(document.getElementById("cnBg"))return;const bg=document.createElement("div");bg.id="cnBg";
  bg.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:20000;display:flex;align-items:center;justify-content:center;padding:12px";
  bg.innerHTML=`<div style="background:#fff;color:#111;border-radius:16px;padding:16px;width:min(420px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.4)">
- <div style="font-size:19px;font-weight:700;text-align:center">📝 このソフトを使う前に</div>
+ <div style="font-size:19px;font-weight:700;text-align:center">📝 シフト表の使い方の約束</div>
  <div style="font-size:15px;line-height:1.7;overflow:auto;margin:8px 0;padding:8px;border:1px solid #ccc;border-radius:8px;flex:1">${CONSENT_TEXT}</div>
  <label style="display:flex;gap:8px;align-items:center;font-size:16px;margin:4px 0"><input id="cnChk" type="checkbox" style="width:22px;height:22px"> 上の内容に同意します</label>
  <div id="cnMsg" style="color:#c0303a;font-size:14px;min-height:20px">${retryNote||""}</div>
- <button id="cnBtn" class="btn" style="width:100%;padding:14px;font-size:19px" onclick="consentAgree()">同意して使う</button></div>`;
+ <button id="cnBtn" class="btn" style="width:100%;padding:14px;font-size:19px" onclick="consentAgree()">同意して使う</button>
+ <button class="btn sub" style="width:100%;padding:12px;font-size:16px;margin-top:8px" onclick="consentNo()">同意しない</button></div>`;
  document.body.appendChild(bg)}
+function consentNo(){$("cnMsg").textContent="同意しない場合は、このシフト表は使えません。管理者に伝えてください。"}
 async function consentAgree(){const m=$("cnMsg");if(!$("cnChk").checked){m.textContent="チェックを入れてください";return}
  m.textContent="記録中…";try{const j=await api("",{action:"consent",agree:true,ver:CONSENT_VER});try{localStorage.setItem("consentVer",j.ver)}catch(e){}document.getElementById("cnBg").remove()}catch(e){m.textContent="記録できませんでした："+e.message+"。通信を確かめて、もう一度押してください。"}}
 async function consentCheck(){try{const j=await api("?op=consent");CONSENT_VER=j.ver||CONSENT_VER;if(j.agreed){try{localStorage.setItem("consentVer",j.ver)}catch(e){}return}consentShow()}catch(e){let had="";try{had=localStorage.getItem("consentVer")||""}catch(_){}if(!had)consentShow("同意の状態を確認できませんでした。通信を確かめてください。")}}
