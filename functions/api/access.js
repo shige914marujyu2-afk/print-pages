@@ -55,6 +55,12 @@ async function adminPolicy(env, create) {
   return pol;
 }
 
+// 使用承諾書の版（文面を変えたら、この値を変える。変えると全員がもう一度同意する）
+const CONSENT_VER = "2026-11-22a";
+async function consentOf(env, me) { return env.SHIFT_KV ? await env.SHIFT_KV.get("consent:" + me, "json") : null; }
+async function consentOk(env, me) { const c = await consentOf(env, me); return !!c && c.ver === CONSENT_VER; }
+const NOCONSENT = () => J({ error: "使用承諾書への同意が必要です", consent: true }, 403);
+
 const DEF_BASES = ["八王子", "東村山", "瑞穂"];
 async function getBases(env) { const v = env.SHIFT_KV && await env.SHIFT_KV.get("bases"); return v ? JSON.parse(v) : DEF_BASES; }
 
@@ -72,9 +78,12 @@ export async function onRequest({ request, env }) {
     const me = await whoAmI(request);
     if (!me) return J({ error: "ログインが確認できません" }, 401);
     const url = new URL(request.url), op = url.searchParams.get("op");
+    // だれでも（ログインした人）：使用承諾書の状態・同意する
+    if (request.method === "GET" && op === "consent") { const c = await consentOf(env, me); return J({ ver: CONSENT_VER, agreed: !!c && c.ver === CONSENT_VER, at: c ? c.at : null }); }
     // だれでも（ログインした人）：拠点の一覧・拠点のデータ
     if (request.method === "GET" && op === "bases") return J({ bases: await getBases(env) });
     if (request.method === "GET" && op === "data") {
+      if (env.SHIFT_KV && !(await consentOk(env, me))) return NOCONSENT();
       const b = url.searchParams.get("base") || "";
       if (!env.SHIFT_KV) return J({ data: null });
       const v = await env.SHIFT_KV.get((url.searchParams.get("prev") ? "prev:" : "data:") + b, "json");
@@ -83,6 +92,14 @@ export async function onRequest({ request, env }) {
     // ログインした人なら誰でも：データを管理者に送る・要望を送る
     if (request.method === "POST" && env.SHIFT_KV) {
       const body0 = await request.clone().json().catch(() => ({}));
+      if (body0.action === "consent") {
+        if (body0.agree !== true || body0.ver !== CONSENT_VER) return J({ error: "承諾書の版が新しくなっています。画面を更新してください" }, 400);
+        const old = await consentOf(env, me);
+        const at = Date.now();
+        await env.SHIFT_KV.put("consent:" + me, JSON.stringify({ email: me, ver: CONSENT_VER, at, history: [...((old && old.history) || []).slice(-19), { ver: CONSENT_VER, at }] }));
+        return J({ ok: true, ver: CONSENT_VER, at });
+      }
+      if ((body0.action === "sendData" || body0.action === "request") && !(await consentOk(env, me))) return NOCONSENT();
       if (body0.action === "sendData") {
         const d = String(body0.data || "");
         if (!/^S3:/i.test(d) || d.length > 2000000) return J({ error: "データの形が正しくありません" }, 400);
@@ -117,6 +134,13 @@ export async function onRequest({ request, env }) {
         else out.push({ id: v.id, from: v.from, text: v.text, at: v.at, done: !!v.done, files: (v.files || []).map(f => ({ name: f.name, type: f.type, data: url2.searchParams.get("full") ? f.data : undefined })) }); }
       out.sort((a, b) => b.at - a.at);
       return J({ items: out });
+    }
+    if (request.method === "GET" && env.SHIFT_KV && op2 === "consents") {
+      const ls = await env.SHIFT_KV.list({ prefix: "consent:" });
+      const out = [];
+      for (const k of ls.keys) { const v = await env.SHIFT_KV.get(k.name, "json"); if (v) out.push({ email: v.email, ver: v.ver, at: v.at }); }
+      out.sort((a, b) => b.at - a.at);
+      return J({ ver: CONSENT_VER, items: out });
     }
     if (request.method === "GET" && env.SHIFT_KV && op2 === "inboxItem") {
       const v = await env.SHIFT_KV.get("inbox:" + url2.searchParams.get("id"), "json"); return J(v || { error: "見つかりません" }, v ? 200 : 404);
