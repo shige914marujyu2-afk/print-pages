@@ -3,10 +3,10 @@
       cfg:{min,wdMax,beTarget,beMax,weekOff,maxRun,minPairs,tri},offDows[i],wdPair[i],names[i],pastPairs[i],pastTri[i]} */
 (function(root){
 const STYLE={
- A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:20000,need:15000,quiet:20,dowFair:20},
- B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:30000,need:15000,quiet:60,dowFair:20}};
+ A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:20000,need:40000,quiet:20,dowFair:20},
+ B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:30000,need:40000,quiet:60,dowFair:20}};
 const PEN={run5:1000000,wk:3000000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
-const W8=c=>c.runFirst?{run5:100000,wk:200000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:200000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
+const W8=c=>c.runFirst?{run5:100000,wk:200000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5,busy:1,need:1}:{run5:100000,wk:200000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5,busy:400,need:300};
 /* 土日祝（全体休を除く）の日か */
 const isWE=(P,d)=>{const q=P.dow(d);return !P.hol.has(d)&&(q===0||q===6||P.shuku.has(d))};
 const ABS=c=>Math.max(4,c.maxRun);
@@ -107,7 +107,7 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
  return {off:bestOff,E:best}}
 /* 守れていないルールの数（人数・連勤・連休・個人の曜日） */
 function hardViol(P,prep,off){const {N,nd,dow,hol,prevRun,cfg,offDows}=P;const w=W8(cfg);const AB=ABS(cfg);let v=0;
- for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=w.lo*(r.lo-c)*(r.lo-c);if(c>r.hi)v+=w.hi*(c-r.hi)}
+ for(let d=1;d<=nd;d++){const r=dayRange(P,d);if(!r)continue;let c=0;for(let i=0;i<N;i++)if(!off[i][d])c++;if(c<r.lo)v+=w.lo*(r.lo-c)*(r.lo-c);if(c>r.hi)v+=w.hi*(c-r.hi);if(r.need)v+=w.need*Math.abs(c-r.target)}
  for(let i=0;i<N;i++){let run=prevRun[i];for(let d=1;d<=nd;d++){run=off[i][d]?0:run+1;if(run>MR(P,i))v+=w.run;if(run>AB)v+=w.run5}
   for(const wk of prep.W[i]){let c=0;for(const d of wk.free)if(off[i][d])c++;v+=w.wk*(Math.max(0,wk.lo-c)+Math.max(0,c-wk.hi))}
 
@@ -134,7 +134,8 @@ function buildLean(P,prep){const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}
  for(let d=1;d<=nd;d++){const rg=dayRange(P,d);if(!rg)continue;const t=[];for(let i=0;i<N;i++)t.push(X(i,d));const e=t.join(" + ");
   /* 足りない人数は1日に集めず散らす（1人目・2人目・3人目以降で重くする） */
   const s1=sl(w8.lo),s2=sl(w8.lo*4),s3=sl(w8.lo*16);cap.push(s1,s2);cons.push(`${e} - ${s1} - ${s2} - ${s3} <= ${N-rg.lo}`);cons.push(`${e} + ${sl(w8.hi)} >= ${Math.max(0,N-rg.hi)}`);
-  if(rg.busy&&rg.target>rg.lo)cons.push(`${e} - ${sl(1)} <= ${Math.max(0,N-rg.target)}`)}
+  if(rg.need){/* 数字を入れた日：その人数に合わせる（繁忙日の次に強く） */const t=Math.max(0,N-rg.target);cons.push(`${e} - ${sl(w8.need)} <= ${t}`);cons.push(`${e} + ${sl(w8.need)} >= ${t}`)}
+  else if(rg.busy&&rg.target>rg.lo)cons.push(`${e} - ${sl(w8.busy)} <= ${Math.max(0,N-rg.target)}`)}
  return `Minimize\n obj: ${obj.length?obj.join(" + "):"0 x0_1"}\nSubject To\n${cons.map((c,j)=>` c${j}: ${c}`).join("\n")}\nBounds\n${cont.map(v=>cap.includes(v)?` 0 <= ${v} <= 1`:` 0 <= ${v}`).join("\n")}\nBinary\n ${bin.join(" ")}\nEnd\n`}
 async function exactBase(P,prep,highs,limitSec){const lp=buildLean(P,prep);let r;
  try{r=highs.solve(lp,{time_limit:limitSec})}catch(e){return null}
@@ -143,7 +144,7 @@ async function exactBase(P,prep,highs,limitSec){const lp=buildLean(P,prep);let r
  return {off,E:0}}
 /* A案・B案を作る */
 async function solvePlans(P,onProgress,highs,limit=12000){const prep=prepare(P);let seed=Date.now()%100000;
- const HARD={iso:0,pair2:0,tri:0,busy:30,need:20,quiet:2};const tick=()=>new Promise(r=>setTimeout(r,30));
+ const HARD={iso:0,pair2:0,tri:0,busy:30,need:3000,quiet:2};const tick=()=>new Promise(r=>setTimeout(r,30));
  onProgress&&onProgress("ルールを守れる組み合わせ");await tick();let base=null;
  if(highs){base=await exactBase(P,prep,highs,Math.round(limit/1000));if(base)base.hard=hardViol(P,prep,base.off)}
  if(!base||base.hard>0){const t0=Date.now();let iters=800000;
