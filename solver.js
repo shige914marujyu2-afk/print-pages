@@ -3,8 +3,8 @@
       cfg:{min,wdMax,beTarget,beMax,weekOff,maxRun,minPairs,tri},offDows[i],wdPair[i],names[i],pastPairs[i],pastTri[i]} */
 (function(root){
 const STYLE={
- A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:300,quiet:20},
- B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:900,quiet:60}};
+ A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:300,quiet:20,dowFair:12},
+ B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:900,quiet:60,dowFair:12}};
 const PEN={run5:1000000,wk:3000000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
 const W8=c=>c.runFirst?{run5:100000,wk:200000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:200000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
 /* 土日祝（全体休を除く）の日か */
@@ -54,7 +54,7 @@ function prepare(P){
  return {W,MF,MT,monthT,notes,weeks,fair:fairOf(P.pastPairs||[]),fair3:fairOf(P.pastTri||[])}}
 function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
  const H=opt.hardMul||1;const PN={};for(const k in PEN)PN[k]=PEN[k]*(k==="off3"||k==="wdp"?1:H);if(P.cfg.runFirst)PN.run=PN.lo*2;
- const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const {W,fair,fair3}=prep;const R=rng(seed);
+ const {N,nd,dow,hol,fixed,prevRun,cfg,offDows,wdPair}=P;const {W,fair,fair3}=prep;const R=rng(seed);const DF=st.dowFair||0;
  const off=[];
  if(opt.init){for(let i=0;i<N;i++)off[i]=opt.init[i].slice()}
  else for(let i=0;i<N;i++){off[i]=new Uint8Array(nd+2);for(let d=1;d<=nd;d++)if(fixed[i][d])off[i][d]=1;
@@ -77,6 +77,8 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
   {let c=0;for(const d of MF[i])if(o[d])c++;p+=300*Math.abs(c-MT[i])}
   for(let d=2;d<nd;d++)if(o[d-1]&&!o[d]&&o[d+1]&&!(fixed[i][d-1]&&fixed[i][d+1]))p+=(P.noIso&&P.noIso[i])?PN.pair:st.iso;
   if(P.weOff&&P.weOff[i]!=null){let c=0;for(let d=1;d<=nd;d++)if(o[d]&&isWE(P,d))c++;const R=P.weOff[i];p+=PN.we*(Math.max(0,R.lo-c)+Math.max(0,c-R.hi))}
+  /* 休みの曜日の偏りを減らす（いちばん下の優先順位）：過去の採用分＋今月の、曜日ごとの休みの数の2乗 */
+  if(DF){const pd=(P.pastDow&&P.pastDow[i])||[0,0,0,0,0,0,0];const c=pd.slice();for(let d=1;d<=nd;d++)if(o[d]&&!hol.has(d)&&fixed[i][d]!=="co")c[dow(d)]++;let q=0;for(let k=0;k<7;k++)q+=c[k]*c[k];p+=DF*q}
   if(opt.ref){const rf=opt.ref[i];let c=0;for(let d=1;d<=nd;d++)if(o[d]!==rf[d])c++;p-=opt.div*Math.min(c,8)}
   return p}
  const dp=d=>{const r=RG[d];if(!r)return 0;const w=work[d];const sh=Math.max(0,r.lo-w),ov=Math.max(0,w-r.hi);let p=PN.lo*sh*sh+PN.hi*ov*ov;

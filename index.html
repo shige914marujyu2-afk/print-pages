@@ -868,7 +868,7 @@ let HIGHS=null;function loadHighs(){if(HIGHS)return Promise.resolve(HIGHS);
   sc.onload=()=>Module(loc).then(h=>ok(HIGHS=h),ng);sc.onerror=ng;document.head.appendChild(sc)})}
 let PLANS=[],PI=0,SET=null;
 function pastStats(){const {y,m}=ymParts();const res={};for(let k=1;k<=6;k++){const d=new Date(y,m-1-k,1);const P=S.months[d.getFullYear()+"-"+(d.getMonth()+1)];if(!P||!P.final)continue;
-  for(const id in P.final){const c=ShiftSolver.countBlocks(P.final[id],P.finalHol||P.hol);const r=res[id]||(res[id]={pairs:0,tri:0});r.pairs+=c.pairs;r.tri+=c.tri}}return res}
+  const yy=d.getFullYear(),mm=d.getMonth()+1;const hs=new Set(P.finalHol||P.hol||[]);for(const id in P.final){const c=ShiftSolver.countBlocks(P.final[id],P.finalHol||P.hol);const r=res[id]||(res[id]={pairs:0,tri:0,dow:[0,0,0,0,0,0,0]});r.pairs+=c.pairs;r.tri+=c.tri;for(const x of (P.final[id]||[])){if(!hs.has(+x))r.dow[new Date(yy,mm-1,+x).getDay()]++}}}return res}
 function setup(){const M=cur(),{nd,dow}=ymParts();const mem=members();const N=mem.length;const hol=new Set(holOf(M));const shuku=new Set(M.shuku.filter(d=>!hol.has(d)));
  const busy=new Set((M.busy||[]).filter(d=>!hol.has(d))),quiet=new Set((M.quiet||[]).filter(d=>!hol.has(d)));
  const ps=pastStats();const fixed=[],prevRun=[],prevOff=[],prevKnown=[];
@@ -878,7 +878,7 @@ function setup(){const M=cur(),{nd,dow}=ymParts();const mem=members();const N=me
  const need={};for(const d in (M.need||{}))if(!hol.has(+d)&&(busy.has(+d)||quiet.has(+d))&&+M.need[d]>0)need[+d]=+M.need[d];
  return {N,nd,dow,hol,shuku,busy,quiet,need,fixed,prevRun,prevOff,prevKnown,wkTotal:Object.fromEntries(holWeekList().map(w=>[w.a,w.val])),cfg:effCfg(),
   offDows:mem.map(m=>m.offDows),wdPair:mem.map(m=>m.pairMode==="wd"),wePair:mem.map(m=>m.pairMode==="we"),maxRunA:mem.map(m=>m.runMax===""||m.runMax==null?4:+m.runMax),minPairsA:mem.map(m=>m.pairs===""||m.pairs==null?1:+m.pairs),wantSets:mem.map((m,i)=>{const e="";if(!e)return [];const L=[];const prevLastOff=prevKnown[i]&&prevOff[i][6];if((e==="start")||(e==="either"&&!prevLastOff))L.push([1]);if(e==="end")L.push([nd]);return L}),noIso:mem.map(m=>!!m.noIso),weOff:mem.map(m=>null),names:mem.map(m=>m.name),
-  pastPairs:mem.map(m=>(ps[m.id]||{}).pairs||0),pastTri:mem.map(m=>(ps[m.id]||{}).tri||0),mem}}
+  pastPairs:mem.map(m=>(ps[m.id]||{}).pairs||0),pastTri:mem.map(m=>(ps[m.id]||{}).tri||0),pastDow:mem.map(m=>(ps[m.id]||{}).dow||[0,0,0,0,0,0,0]),mem}}
 function mkPop(st,tip,done){let bg=$("mkPop");if(!bg){bg=document.createElement("div");bg.id="mkPop";bg.innerHTML=`<div class="pop"><div class="spin"></div><div class="st"></div><div class="tip"></div><div class="tm"></div></div>`;document.body.appendChild(bg)}
  bg.querySelector(".st").textContent=st;if(tip!=null)bg.querySelector(".tip").textContent=tip;bg.querySelector(".spin").style.display=done?"none":"block"}
 function mkPopClose(){const b=$("mkPop");if(b)b.remove()}
