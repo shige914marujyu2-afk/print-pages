@@ -411,6 +411,7 @@ document.addEventListener("DOMContentLoaded",thLabel);
 <section id="p5" hidden>
  <div class="stepintro"><b class="t">⑤ 便利な機能</b>データを管理者に送る・印刷物をファイルにする・要望を送る、ができます。</div>
  <button type="button" class="btn" style="background:#7a4fb3;width:100%;margin:0 0 10px" onclick="playVid('media/benri.mp4','便利な機能')">▶ 便利な機能の動画（約1分20秒）</button>
+ <button type="button" class="btn sub" style="width:100%;margin:0 0 10px" onclick="icoPanel()">🎨 アイコンの色と文字を変える</button>
  <details class="card fold5" hidden style="display:none"><summary><b>🔑 管理者の方へ</b>（タップで開く）</summary>
   <p class="hint" style="margin:6px 0">管理者は、下の「データを管理者に送る」は使わなくて大丈夫です。<br>右上の🔑<b>管理者メニュー</b> →「📦 拠点のデータ」→「この端末のデータ」→「<b>データを登録</b>」をすると、その拠点の全員の端末に「新しいデータがあります」と出て、入れ替えるとこの端末と同じ内容になります。</p>
   <details style="margin-top:6px"><summary>今までの「書き出す・読み込む」（手作業での引っ越し）</summary>
@@ -522,6 +523,31 @@ async function consentLoad(){const box=$("cnList");if(!box)return;try{const j=aw
  const rows=all.map(e=>{const c=by[e];const ok=c&&c.ver===j.ver;return `<div style="display:flex;justify-content:space-between;gap:6px;padding:3px 0;font-size:13px"><span style="word-break:break-all">${esc(e)}</span><span style="flex:none;color:${ok?"#2a9d8f":"#c0303a"}">${ok?"✓ "+fmt(c.at):c?"旧版に同意":"未同意"}</span></div>`});
  box.innerHTML=rows.join("")||"<div class=admD>まだ記録がありません</div>"}catch(e){box.textContent="読み込めませんでした"}}
 window.addEventListener("load",()=>consentCheck());
+/* アイコンの色と文字（回送ナビと同じ仕組み）。選んだ色はこの端末だけ。何も選んでいなければ赤＋「シフト表」 */
+const ICOL={red:['赤','#d9332b','#141416'],blue:['青','#2f6fe0','#141416'],green:['緑','#1fa463','#141416'],orange:['橙','#f08a1c','#141416'],navyred:['紺の地＋赤','#d9332b','#13234a'],navycyan:['紺の地＋水色','#3cc3f0','#13234a']};
+const ICO_DEF='シフト表';
+function icoGet(){let o={};try{o=JSON.parse(localStorage.getItem('shift_icon')||'{}')}catch(_){}return {c:ICOL[o.c]?o.c:'red',t:(o.t||ICO_DEF).slice(0,10)}}
+function icoDraw(c,t,n){const k=ICOL[c]||ICOL.red;const cv=document.createElement('canvas');cv.width=cv.height=n;const x=cv.getContext('2d');x.scale(n/180,n/180);
+ x.fillStyle=k[2];x.fillRect(0,0,180,180);x.fillStyle=k[1];x.fillRect(0,0,22,180);x.fillRect(36,86,130,4);
+ const F=(w,px)=>w+' '+px+'px "Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif';x.fillStyle='#fff';x.textAlign='center';x.textBaseline='alphabetic';
+ x.font=F(700,44);try{x.letterSpacing='4px'}catch(_){}x.fillText('いすゞ',103,74);try{x.letterSpacing='0px'}catch(_){}
+ let px=36;x.font=F(700,px);while(px>14&&x.measureText(t).width>136){px--;x.font=F(700,px)}x.fillText(t,101,123+px*.42);return cv.toDataURL('image/png')}
+function icoApply(){try{const o=icoGet();const mt=document.querySelector('meta[name="apple-mobile-web-app-title"]');if(mt)mt.setAttribute('content',o.t);document.title=o.t;
+ const a=document.querySelector('link[rel="apple-touch-icon"]');if(a)a.href=icoDraw(o.c,o.t,180);const f=document.querySelector('link[rel="icon"]');if(f)f.href=icoDraw(o.c,o.t,64)}catch(_){}}
+function icoPanel(){const o=icoGet();let c=o.c;
+ obShow(`<div class="ico">🎨</div><h2>アイコンの色と文字</h2><p style="font-size:14px;margin:0 0 8px">選んだ色は、この端末だけに効きます。</p>
+ <div id="icg" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start"></div>
+ <label style="display:block;margin-top:12px;font-weight:700">下の段の文字（10文字まで）</label>
+ <input type="text" id="ict" maxlength="10" value="${esc(o.t)}" style="width:100%;font-size:18px;padding:8px;box-sizing:border-box">
+ <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">${['シフト表','シフト','勤務表'].map(v=>`<button type="button" class="btn sub small" data-ictv="${v}" style="margin:0">${v}</button>`).join('')}</div>
+ <button class="btn big" id="icok" style="margin-top:12px">これにする</button><button class="btn sub" style="width:100%;margin-top:6px" onclick="obHide()">やめる</button>`);
+ const draw=()=>{const t=$('ict').value.trim()||ICO_DEF;$('icg').innerHTML=Object.keys(ICOL).map(k=>`<button type="button" data-icc="${k}" style="border:3px solid ${k===c?'#f5c542':'transparent'};background:none;padding:2px;cursor:pointer;color:inherit"><img src="${icoDraw(k,t,120)}" style="width:100%;border-radius:18%;display:block"><span style="font-size:12px">${ICOL[k][0]}</span></button>`).join('');
+  document.querySelectorAll('[data-icc]').forEach(b=>b.onclick=()=>{c=b.dataset.icc;draw()})};
+ draw();$('ict').oninput=draw;document.querySelectorAll('[data-ictv]').forEach(b=>b.onclick=()=>{$('ict').value=b.dataset.ictv;draw()});
+ $('icok').onclick=()=>{const t=$('ict').value.trim()||ICO_DEF;const ch=c!==o.c||t!==o.t;try{localStorage.setItem('shift_icon',JSON.stringify({c,t}))}catch(_){}icoApply();obHide();
+  if(ch)pop('📱','アイコンを変えました',`パソコンのタブのアイコンと名前は、すぐ変わります。ホーム画面に追加する時の名前も「${esc(t)}」になります。<br><br><b>iPhoneのホーム画面のアイコンは、追加した時のまま</b>です。変えるには、今のアイコンを長押しして消し、<b>今開いているブラウザ</b>でこの画面を開いて、もう一度［ホーム画面に追加］してください。<br><br>※SafariとChromeは覚え場所が別です。ホーム画面に追加するブラウザで、色を選んでください。`)}}
+icoApply();
+
 verCheck();document.addEventListener("visibilitychange",()=>{if(!document.hidden)verCheck()});window.addEventListener("pageshow",()=>verCheck());window.addEventListener("focus",()=>verCheck());setInterval(()=>{if(!document.hidden)verCheck()},120000);
 </script>
 <script>
