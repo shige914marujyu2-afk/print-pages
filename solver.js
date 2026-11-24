@@ -3,8 +3,8 @@
       cfg:{min,wdMax,beTarget,beMax,weekOff,maxRun,minPairs,tri},offDows[i],wdPair[i],names[i],pastPairs[i],pastTri[i]} */
 (function(root){
 const STYLE={
- A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:9000,quiet:20,dowFair:20},
- B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:10000,quiet:60,dowFair:20}};
+ A:{label:"A案",desc:"飛び石の休み（休→出→休）を作らず、休みをまとめる",iso:400,pair2:150,tri:400,busy:20000,need:15000,quiet:20,dowFair:20},
+ B:{label:"B案",desc:"繁忙日の出勤人数を最優先（飛び石の休みもあり）",iso:2,pair2:40,tri:250,busy:30000,need:15000,quiet:60,dowFair:20}};
 const PEN={run5:1000000,wk:3000000,lo:20000,run:8000,hi:1500,pair:3000,dowp:2000,we:1200,off3:30,wdp:40};
 const W8=c=>c.runFirst?{run5:100000,wk:200000,lo:100,run:1000,hi:20,pair:8,dow:6,we:5}:{run5:100000,wk:200000,lo:1000,run:200,hi:20,pair:8,dow:6,we:5};
 /* 土日祝（全体休を除く）の日か */
@@ -16,7 +16,7 @@ function weeksOf(P){const w=[];let s=1;while(s<=P.nd){let e=s;while(e<P.nd&&P.do
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 /* 日ごとの出勤人数：繁忙日＝最低〜12人（できれば11人以上）、閑散日＝最低より少なくてもよい、普通の日＝最低〜11人 */
 function dayRange(P,d){const c=P.cfg;if(P.hol.has(d))return null;const b=P.busy.has(d),q=P.quiet&&P.quiet.has(d);
- const nd0=P.need&&P.need[d];if(nd0){const n=Math.max(1,Math.min(P.N,nd0));if(q)return {lo:n,hi:Math.max(n,c.min),target:null,busy:false,quiet:true};return {lo:Math.min(n,c.min),hi:Math.max(n,c.min),target:n,busy:true}}
+ const nd0=P.need&&P.need[d];if(nd0){const n=Math.max(1,Math.min(P.N,nd0));if(q)return {lo:n,hi:Math.max(n,c.min),target:n,busy:false,quiet:true,need:true};return {lo:Math.min(n,c.min),hi:Math.max(n,c.min),target:n,busy:true,need:true}}
  if(q)return {lo:Math.max(1,c.min-2),hi:c.min,target:null,busy:false,quiet:true};
  return {lo:c.min,hi:b?c.beMax:c.wdMax,target:b?c.beTarget:null,busy:b}}
 const isWDf=P=>d=>{const q=P.dow(d);return q>=1&&q<=5&&!P.hol.has(d)&&!P.shuku.has(d)};
@@ -82,7 +82,9 @@ function solve(P,prep,st,seed,iters,opt={}){const MF=prep.MF,MT=prep.MT;
   if(opt.ref){const rf=opt.ref[i];let c=0;for(let d=1;d<=nd;d++)if(o[d]!==rf[d])c++;p-=opt.div*Math.min(c,8)}
   return p}
  const dp=d=>{const r=RG[d];if(!r)return 0;const w=work[d];const sh=Math.max(0,r.lo-w),ov=Math.max(0,w-r.hi);let p=PN.lo*sh*sh+PN.hi*ov*ov;
-  if(r.busy)p+=st.busy*Math.max(0,r.target-w)+5*Math.max(0,r.hi-w);else p+=st.quiet*Math.max(0,w-r.lo);return p};
+  /* 数字を入れた繁忙日・閑散日：その人数に合わせる（繁忙日の人数の次・曜日指定より上） */
+  if(r.need)p+=st.need*Math.abs(w-r.target);
+  else if(r.busy)p+=st.busy*Math.max(0,r.target-w)+5*Math.max(0,r.hi-w);else p+=st.quiet*Math.max(0,w-r.lo);return p};
  const Pp=new Float64Array(N);let E=0;for(let i=0;i<N;i++){Pp[i]=pp(i);E+=Pp[i]}for(let d=1;d<=nd;d++)E+=dp(d);
  const slots=[];for(let i=0;i<N;i++)W[i].forEach(w=>{if(w.free.length)slots.push([i,w])});
  let best=E,bestOff=off.map(x=>x.slice());if(!slots.length)return {off:bestOff,E:best};
@@ -141,7 +143,7 @@ async function exactBase(P,prep,highs,limitSec){const lp=buildLean(P,prep);let r
  return {off,E:0}}
 /* A案・B案を作る */
 async function solvePlans(P,onProgress,highs,limit=12000){const prep=prepare(P);let seed=Date.now()%100000;
- const HARD={iso:0,pair2:0,tri:0,busy:30,quiet:2};const tick=()=>new Promise(r=>setTimeout(r,30));
+ const HARD={iso:0,pair2:0,tri:0,busy:30,need:20,quiet:2};const tick=()=>new Promise(r=>setTimeout(r,30));
  onProgress&&onProgress("ルールを守れる組み合わせ");await tick();let base=null;
  if(highs){base=await exactBase(P,prep,highs,Math.round(limit/1000));if(base)base.hard=hardViol(P,prep,base.off)}
  if(!base||base.hard>0){const t0=Date.now();let iters=800000;
