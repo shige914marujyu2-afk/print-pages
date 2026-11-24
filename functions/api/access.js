@@ -56,9 +56,15 @@ async function adminPolicy(env, create) {
 }
 
 // 使用承諾書の版（文面を変えたら、この値を変える。変えると全員がもう一度同意する）
-const CONSENT_VER = "2026-11-22b";
+const CONSENT_VER = "2026-11-24a";
 async function consentOf(env, me) { return env.SHIFT_KV ? await env.SHIFT_KV.get("consent:" + me, "json") : null; }
 async function consentOk(env, me) { const c = await consentOf(env, me); return !!c && c.ver === CONSENT_VER; }
+// フルネーム：管理者が入れた名前（admin）と本人が入れた名前（self）。本人の名前を優先
+const cleanName = v => String(v || "").replace(/[<>"'&\u0000-\u001f]/g, "").trim().slice(0, 30);
+async function nameRec(env, e) { return env.SHIFT_KV ? (await env.SHIFT_KV.get("name:" + e, "json")) || {} : {}; }
+async function nameSet(env, e, k, v) { if (!env.SHIFT_KV) return; const r = await nameRec(env, e); if (v) r[k] = v; else delete r[k]; await env.SHIFT_KV.put("name:" + e, JSON.stringify(r)); }
+const nameOf = r => r.self || r.admin || "";
+async function namesOf(env, list) { const o = {}; for (const e of list) { const n = nameOf(await nameRec(env, e)); if (n) o[e] = n; } return o; }
 const NOCONSENT = () => J({ error: "使用承諾書への同意が必要です", consent: true }, 403);
 
 const DEF_BASES = ["八王子", "東村山", "瑞穂"];
@@ -79,7 +85,7 @@ export async function onRequest({ request, env }) {
     if (!me) return J({ error: "ログインが確認できません" }, 401);
     const url = new URL(request.url), op = url.searchParams.get("op");
     // だれでも（ログインした人）：使用承諾書の状態・同意する
-    if (request.method === "GET" && op === "consent") { const c = await consentOf(env, me); return J({ ver: CONSENT_VER, agreed: !!c && c.ver === CONSENT_VER, at: c ? c.at : null }); }
+    if (request.method === "GET" && op === "consent") { const c = await consentOf(env, me); return J({ ver: CONSENT_VER, agreed: !!c && c.ver === CONSENT_VER, at: c ? c.at : null, name: nameOf(await nameRec(env, me)) }); }
     // だれでも（ログインした人）：拠点の一覧・拠点のデータ
     if (request.method === "GET" && op === "bases") return J({ bases: await getBases(env) });
     if (request.method === "GET" && op === "data") {
@@ -94,9 +100,12 @@ export async function onRequest({ request, env }) {
       const body0 = await request.clone().json().catch(() => ({}));
       if (body0.action === "consent") {
         if (body0.agree !== true || body0.ver !== CONSENT_VER) return J({ error: "承諾書の版が新しくなっています。画面を更新してください" }, 400);
+        const nm = cleanName(body0.name);
+        if (nm.length < 2) return J({ error: "フルネームを入れてください" }, 400);
+        await nameSet(env, me, "self", nm);
         const old = await consentOf(env, me);
         const at = Date.now();
-        await env.SHIFT_KV.put("consent:" + me, JSON.stringify({ email: me, ver: CONSENT_VER, at, history: [...((old && old.history) || []).slice(-19), { ver: CONSENT_VER, at }] }));
+        await env.SHIFT_KV.put("consent:" + me, JSON.stringify({ email: me, name: nm, ver: CONSENT_VER, at, history: [...((old && old.history) || []).slice(-19), { ver: CONSENT_VER, at }] }));
         return J({ ok: true, ver: CONSENT_VER, at });
       }
       if ((body0.action === "sendData" || body0.action === "request") && !(await consentOk(env, me))) return NOCONSENT();
@@ -138,7 +147,7 @@ export async function onRequest({ request, env }) {
     if (request.method === "GET" && env.SHIFT_KV && op2 === "consents") {
       const ls = await env.SHIFT_KV.list({ prefix: "consent:" });
       const out = [];
-      for (const k of ls.keys) { const v = await env.SHIFT_KV.get(k.name, "json"); if (v) out.push({ email: v.email, ver: v.ver, at: v.at }); }
+      for (const k of ls.keys) { const v = await env.SHIFT_KV.get(k.name, "json"); if (v) out.push({ email: v.email, name: v.name || "", ver: v.ver, at: v.at }); }
       out.sort((a, b) => b.at - a.at);
       return J({ ver: CONSENT_VER, items: out });
     }
@@ -181,7 +190,11 @@ export async function onRequest({ request, env }) {
       }
       const e = low(email);
       if (!okMail(e)) return J({ error: "メールアドレスの形が正しくありません" }, 400);
-      if (action === "addMember") {
+      if (action === "setName") {
+        if (!members.includes(e)) return J({ error: "登録利用者にいないメールです" }, 400);
+        await nameSet(env, e, "admin", cleanName(body.name));
+      } else if (action === "addMember") {
+        if (body.name) await nameSet(env, e, "admin", cleanName(body.name));
         if (!members.includes(e)) members = emailsOf(await putEmails(env, mpol, [...members, e]));
       } else if (action === "removeMember") {
         if (e === owner) return J({ error: "ソフト開発者は消せません" }, 400);
@@ -202,7 +215,8 @@ export async function onRequest({ request, env }) {
       } else return J({ error: "不明な操作" }, 400);
     }
     const ap2 = await adminPolicy(env, false);
-    return J({ me, role, setup: true, owner, members, admins: ap2 ? emailsOf(ap2) : [] });
+    const admins2 = ap2 ? emailsOf(ap2) : [];
+    return J({ me, role, setup: true, owner, members, admins: admins2, names: await namesOf(env, [...new Set([...members, ...admins2, owner])]) });
   } catch (err) {
     return J({ error: String(err.message || err) }, 500);
   }
