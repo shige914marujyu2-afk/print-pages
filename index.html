@@ -319,6 +319,9 @@ html body .tabs button{background:#1d1e22!important;background-image:linear-grad
 html body .tabs button:active{transform:translateY(3px)}
 html body .tabs button.on{background:var(--tile-red)!important;background-image:linear-gradient(rgba(255,255,255,.2),rgba(0,0,0,.15))!important;border-color:var(--tile-red)!important;color:#fff!important}
 html body #admBg .btn.sub:not(.small){border-left-color:var(--tile-red)!important}
+html body .btn.sub.hcb.on{background:var(--tile-red)!important;background-image:linear-gradient(rgba(255,255,255,.2),rgba(0,0,0,.15))!important;border-color:var(--tile-red)!important;color:#fff!important}
+/* パソコンで開いた時：回送ナビと同じく、真ん中に幅をしぼって並べる */
+@media screen and (min-width:960px){html{background:var(--bg)}html body{max-width:900px;margin:0 auto!important;padding-left:20px!important;padding-right:20px!important;box-sizing:border-box}html body .tabs{max-width:900px}}
 /* ===== ここまで ===== */
 </style>
 </head>
